@@ -44,7 +44,7 @@ text/rtx
 text/SGML
 text/shaclc
 text/shex
-text/spdx
+text/spx
 text/strings
 text/t140
 text/tab-separated-values
@@ -94,3 +94,9 @@ text/vtt
 text/wgsl
 text/xml
 text/xml-external-parsed-entity
+application/pdf
+application/json
+application/msword
+application/vnd.openxmlformats-officedocument.wordprocessingml.document
+application/vnd.ms-excel
+application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
