@@ -138,7 +138,9 @@ class StorageProvider:
         contents, file_path = self._upload_to_local(contents, filename)
 
         if self.storage_provider == "s3":
-            return self._upload_to_s3(file_path, filename)
+            uploaded_file = self._upload_to_s3(file_path, filename)
+            self._delete_from_local(filename)
+            return uploaded_file
         return contents, file_path
 
     def get_file(self, file_path: str) -> str:

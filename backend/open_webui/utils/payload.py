@@ -11,7 +11,7 @@ from fastapi import HTTPException, status
 def get_acceptable_types() -> list[str]:
     if not hasattr(get_acceptable_types, "mime_types"):
         with open("open_webui/utils/text_mimes.txt", "r") as mimes_file:
-            get_acceptable_types.mime_types = mimes_file.readlines()
+            get_acceptable_types.mime_types = mimes_file.read().split("\n")
     return get_acceptable_types.mime_types
 
 
