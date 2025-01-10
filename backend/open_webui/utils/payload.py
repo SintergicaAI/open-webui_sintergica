@@ -5,6 +5,23 @@ from open_webui.utils.misc import (
 
 from typing import Callable, Optional
 
+from fastapi import HTTPException, status
+
+
+def get_acceptable_types() -> list[str]:
+    if not hasattr(get_acceptable_types, "mime_types"):
+        with open("open_webui/utils/text_mimes.txt", "r") as mimes_file:
+            get_acceptable_types.mime_types = mimes_file.readlines()
+    return get_acceptable_types.mime_types
+
+
+def validate_type(mime_type: str):
+    if not mime_type in get_acceptable_types():
+        raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            detail="MEDIA TYPE NOT SUPPORTED"
+        )
+
 
 # inplace function: form_data is modified
 def apply_model_system_prompt_to_body(params: dict, form_data: dict, user) -> dict:
@@ -28,7 +45,7 @@ def apply_model_system_prompt_to_body(params: dict, form_data: dict, user) -> di
 
 # inplace function: form_data is modified
 def apply_model_params_to_body(
-    params: dict, form_data: dict, mappings: dict[str, Callable]
+        params: dict, form_data: dict, mappings: dict[str, Callable]
 ) -> dict:
     if not params:
         return form_data

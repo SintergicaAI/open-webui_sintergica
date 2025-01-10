@@ -21,29 +21,29 @@ from open_webui.config import UPLOAD_DIR
 from open_webui.env import SRC_LOG_LEVELS
 from open_webui.constants import ERROR_MESSAGES
 
-
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status, Request
 from fastapi.responses import FileResponse, StreamingResponse
 
-
 from open_webui.utils.auth import get_admin_user, get_verified_user
-
+from open_webui.utils import payload
 log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["MODELS"])
 
-
 router = APIRouter()
+
 
 ############################
 # Upload File
 ############################
 
-
 @router.post("/", response_model=FileModelResponse)
 def upload_file(
-    request: Request, file: UploadFile = File(...), user=Depends(get_verified_user)
+        request: Request, file: UploadFile = File(...), user=Depends(get_verified_user)
 ):
     log.info(f"file.content_type: {file.content_type}")
+
+    payload.validate_type(file.content_type)
+
     try:
         unsanitized_filename = file.filename
         filename = os.path.basename(unsanitized_filename)
@@ -186,7 +186,7 @@ class ContentForm(BaseModel):
 
 @router.post("/{id}/data/content/update")
 async def update_file_data_content_by_id(
-    request: Request, id: str, form_data: ContentForm, user=Depends(get_verified_user)
+        request: Request, id: str, form_data: ContentForm, user=Depends(get_verified_user)
 ):
     file = Files.get_file_by_id(id)
 
