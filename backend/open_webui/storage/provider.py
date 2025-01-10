@@ -92,6 +92,9 @@ class StorageProvider:
         except ClientError as e:
             raise RuntimeError(f"Error deleting file from S3: {e}")
 
+    def delete_from_local(self, filename: str) -> None:
+        self._delete_from_local(filename)
+
     def _delete_from_local(self, filename: str) -> None:
         """Handles deletion of the file from local storage."""
         file_path = f"{UPLOAD_DIR}/{filename}"
@@ -139,7 +142,7 @@ class StorageProvider:
 
         if self.storage_provider == "s3":
             uploaded_file = self._upload_to_s3(file_path, filename)
-            self._delete_from_local(filename)
+            self._delete_from_local(uploaded_file[1].split("/")[-1])
             return uploaded_file
         return contents, file_path
 

@@ -26,6 +26,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 
 from open_webui.utils.auth import get_admin_user, get_verified_user
 from open_webui.utils import payload
+
 log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["MODELS"])
 
@@ -84,6 +85,7 @@ def upload_file(
             )
 
         if file_item:
+            Storage.delete_from_local(file_path.split("/")[-1])
             return file_item
         else:
             raise HTTPException(

@@ -30,7 +30,7 @@ services:
       - host.docker.internal:host-gateway
     volumes:
       - ./backend:/app/backend
-      - data:/app/backend/data
+      - /home/user00/Público:/app/backend/data
 
 volumes:
   data: {}
