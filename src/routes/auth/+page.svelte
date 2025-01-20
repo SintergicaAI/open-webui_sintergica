@@ -13,6 +13,8 @@
 
 	import { generateInitialsImage } from '$lib/utils';
 	import OnBoarding from '$lib/components/OnBoarding.svelte';
+	import Carousel from '$lib/components/common/Carousel.svelte';
+
 
 	const i18n = getContext('i18n');
 
@@ -29,9 +31,35 @@
 	let isDarkMode = localStorage.getItem('theme');
 	let videoSrc = '';
 
+	let installPromptEvent = null;
+	let showInstallButton = false;
+
+
+
+
 	const checkDarkMode = () => {
 		return document.documentElement.classList.contains('dark');
 	}
+
+	const installApp = async () => {
+		if (installPromptEvent) {
+			installPromptEvent.prompt();
+			const choiceResult = await installPromptEvent.userChoice;
+			if (choiceResult.outcome === 'accepted') {
+				console.log('User accepted the A2HS prompt');
+			} else {
+				console.log('User dismissed the A2HS prompt');
+			}
+			installPromptEvent = null;
+			showInstallButton = false;
+		}
+	}
+
+	window.addEventListener('beforeinstallprompt', (e) => {
+		e.preventDefault();
+		installPromptEvent = e;
+		showInstallButton = true;
+	})
 
 	const setSessionUser = async (sessionUser) => {
 		if (sessionUser) {
@@ -148,6 +176,12 @@
 			: `${WEBUI_BASE_URL}/static/1.0.mp4`;
 	};
 
+	const slides = [
+		'/assets/images/galaxy.jpg',
+		'/assets/images/space.jpg',
+		'/assets/images/earth.jpg',
+		'/assets/images/adam.jpg',
+	];
 
 </script>
 
@@ -292,9 +326,10 @@
 					</form>
 				</div>
 
-				<div class="hidden sm:w-1/2 sm:block overflow-hidden bg-white dark:bg-gray-800">
-					<video autoplay muted class=" w-full h-full object-cover rounded-l-lg pr-1"
-								 poster="/static/splash.png" src={videoSrc} />
+				<div class="sm:w-1/2 min-h-[100vh] bg-[#f0f2f5] dark:bg-[#14171B] flex flex-col justify-center items-center gap-5">
+					<Carousel slides={slides} autoplay={true} interval={5000} showArrows={false}/>
+
+					<button type="button" on:click={installApp()}>Instalar Aplicación</button>
 				</div>
 
 			</div>
