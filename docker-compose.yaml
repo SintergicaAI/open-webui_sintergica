@@ -30,5 +30,6 @@ services:
     restart: unless-stopped
 
 volumes:
-  ollama: {}
+  ollama:
+    external: true
   open-webui: {}
