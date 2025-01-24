@@ -186,6 +186,7 @@
 	"Confirm your new password": "",
 	"Connections": "Conexiones",
 	"Contact Admin for WebUI Access": "Contacta el administrador para obtener acceso al WebUI",
+	"Please contact the administrator to request access": "Por favor contacta al administrador para solicitar acceso",
 	"Content": "Contenido",
 	"Content Extraction": "Extracción de contenido",
 	"Context Length": "Longitud del contexto",
@@ -1047,6 +1048,7 @@
 	"You're a helpful assistant.": "Usted es un asistente útil.",
 	"You're now logged in.": "Usted ahora está conectado.",
 	"Your account status is currently pending activation.": "El estado de su cuenta actualmente se encuentra pendiente de activación.",
+	
 	"Your entire contribution will go directly to the plugin developer; Open WebUI does not take any percentage. However, the chosen funding platform might have its own fees.": "Su contribución completa irá directamente a el desarrollador del plugin; Open WebUI no toma ningun porcentaje. Sin embargo, la plataforma de financiación elegida podría tener sus propias tarifas.",
 	"Youtube": "Youtube",
 	"Youtube Loader Settings": "Configuración del cargador de Youtube"

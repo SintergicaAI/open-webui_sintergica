@@ -22,7 +22,7 @@
 			<div class="max-w-md">
 				<div class="text-center dark:text-white text-2xl font-medium z-50">
 					{$i18n.t('Account Activation Pending')}<br />
-					{$i18n.t('Contact Admin for WebUI Access')}
+					{$i18n.t('Please contact the administrator to request access')}
 				</div>
 
 				<div class=" mt-4 text-center text-sm dark:text-gray-200 w-full">

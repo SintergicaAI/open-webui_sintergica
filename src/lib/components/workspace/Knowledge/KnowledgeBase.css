@@ -1,0 +1,125 @@
+.workspace {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.workspace__header {
+    padding: 20px;
+    background-color: #1c1c1e;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.workspace__main {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.workspace__main-title {
+    margin-bottom: 10px;
+}
+
+.workspace__document-filters {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.workspace__filter {
+    display: flex;
+    align-items: center;
+}
+
+.workspace__filter--document{
+    background-color: #342816;
+    border-radius: 5px;
+    color: #FDCB4A;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.workspace__filter--document:hover {
+
+}
+
+.workspace__filter--website {
+    background-color: #1A2D4B;
+    color: #7DB8FF;
+}
+
+.workspace__filter--rich-text {
+    background-color: #392035;
+    color: #FF79C6;
+}
+
+.workspace__filter-input {
+    display: none; /* Oculta el checkbox */
+}
+
+.workspace__filter-label {
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.workspace__filter-input:checked + .workspace__filter-label {
+    background-color: #007aff; /* Color cuando está seleccionado */
+}
+
+.workspace__document-list {
+    margin: 20px 0;
+}
+
+.workspace__document-item {
+    background-color: #3a3a3c;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 10px 0;
+    cursor: pointer; /* Cambia el cursor para indicar que es seleccionable */
+}
+
+.workspace__document-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px; /* Espacio entre el icono y el texto */
+}
+
+.workspace__btn-delete {
+    background-color: #ff3b30;
+    border: none;
+    color: #ffffff;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.workspace__file-upload {
+    margin: 20px 0;
+}
+
+.workspace__content-panel {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #3a3a3c;
+    border-radius: 8px;
+}
+
+.workspace__content-display {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #4a4a4c;
+    border-radius: 5px;
+}
+
+@media (max-width: 768px) {
+    .workspace {
+        flex-direction: column;
+    }
+
+    .workspace__sidebar {
+        width: 100%;
+    }
+}

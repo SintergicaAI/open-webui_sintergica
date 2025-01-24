@@ -1,10 +1,11 @@
 <script lang="ts">
 	import Fuse from 'fuse.js';
-	import { toast } from 'svelte-sonner';
+	import { Icon, toast } from 'svelte-sonner';
 	import { v4 as uuidv4 } from 'uuid';
 	import { PaneGroup, Pane, PaneResizer } from 'paneforge';
 
 	import { onMount, getContext, onDestroy, tick } from 'svelte';
+
 	const i18n = getContext('i18n');
 
 	import { goto } from '$app/navigation';
@@ -40,6 +41,17 @@
 	import ChevronLeft from '$lib/components/icons/ChevronLeft.svelte';
 	import LockClosed from '$lib/components/icons/LockClosed.svelte';
 	import AccessControlModal from '../common/AccessControlModal.svelte';
+
+	import './KnowledgeBase.css';
+	import Document from '$lib/components/icons/Document.svelte';
+	import DocumentDuplicate from '$lib/components/icons/DocumentDuplicate.svelte';
+	import Website from '$lib/components/icons/Website.svelte';
+	import Markdown from '$lib/components/icons/Markdown.svelte';
+	import Badge from '$lib/components/common/Badge.svelte';
+	import FiltersSelector from '$lib/components/workspace/Models/FiltersSelector.svelte';
+	import Filter from '$lib/components/common/Filter.svelte';
+	import Bookmark from '$lib/components/icons/Bookmark.svelte';
+	import Filters from '$lib/components/common/Filters.svelte';
 
 	let largeScreen = true;
 
@@ -77,8 +89,8 @@
 	$: if (fuse) {
 		filteredItems = query
 			? fuse.search(query).map((e) => {
-					return e.item;
-				})
+				return e.item;
+			})
 			: (knowledge?.files ?? []);
 	}
 
@@ -113,15 +125,6 @@
 	const uploadFileHandler = async (file) => {
 		console.log(file);
 
-		let allowedMimeTypes = [
-			'text/plain',
-			'application/pdf',
-			'application/msword',
-			'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
-			'application/vnd.ms-excel', // .xls
-			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-		];
-
 		const tempItemId = uuidv4();
 		const fileItem = {
 			type: 'file',
@@ -134,11 +137,6 @@
 			error: '',
 			itemId: tempItemId
 		};
-
-		if(!allowedMimeTypes.includes(file.type) || file.type === ''){
-			toast.error('Try');
-			return null;
-		}
 
 		if (fileItem.size == 0) {
 			toast.error($i18n.t('You cannot upload an empty file.'));
@@ -555,6 +553,7 @@
 		dropZone?.removeEventListener('drop', onDrop);
 		dropZone?.removeEventListener('dragleave', onDragLeave);
 	});
+	let filters = ['documents', 'images', 'videos', 'audio', 'spreadsheets', 'presentations'];
 </script>
 
 {#if dragged}
@@ -622,7 +621,6 @@
 	}}
 />
 
-<KnowledgeBasePage />
 <div class="flex flex-col w-full translate-y-1" id="collection-container">
 	{#if id && knowledge}
 		<AccessControlModal
@@ -632,6 +630,8 @@
 				changeDebounceHandler();
 			}}
 		/>
+
+		<!-- Header -->
 		<div class="w-full mb-2.5">
 			<div class=" flex w-full">
 				<div class="flex-1">
@@ -680,6 +680,7 @@
 			</div>
 		</div>
 
+		<!-- -->
 		<div class="flex flex-row flex-1 h-full max-h-full pb-2.5 gap-3">
 			{#if largeScreen}
 				<div class="flex-1 flex justify-start w-full h-full max-h-full">
@@ -809,6 +810,8 @@
 				<div class=" flex flex-col w-full space-x-2 rounded-lg h-full">
 					<div class="w-full h-full flex flex-col">
 						<div class=" px-3">
+
+
 							<div class="flex mb-0.5">
 								<div class=" self-center ml-1 mr-3">
 									<svg
@@ -832,7 +835,6 @@
 										selectedFileId = null;
 									}}
 								/>
-
 								<div>
 									<AddContentMenu
 										on:upload={(e) => {
@@ -851,6 +853,28 @@
 								</div>
 							</div>
 						</div>
+
+						<Filters>
+							<Filter text="All" color="gray">
+								<Icon slot="icon" />
+							</Filter>
+							<Filter text="documents" color="blue">
+								<DocumentDuplicate slot="icon" />
+							</Filter>
+							<Filter text="tablas" color="teal">
+								<Bookmark slot="icon" />
+							</Filter>
+							<Filter text="Website" color="pink">
+								<Markdown slot="icon" />
+							</Filter>
+							<Filter text="All" color="blue">
+								<Markdown slot="icon" />
+							</Filter>
+							<Filter text="All" color="blue">
+								<Markdown slot="icon" />
+							</Filter>
+						</Filters>
+
 
 						{#if filteredItems.length > 0}
 							<div class=" flex overflow-y-auto h-full w-full scrollbar-hidden text-xs">
