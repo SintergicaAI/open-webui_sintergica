@@ -54,8 +54,8 @@
 
   <!-- Flechas de navegación -->
   {#if showArrows}
-    <button class="arrow prev" on:click={prevSlide}>&lt;</button>
-    <button class="arrow next" on:click={nextSlide}>&gt;</button>
+    <button class="arrow prev" on:click={prevSlide}>↑</button>
+    <button class="arrow next" on:click={nextSlide}>↓</button>
   {/if}
 
   <!-- Dots para navegar entre diapositivas -->
@@ -75,65 +75,49 @@
   .carousel {
     position: relative;
     width: 100%;
-    max-width: 800px;
     margin: 0 auto;
     overflow: hidden;
-    border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
   .slides {
     display: flex;
+    flex-direction: column; /* Cambia de un carrusel horizontal a uno vertical */
+    height: 100vh; /* Tamaño para ajustarse a toda la pantalla */
     transition: transform 0.5s ease-in-out;
-    transform: translateX(calc(-100% * var(--currentSlide)));
+    transform: translateY(calc(-100% * var(--currentSlide))); /* Control deslizante vertical */
   }
 
   .slide {
-    min-width: 100%;
-    height: 400px;
+    min-height: 100%;
+    width: 100%; /* Ocupa todo el ancho */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
   }
 
-  /* Flechas de navegación */
+  /* Ajustar las flechas */
   .arrow {
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .arrow.prev {
-    left: 15px;
+    top: 10px; /* Mover hacia la parte superior */
   }
 
   .arrow.next {
-    right: 15px;
+    bottom: 10px; /* Mover hacia la parte inferior */
   }
 
-  .arrow:hover {
-    background-color: rgba(0, 0, 0, 0.7);
-  }
-
-  /* Indicadores (dots) */
   .dots {
     position: absolute;
-    bottom: 15px;
-    left: 50%;
+    top: 50%;
+    right: 10px;
     transform: translateX(-50%);
     display: flex;
+    flex-direction: column;
     gap: 10px;
     z-index: 10;
   }
