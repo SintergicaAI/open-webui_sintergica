@@ -4,39 +4,31 @@
 
 	import { goto } from '$app/navigation';
 	import {
-		user,
-		chats,
-		settings,
-		showSettings,
+		channels,
 		chatId,
-		tags,
-		showSidebar,
+		chats,
+		config,
+		currentChatPage,
 		mobile,
-		showArchivedChats,
 		pinnedChats,
 		scrollPaginationEnabled,
-		currentChatPage,
-		temporaryChatEnabled,
-		channels,
+		showArchivedChats,
+		showSidebar,
 		socket,
-		config
+		tags,
+		temporaryChatEnabled,
+		user
 	} from '$lib/stores';
-	import { onMount, getContext, tick, onDestroy } from 'svelte';
-
-	const i18n = getContext('i18n');
-
+	import { getContext, onDestroy, onMount } from 'svelte';
 	import {
-		deleteChatById,
-		getChatList,
 		getAllTags,
-		getChatListBySearchText,
-		createNewChat,
-		getPinnedChatList,
-		toggleChatPinnedStatusById,
-		getChatPinnedStatusById,
 		getChatById,
-		updateChatFolderIdById,
-		importChat
+		getChatList,
+		getChatListBySearchText,
+		getPinnedChatList,
+		importChat,
+		toggleChatPinnedStatusById,
+		updateChatFolderIdById
 	} from '$lib/apis/chats';
 	import { createNewFolder, getFolders, updateFolderParentIdById } from '$lib/apis/folders';
 	import { WEBUI_BASE_URL } from '$lib/constants';
@@ -46,19 +38,16 @@
 	import ChatItem from './Sidebar/ChatItem.svelte';
 	import Spinner from '../common/Spinner.svelte';
 	import Loader from '../common/Loader.svelte';
-	import AddFilesPlaceholder from '../AddFilesPlaceholder.svelte';
 	import SearchInput from './Sidebar/SearchInput.svelte';
 	import Folder from '../common/Folder.svelte';
-	import Plus from '../icons/Plus.svelte';
-	import Tooltip from '../common/Tooltip.svelte';
 	import Folders from './Sidebar/Folders.svelte';
-	import { getChannels, createNewChannel } from '$lib/apis/channels';
+	import { createNewChannel, getChannels } from '$lib/apis/channels';
 	import ChannelModal from './Sidebar/ChannelModal.svelte';
 	import ChannelItem from './Sidebar/ChannelItem.svelte';
 	import PencilSquare from '../icons/PencilSquare.svelte';
-	import ArrowDownTray from '$lib/components/icons/ArrowDownTray.svelte';
-	import DocumentArrowDown from '$lib/components/icons/DocumentArrowDown.svelte';
-	import NewFolder from '$lib/components/icons/NewFolder.svelte';
+	import NewFolderButton from '$lib/components/layout/Sidebar/NewFolderButton.svelte';
+
+	const i18n = getContext('i18n');
 
 	const BREAKPOINT = 768;
 
@@ -114,36 +103,17 @@
 		}
 	};
 
-	const createFolder = async (name = 'Untitled') => {
-		if (name === '') {
+	const createFolder = async (name = $i18n.t('Untitled')) => {
+		if (name.trim() === '') {
 			toast.error($i18n.t('Folder name cannot be empty.'));
 			return;
 		}
 
 		const rootFolders = Object.values(folders).filter((folder) => folder.parent_id === null);
-		if (rootFolders.find((folder) => folder.name.toLowerCase() === name.toLowerCase())) {
-			// If a folder with the same name already exists, append a number to the name
-			let i = 1;
-			while (
-				rootFolders.find((folder) => folder.name.toLowerCase() === `${name} ${i}`.toLowerCase())
-			) {
-				i++;
-			}
 
-			name = `${name} ${i}`;
-		}
+		name = getUniqueFolderName(name, rootFolders);
 
-		// Add a dummy folder to the list to show the user that the folder is being created
-		const tempId = uuidv4();
-		folders = {
-			...folders,
-			tempId: {
-				id: tempId,
-				name: name,
-				created_at: Date.now(),
-				updated_at: Date.now()
-			}
-		};
+		const tempId = addTemporaryFolder(name);
 
 		const res = await createNewFolder(localStorage.token, name).catch((error) => {
 			toast.error(error);
@@ -152,7 +122,34 @@
 
 		if (res) {
 			await initFolders();
+		} else {
+			delete folders[tempId];
 		}
+	};
+
+	const getUniqueFolderName = (name, rootFolders) => {
+		if (!rootFolders.find((folder) => folder.name.toLowerCase() === name.toLowerCase())) {
+			return name;
+		}
+		let i = 1;
+		while (rootFolders.find((folder) => folder.name.toLowerCase() === `${name} ${i}`.toLowerCase())) {
+			i++;
+		}
+		return `${name} ${i}`;
+	};
+
+	const addTemporaryFolder = (name) => {
+		const tempId = uuidv4();
+		folders = {
+			...folders,
+			[tempId]: {
+				id: tempId,
+				name,
+				created_at: Date.now(),
+				updated_at: Date.now()
+			}
+		};
+		return tempId;
 	};
 
 	const initChannels = async () => {
@@ -532,28 +529,26 @@
 						<div class=" self-center font-medium text-sm font-primary">{$i18n.t('Workspace')}</div>
 					</div>
 				</a>
-
 			</div>
-			<div class="px-1.5 flex justify-center text-gray-800 dark:text-gray-200">
-				<a
-					class="flex-grow flex space-x-3 rounded-lg px-2 py-[7px] hover:bg-gray-100 dark:hover:bg-gray-900 transition"
-					on:click={() => {
-						createFolder();
-					}}
-					draggable="false"
-				>
-					<div class="self-center">
-						<NewFolder className=" size-4" strokeWidth="1" />
-					</div>
-
-					<div class="flex self-center">
-						<div class=" self-center font-medium text-sm font-primary">{$i18n.t('New folder')}</div>
-					</div>
-				</a>
-			</div>
-
 		{/if}
+		<div class="border-t border-gray-300 dark:border-gray-700 my-2"></div>
 
+		<div class="relative {$temporaryChatEnabled ? 'opacity-20' : ''}">
+			{#if $temporaryChatEnabled}
+				<div class="absolute z-40 w-full h-full flex justify-center"></div>
+			{/if}
+
+			<SearchInput
+				bind:value={search}
+				on:input={searchDebounceHandler}
+				placeholder={$i18n.t('Search')}
+			/>
+		</div>
+		<div class="px-1.5 flex justify-center text-gray-600 dark:text-gray-400">
+			<NewFolderButton class="flex-grow flex space-x-3 rounded-lg px-2 py-[7px] hover:bg-gray-100 dark:hover:bg-gray-900 transition" handleClick={createFolder}
+											 content={$i18n.t('New folder')}
+			/>
+		</div>
 		<div class="px-1.5 flex justify-between space-x-1 text-gray-600 dark:text-gray-400">
 			<a
 				id="sidebar-new-chat-button"
@@ -577,35 +572,13 @@
 					<div class="self-center">
 						<PencilSquare className=" size-[1.1rem]" strokeWidth="2" />
 					</div>
-					<div class=" self-center font-medium text-sm text-gray-850 dark:text-white font-primary">
+					<div class=" self-center font-medium text-sm font-primary">
 						{$i18n.t('New Chat')}
 					</div>
 				</div>
 			</a>
 		</div>
-		<div class="relative {$temporaryChatEnabled ? 'opacity-20' : ''}">
-			{#if $temporaryChatEnabled}
-				<div class="absolute z-40 w-full h-full flex justify-center"></div>
-			{/if}
 
-			<SearchInput
-				bind:value={search}
-				on:input={searchDebounceHandler}
-				placeholder={$i18n.t('Search')}
-			/>
-
-			<div class="absolute z-40 right-3.5 top-1">
-				<Tooltip content={$i18n.t('New folder')}>
-					<button
-						class="p-1 rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-950 dark:hover:bg-gray-900 text-gray-500 dark:text-gray-500 transition"
-						on:click={() => {
-							createFolder();
-						}}
-					>
-					</button>
-				</Tooltip>
-			</div>
-		</div>
 		<div class="border-t border-gray-300 dark:border-gray-700 my-2"></div>
 		<div
 			class="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden {$temporaryChatEnabled
