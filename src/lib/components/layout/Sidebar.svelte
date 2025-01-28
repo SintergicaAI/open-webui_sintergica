@@ -4,39 +4,31 @@
 
 	import { goto } from '$app/navigation';
 	import {
-		user,
-		chats,
-		settings,
-		showSettings,
+		channels,
 		chatId,
-		tags,
-		showSidebar,
+		chats,
+		config,
+		currentChatPage,
 		mobile,
-		showArchivedChats,
 		pinnedChats,
 		scrollPaginationEnabled,
-		currentChatPage,
-		temporaryChatEnabled,
-		channels,
+		showArchivedChats,
+		showSidebar,
 		socket,
-		config
+		tags,
+		temporaryChatEnabled,
+		user
 	} from '$lib/stores';
-	import { onMount, getContext, tick, onDestroy } from 'svelte';
-
-	const i18n = getContext('i18n');
-
+	import { getContext, onDestroy, onMount } from 'svelte';
 	import {
-		deleteChatById,
-		getChatList,
 		getAllTags,
-		getChatListBySearchText,
-		createNewChat,
-		getPinnedChatList,
-		toggleChatPinnedStatusById,
-		getChatPinnedStatusById,
 		getChatById,
-		updateChatFolderIdById,
-		importChat
+		getChatList,
+		getChatListBySearchText,
+		getPinnedChatList,
+		importChat,
+		toggleChatPinnedStatusById,
+		updateChatFolderIdById
 	} from '$lib/apis/chats';
 	import { createNewFolder, getFolders, updateFolderParentIdById } from '$lib/apis/folders';
 	import { WEBUI_BASE_URL } from '$lib/constants';
@@ -46,19 +38,16 @@
 	import ChatItem from './Sidebar/ChatItem.svelte';
 	import Spinner from '../common/Spinner.svelte';
 	import Loader from '../common/Loader.svelte';
-	import AddFilesPlaceholder from '../AddFilesPlaceholder.svelte';
 	import SearchInput from './Sidebar/SearchInput.svelte';
 	import Folder from '../common/Folder.svelte';
-	import Plus from '../icons/Plus.svelte';
-	import Tooltip from '../common/Tooltip.svelte';
 	import Folders from './Sidebar/Folders.svelte';
-	import { getChannels, createNewChannel } from '$lib/apis/channels';
+	import { createNewChannel, getChannels } from '$lib/apis/channels';
 	import ChannelModal from './Sidebar/ChannelModal.svelte';
 	import ChannelItem from './Sidebar/ChannelItem.svelte';
 	import PencilSquare from '../icons/PencilSquare.svelte';
-	import ArrowDownTray from '$lib/components/icons/ArrowDownTray.svelte';
-	import DocumentArrowDown from '$lib/components/icons/DocumentArrowDown.svelte';
-	import NewFolder from '$lib/components/icons/NewFolder.svelte';
+	import NewFolderButton from '$lib/components/layout/Sidebar/NewFolderButton.svelte';
+
+	const i18n = getContext('i18n');
 
 	const BREAKPOINT = 768;
 
@@ -114,36 +103,17 @@
 		}
 	};
 
-	const createFolder = async (name = 'Untitled') => {
-		if (name === '') {
+	const createFolder = async (name = $i18n.t('Untitled')) => {
+		if (name.trim() === '') {
 			toast.error($i18n.t('Folder name cannot be empty.'));
 			return;
 		}
 
 		const rootFolders = Object.values(folders).filter((folder) => folder.parent_id === null);
-		if (rootFolders.find((folder) => folder.name.toLowerCase() === name.toLowerCase())) {
-			// If a folder with the same name already exists, append a number to the name
-			let i = 1;
-			while (
-				rootFolders.find((folder) => folder.name.toLowerCase() === `${name} ${i}`.toLowerCase())
-			) {
-				i++;
-			}
 
-			name = `${name} ${i}`;
-		}
+		name = getUniqueFolderName(name, rootFolders);
 
-		// Add a dummy folder to the list to show the user that the folder is being created
-		const tempId = uuidv4();
-		folders = {
-			...folders,
-			tempId: {
-				id: tempId,
-				name: name,
-				created_at: Date.now(),
-				updated_at: Date.now()
-			}
-		};
+		const tempId = addTemporaryFolder(name);
 
 		const res = await createNewFolder(localStorage.token, name).catch((error) => {
 			toast.error(error);
@@ -152,7 +122,34 @@
 
 		if (res) {
 			await initFolders();
+		} else {
+			delete folders[tempId];
 		}
+	};
+
+	const getUniqueFolderName = (name, rootFolders) => {
+		if (!rootFolders.find((folder) => folder.name.toLowerCase() === name.toLowerCase())) {
+			return name;
+		}
+		let i = 1;
+		while (rootFolders.find((folder) => folder.name.toLowerCase() === `${name} ${i}`.toLowerCase())) {
+			i++;
+		}
+		return `${name} ${i}`;
+	};
+
+	const addTemporaryFolder = (name) => {
+		const tempId = uuidv4();
+		folders = {
+			...folders,
+			[tempId]: {
+				id: tempId,
+				name,
+				created_at: Date.now(),
+				updated_at: Date.now()
+			}
+		};
+		return tempId;
 	};
 
 	const initChannels = async () => {
@@ -201,7 +198,6 @@
 	let searchDebounceTimeout;
 
 	const searchDebounceHandler = async () => {
-		console.log('search', search);
 		chats.set(null);
 
 		if (searchDebounceTimeout) {
@@ -225,9 +221,7 @@
 	};
 
 	const importChatHandler = async (items, pinned = false, folderId = null) => {
-		console.log('importChatHandler', items, pinned, folderId);
 		for (const item of items) {
-			console.log(item);
 			if (item.chat) {
 				await importChat(localStorage.token, item.chat, item?.meta ?? {}, pinned, folderId);
 			}
@@ -237,7 +231,6 @@
 	};
 
 	const inputFilesHandler = async (files) => {
-		console.log(files);
 
 		for (const file of files) {
 			const reader = new FileReader();
@@ -257,7 +250,6 @@
 	};
 
 	const tagEventHandler = async (type, tagName, chatId) => {
-		console.log(type, tagName, chatId);
 		if (type === 'delete') {
 			initChatList();
 		} else if (type === 'add') {
@@ -284,14 +276,12 @@
 
 	const onDrop = async (e) => {
 		e.preventDefault();
-		console.log(e); // Log the drop event
 
 		// Perform file drop check and handle it accordingly
 		if (e.dataTransfer?.files) {
 			const inputFiles = Array.from(e.dataTransfer?.files);
 
 			if (inputFiles && inputFiles.length > 0) {
-				console.log(inputFiles); // Log the dropped files
 				inputFilesHandler(inputFiles); // Handle the dropped files
 			}
 		}
@@ -317,7 +307,6 @@
 
 	const onTouchStart = (e) => {
 		touchstart = e.changedTouches[0];
-		console.log(touchstart.clientX);
 	};
 
 	const onTouchEnd = (e) => {
@@ -503,35 +492,7 @@
 			</a>
 		</div>
 		<div class="border-t border-gray-300 dark:border-gray-700 my-2"></div>
-		<div class="px-1.5 flex justify-between space-x-1 text-gray-600 dark:text-gray-400">
-			<a
-				id="sidebar-new-chat-button"
-				class="flex justify-between items-center flex-1 rounded-lg px-2 py-1 h-full text-right hover:bg-gray-100 dark:hover:bg-gray-900 transition"
-				href="/"
-				draggable="false"
-				on:click={async () => {
-					selectedChatId = null;
-					await goto('/');
-					const newChatButton = document.getElementById('new-chat-button');
-					setTimeout(() => {
-						newChatButton?.click();
-						if ($mobile) {
-							showSidebar.set(false);
-						}
-					}, 0);
-				}}
-			>
-				<div class="flex items-center">
 
-					<div>
-						<PencilSquare className=" size-5" strokeWidth="2" />
-					</div>
-					<div class=" self-center font-medium text-sm text-gray-850 dark:text-white font-primary">
-						{$i18n.t('New Chat')}
-					</div>
-				</div>
-			</a>
-		</div>
 		{#if $user?.role === 'admin' || $user?.permissions?.workspace?.models || $user?.permissions?.workspace?.knowledge || $user?.permissions?.workspace?.prompts || $user?.permissions?.workspace?.tools}
 			<div class="px-1.5 flex justify-center text-gray-800 dark:text-gray-200">
 				<a
@@ -568,33 +529,9 @@
 						<div class=" self-center font-medium text-sm font-primary">{$i18n.t('Workspace')}</div>
 					</div>
 				</a>
-
 			</div>
-			<div class="px-1.5 flex justify-center text-gray-800 dark:text-gray-200">
-				<a
-					class="flex-grow flex space-x-3 rounded-lg px-2 py-[7px] hover:bg-gray-100 dark:hover:bg-gray-900 transition"
-					href="/workspace"
-					on:click={() => {
-						selectedChatId = null;
-						chatId.set('');
-
-						if ($mobile) {
-							showSidebar.set(false);
-						}
-					}}
-					draggable="false"
-				>
-					<div class="self-center">
-						<NewFolder className=" size-5" strokeWidth="1" />
-					</div>
-
-					<div class="flex self-center">
-						<div class=" self-center font-medium text-sm font-primary">{$i18n.t('New folder')}</div>
-					</div>
-				</a>
-			</div>
-
 		{/if}
+		<div class="border-t border-gray-300 dark:border-gray-700 my-2"></div>
 
 		<div class="relative {$temporaryChatEnabled ? 'opacity-20' : ''}">
 			{#if $temporaryChatEnabled}
@@ -606,20 +543,42 @@
 				on:input={searchDebounceHandler}
 				placeholder={$i18n.t('Search')}
 			/>
-
-			<div class="absolute z-40 right-3.5 top-1">
-				<Tooltip content={$i18n.t('New folder')}>
-					<button
-						class="p-1 rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-950 dark:hover:bg-gray-900 text-gray-500 dark:text-gray-500 transition"
-						on:click={() => {
-							createFolder();
-						}}
-					>
-						<Plus className=" size-3" strokeWidth="2.5" />
-					</button>
-				</Tooltip>
-			</div>
 		</div>
+		<div class="px-1.5 flex justify-center text-gray-600 dark:text-gray-400">
+			<NewFolderButton class="flex-grow flex space-x-3 rounded-lg px-2 py-[7px] hover:bg-gray-100 dark:hover:bg-gray-900 transition" handleClick={createFolder}
+											 content={$i18n.t('New folder')}
+			/>
+		</div>
+		<div class="px-1.5 flex justify-between space-x-1 text-gray-600 dark:text-gray-400">
+			<a
+				id="sidebar-new-chat-button"
+				class="flex justify-between items-center flex-1 rounded-lg px-2 py-1 h-full text-right hover:bg-gray-100 dark:hover:bg-gray-900 transition"
+				href="/"
+				draggable="false"
+				on:click={async () => {
+					selectedChatId = null;
+					await goto('/');
+					const newChatButton = document.getElementById('new-chat-button');
+					setTimeout(() => {
+						newChatButton?.click();
+						if ($mobile) {
+							showSidebar.set(false);
+						}
+					}, 0);
+				}}
+			>
+				<div class="flex-grow flex space-x-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900 transition">
+
+					<div class="self-center">
+						<PencilSquare className=" size-[1.1rem]" strokeWidth="2" />
+					</div>
+					<div class=" self-center font-medium text-sm font-primary">
+						{$i18n.t('New Chat')}
+					</div>
+				</div>
+			</a>
+		</div>
+
 		<div class="border-t border-gray-300 dark:border-gray-700 my-2"></div>
 		<div
 			class="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden {$temporaryChatEnabled
@@ -633,7 +592,6 @@
 						bind:open={showPinnedChat}
 						on:change={(e) => {
 							localStorage.setItem('showPinnedChat', e.detail);
-							console.log(e.detail);
 						}}
 						on:import={(e) => {
 							importChatHandler(e.detail, true);
@@ -650,7 +608,6 @@
 								}
 
 								if (chat) {
-									console.log(chat);
 									if (chat.folder_id) {
 										const res = await updateChatFolderIdById(
 											localStorage.token,
@@ -760,7 +717,6 @@
 						}
 
 						if (chat) {
-							console.log(chat);
 							if (chat.folder_id) {
 								const res = await updateChatFolderIdById(localStorage.token, chat.id, null).catch(
 									(error) => {

@@ -5,7 +5,7 @@
 		'/assets/images/adam.jpg',
 		'/assets/images/galaxy.jpg',
 		'/assets/images/earth.jpg',
-		'/assets/images/space.jpg'
+		'/assets/images/space_horizontal_2.jpg'
 	];
 	export let duration = 5000;
 	let selectedImageIdx = 0;

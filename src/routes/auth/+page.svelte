@@ -1,7 +1,7 @@
 <script>
 	import { toast } from 'svelte-sonner';
 
-	import { getContext, onMount } from 'svelte';
+	import { getContext, onDestroy, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
@@ -177,12 +177,17 @@
 	};
 
 	const slides = [
-		'/assets/images/galaxy.jpg',
-		'/assets/images/space.jpg',
-		'/assets/images/earth.jpg',
-		'/assets/images/adam.jpg',
+		'/assets/images/slides_vertical_1.jpg',
+		'/assets/images/slides_vertical_2.jpg',
+		'/assets/images/slides_vertical_3.jpg',
+		'/assets/images/slides_vertical_4.jpg',
 	];
 
+	const horizontalSlides = [
+		'/assets/images/slides_horizontal_1.jpg',
+		'/assets/images/slides_horizontal_2.jpg',
+		'/assets/images/slides_horizontal_3.jpg',
+	]
 </script>
 
 <svelte:head>
@@ -219,8 +224,8 @@
 		</div>
 
 		<div class="flex justify-center items-center h-screen dark:bg-[#14171B]">
-			<div class="w-full h-full relative z-999 bg-[#e0e5ec] dark:bg-gray-800 dark:shadow-lg bg-opacity-90 neumorphic rounded-lg flex">
-				<div class="w-full sm:w-1/2 min-h-[600px] flex flex-col justify-center items-center">
+				<div class="w-full h-full relative z-999 bg-[#e0e5ec] dark:bg-gray-800 dark:shadow-lg bg-opacity-90 neumorphic flex">
+				<div class="w-full sm:w-2/3 min-h-[600px] flex flex-col justify-center items-center">
 					<h2 class="text-2xl font-bold text-gray-700 dark:text-white mb-4">
 						{#if $config?.onboarding ?? false}
 							{$i18n.t(`Get started with {{WEBUI_NAME}}`, { WEBUI_NAME: $WEBUI_NAME })}
@@ -350,10 +355,8 @@
 					</div>
 				</div>
 
-				<div class="sm:w-1/2 min-h-[100vh] bg-[#f0f2f5] dark:bg-[#14171B] flex flex-col justify-center items-center gap-5">
-					<Carousel slides={slides} autoplay={true} interval={5000} showArrows={false}/>
-
-					<button type="button" on:click={installApp()}>Instalar Aplicación</button>
+				<div class="hidden sm:w-1/2 md:1/3 min-h-[100vh] bg-[#f0f2f5] dark:bg-[#14171B] sm:flex">
+					<Carousel slides={slides} autoplay={true} interval={5000} showArrows={true} showDots={true}/>
 				</div>
 
 			</div>
