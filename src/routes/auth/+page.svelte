@@ -324,6 +324,30 @@
 							</div>
 						{/if}
 					</form>
+
+					<div class="text-sm text-gray-600 dark:text-gray-300 text-center mt-4">
+						<a
+							href="/terms-and-conditions"
+							class="font-medium text-blue-500 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-600 ml-2"
+							rel="noopener noreferrer"
+							on:click={async () => {
+								await goto('/terms-and-conditions');
+							}}
+						>
+							{$i18n.t('Terms and conditions')}
+						</a>
+						<span class="mx-2">|</span>
+						<a
+							href="/privacy-policy"
+							class="font-medium text-blue-500 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-600 mr-2"
+							rel="noopener noreferrer"
+							on:click={async ()=> {
+								await goto('/privacy-policy')
+							}}
+						>
+							{$i18n.t('Privacy policy')}
+						</a>
+					</div>
 				</div>
 
 				<div class="sm:w-1/2 min-h-[100vh] bg-[#f0f2f5] dark:bg-[#14171B] flex flex-col justify-center items-center gap-5">
