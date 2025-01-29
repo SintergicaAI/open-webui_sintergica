@@ -530,9 +530,8 @@
 					</div>
 				</a>
 			</div>
+			<div class="border-t border-gray-300 dark:border-gray-700 my-2"></div>
 		{/if}
-		<div class="border-t border-gray-300 dark:border-gray-700 my-2"></div>
-
 		<div class="relative {$temporaryChatEnabled ? 'opacity-20' : ''}">
 			{#if $temporaryChatEnabled}
 				<div class="absolute z-40 w-full h-full flex justify-center"></div>
@@ -544,7 +543,7 @@
 				placeholder={$i18n.t('Search')}
 			/>
 		</div>
-		<div class="px-1.5 flex justify-center text-gray-600 dark:text-gray-400">
+		<div class="px-1.5 flex justify-center text-gray-600 dark:text-gray-400 cursor-pointer">
 			<NewFolderButton class="flex-grow flex space-x-3 rounded-lg px-2 py-[7px] hover:bg-gray-100 dark:hover:bg-gray-900 transition" handleClick={createFolder}
 											 content={$i18n.t('New folder')}
 			/>
