@@ -1,235 +1,356 @@
 <script>
-	import { getContext, onDestroy, onMount } from 'svelte';
-	import { goto } from '$app/navigation';
-
-	import { config, socket, user, WEBUI_NAME } from '$lib/stores';
-
-
-	const i18n = getContext('i18n');
-
-	let isDarkMode = localStorage.getItem('theme');
-
-
-	const checkDarkMode = () => {
-		return document.documentElement.classList.contains('dark');
-	}
-
-	let onboarding = false;
-
-	onMount(async () => {
-		const observer = new MutationObserver(()=>{
-			isDarkMode = checkDarkMode();
-		})
-
-		observer.observe(document.documentElement, {
-			attributes: true,
-			attributeFilter: ['class']
-		})
-
-		isDarkMode = checkDarkMode();
-
-		loaded = true;
-
-		onDestroy(()=>{
-			observer.disconnect();
-		})
-	});
-
+	import { WEBUI_NAME } from '$lib/stores';
 </script>
+
 <svelte:head>
 	<title>Términos y Condiciones | {`${$WEBUI_NAME}`}</title>
 </svelte:head>
+<div class="grid-container">
+	<div class="terms">
+		<h1 class="terms__title">Términos y Condiciones</h1>
+		<p class="terms__last-updated">Última actualización: 3 de Diciembre de 2024</p>
 
-<div class="overflow-auto w-full h-screen bg-[#e0e5ec] dark:bg-gray-800">
-	<div class="container">
-		<h1>Términos y Condiciones</h1>
-		<p>Última actualización: 3 de Diciembre de 2024</p>
+		<div class="terms__section">
+			<h2 class="terms__section-title">Introducción</h2>
+			<p class="terms__text">
+				Bienvenido a Sintergica.ai, un sitio web operado por MDA Startup Labs Solutions S.A.P.I. de C.V. (en adelante,
+				“Sintergica”).
+				Al acceder y utilizar nuestro sitio web, usted acepta estar sujeto a los siguientes términos y condiciones. Si no
+				está de
+				acuerdo con alguno de estos términos, le recomendamos no utilizar este sitio.
+			</p>
+		</div>
 
-		<h2>Introducción</h2>
-		<p>
-			Bienvenido a Sintergica.ai, un sitio web operado por MDA Startup Labs Solutions S.A.P.I. de C.V. (en adelante, “Sintergica”).
-			Al acceder y utilizar nuestro sitio web, usted acepta estar sujeto a los siguientes términos y condiciones. Si no está de
-			acuerdo con alguno de estos términos, le recomendamos no utilizar este sitio.
-		</p>
+		<div class="terms__section">
+			<h2 class="terms__section-title">Uso del Sitio</h2>
+			<p class="terms__text">
+				El uso del sitio web www.sintergica.ai está condicionado al cumplimiento de las siguientes disposiciones:
+			</p>
+			<ul class="terms__list">
+				<li class="terms__list-item">
+					Usted acepta utilizar este sitio solo con fines lícitos y de manera que no infrinja los derechos de terceros ni
+					limite o impida el uso y disfrute del sitio por parte de otros usuarios.
+				</li>
+				<li class="terms__list-item">
+					El contenido de este sitio es proporcionado “tal cual” y puede estar sujeto a cambios sin previo aviso.
+				</li>
+			</ul>
+		</div>
 
-		<h2>Uso del Sitio</h2>
-		<p>
-			El uso del sitio web www.sintergica.ai está condicionado al cumplimiento de las siguientes disposiciones:
-		</p>
-		<ul>
-			<li>Usted acepta utilizar este sitio solo con fines lícitos y de manera que no infrinja los derechos de terceros ni limite o impida el uso y disfrute del sitio por parte de otros usuarios.</li>
-			<li>El contenido de este sitio es proporcionado “tal cual” y puede estar sujeto a cambios sin previo aviso.</li>
-		</ul>
+		<div class="terms__section">
+			<h2 class="terms__section-title">Propiedad Intelectual</h2>
+			<p class="terms__text">
+				Todos los derechos de propiedad intelectual del contenido disponible en este sitio, incluidos textos, imágenes,
+				logotipos,
+				gráficos y software, son propiedad de Sintergica o se utilizan con la debida autorización. Queda prohibido:
+			</p>
+			<ul class="terms__list">
+				<li class="terms__list-item">
+					Reproducir, distribuir o modificar cualquier contenido sin nuestro consentimiento por escrito.
+				</li>
+				<li class="terms__list-item">
+					Utilizar el contenido con fines comerciales no autorizados.
+				</li>
+			</ul>
+		</div>
 
-		<h2>Propiedad Intelectual</h2>
-		<p>
-			Todos los derechos de propiedad intelectual del contenido disponible en este sitio, incluidos textos, imágenes, logotipos,
-			gráficos y software, son propiedad de Sintergica o se utilizan con la debida autorización. Queda prohibido:
-		</p>
-		<ul>
-			<li>Reproducir, distribuir o modificar cualquier contenido sin nuestro consentimiento por escrito.</li>
-			<li>Utilizar el contenido con fines comerciales no autorizados.</li>
-		</ul>
+		<div class="terms__section">
+			<h2 class="terms__section-title">Privacidad y Uso de Datos</h2>
+			<p class="terms__text">
+				El uso de nuestro sitio está sujeto a nuestro Aviso de Privacidad, el cual describe cómo recopilamos, utilizamos y
+				protegemos su información personal. Al utilizar este sitio, usted consiente el uso de sus datos personales
+				conforme a dicho aviso.
+			</p>
+		</div>
 
-		<h2>Privacidad y Uso de Datos</h2>
-		<p>
-			El uso de nuestro sitio está sujeto a nuestro Aviso de Privacidad, el cual describe cómo recopilamos, utilizamos y protegemos su información personal. Al utilizar este sitio, usted consiente el uso de sus datos personales conforme a dicho aviso.
-		</p>
+		<div class="terms__section">
+			<h2 class="terms__section-title">Responsabilidad Limitada</h2>
+			<p class="terms__text">
+				Sintergica no garantiza que el sitio web funcione sin interrupciones ni errores. En la medida permitida por la
+				ley, no
+				asumimos responsabilidad por:
+			</p>
+			<ul class="terms__list">
+				<li class="terms__list-item">Daños directos, indirectos o consecuentes derivados del uso o incapacidad de uso de
+					este sitio.
+				</li>
+				<li class="terms__list-item">Pérdida de datos o ingresos ocasionada por la utilización del contenido del sitio.
+				</li>
+			</ul>
+		</div>
 
-		<h2>Responsabilidad Limitada</h2>
-		<p>
-			Sintergica no garantiza que el sitio web funcione sin interrupciones ni errores. En la medida permitida por la ley, no
-			asumimos responsabilidad por:
-		</p>
-		<ul>
-			<li>Daños directos, indirectos o consecuentes derivados del uso o incapacidad de uso de este sitio.</li>
-			<li>Pérdida de datos o ingresos ocasionada por la utilización del contenido del sitio.</li>
-		</ul>
+		<div class="terms__section">
+			<h2 class="terms__section-title">Enlaces a Terceros</h2>
+			<p class="terms__text">
+				Nuestro sitio puede contener enlaces a sitios web de terceros que están fuera de nuestro control. No somos
+				responsables
+				del contenido o las prácticas de privacidad de dichos sitios y el acceso a ellos es bajo su propio riesgo.
+			</p>
+		</div>
 
-		<h2>Enlaces a Terceros</h2>
-		<p>
-			Nuestro sitio puede contener enlaces a sitios web de terceros que están fuera de nuestro control. No somos responsables
-			del contenido o las prácticas de privacidad de dichos sitios y el acceso a ellos es bajo su propio riesgo.
-		</p>
+		<div class="terms__section">
+			<h2 class="terms__section-title">Modificaciones</h2>
+			<p class="terms__text">
+				Sintergica se reserva el derecho de modificar estos términos y condiciones en cualquier momento. Cualquier cambio
+				será
+				publicado en esta página, por lo que le recomendamos revisarla periódicamente. El uso continuado del sitio web
+				implica la
+				aceptación de dichos cambios.
+			</p>
+		</div>
 
-		<h2>Modificaciones</h2>
-		<p>
-			Sintergica se reserva el derecho de modificar estos términos y condiciones en cualquier momento. Cualquier cambio será
-			publicado en esta página, por lo que le recomendamos revisarla periódicamente. El uso continuado del sitio web implica la
-			aceptación de dichos cambios.
-		</p>
+		<div class="terms__section">
+			<h2 class="terms__section-title">Ley Aplicable</h2>
+			<p class="terms__text">
+				Estos términos y condiciones se rigen por las leyes de los Estados Unidos Mexicanos. En caso de controversia,
+				usted y
+				Sintergica aceptan someterse a la jurisdicción de los tribunales competentes en el estado de Veracruz.
+			</p>
+		</div>
 
-		<h2>Ley Aplicable</h2>
-		<p>
-			Estos términos y condiciones se rigen por las leyes de los Estados Unidos Mexicanos. En caso de controversia, usted y
-			Sintergica aceptan someterse a la jurisdicción de los tribunales competentes en el estado de Veracruz.
-		</p>
-
-		<h2>Contacto</h2>
-		<p>
-			Si tiene alguna pregunta sobre estos términos y condiciones, puede comunicarse con nosotros a través de:
-		</p>
-		<ul>
-			<li>Correo electrónico: <a href="mailto:hola@sintergica.ai">hola@sintergica.ai</a></li>
-			<li>Teléfono: 56 5922 7340</li>
-		</ul>
+		<div class="terms__section terms__contact">
+			<h2 class="terms__section-title">Contacto</h2>
+			<p class="terms__text">
+				Si tiene alguna pregunta sobre estos términos y condiciones, puede comunicarse con nosotros a través de:
+			</p>
+			<ul class="terms__list">
+				<li class="terms__list-item">
+					Correo electrónico: <a class="terms__link" href="mailto:hola@sintergica.ai">hola@sintergica.ai</a>
+				</li>
+				<li class="terms__list-item">Teléfono: 56 5922 7340</li>
+			</ul>
+		</div>
 	</div>
+	<aside class="terms__aside">
+		<ul class="m-0 list-none">
+			<li class="mt-0 false">
+				<div
+					class="-mx-[1px] inline-flex items-center justify-center gap-1 border-l pb-2 text-muted-foreground no-underline transition-colors data-[hover]:border-l-foreground pl-8 border-l-foreground">
+					<a href="#menubarroot" data-id="menubarroot" data-melt-table-of-contents-item=""
+						 class="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[active]:text-foreground"
+						 data-active="">Root</a></div>
+			</li>
+			<li class="mt-0 false">
+				<div
+					class="-mx-[1px] inline-flex items-center justify-center gap-1 border-l pb-2 text-muted-foreground no-underline transition-colors data-[hover]:border-l-foreground pl-8 border-l-foreground">
+					<a href="#menubarmenu" data-id="menubarmenu" data-melt-table-of-contents-item=""
+						 class="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[active]:text-foreground"
+						 data-active="">Menu</a></div>
+			</li>
+			<li class="mt-0 false">
+				<div
+					class="-mx-[1px] inline-flex items-center justify-center gap-1 border-l border-l-transparent pb-2 text-muted-foreground no-underline transition-colors data-[hover]:border-l-foreground pl-8">
+					<a href="#menubartrigger" data-id="menubartrigger" data-melt-table-of-contents-item=""
+						 class="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[active]:text-foreground">Trigger</a>
+				</div>
+			</li>
+			<li class="mt-0 false">
+				<div
+					class="-mx-[1px] inline-flex items-center justify-center gap-1 border-l border-l-transparent pb-2 text-muted-foreground no-underline transition-colors data-[hover]:border-l-foreground pl-8">
+					<a href="#menubarcontent" data-id="menubarcontent" data-melt-table-of-contents-item=""
+						 class="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[active]:text-foreground">Content</a>
+				</div>
+			</li>
+			<li class="mt-0 false">
+				<div
+					class="-mx-[1px] inline-flex items-center justify-center gap-1 border-l border-l-transparent pb-2 text-muted-foreground no-underline transition-colors data-[hover]:border-l-foreground pl-8">
+					<a href="#menubaritem" data-id="menubaritem" data-melt-table-of-contents-item=""
+						 class="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[active]:text-foreground">Item</a>
+				</div>
+			</li>
+			<li class="mt-0 false">
+				<div
+					class="-mx-[1px] inline-flex items-center justify-center gap-1 border-l border-l-transparent pb-2 text-muted-foreground no-underline transition-colors data-[hover]:border-l-foreground pl-8">
+					<a href="#menubarcheckboxitem" data-id="menubarcheckboxitem" data-melt-table-of-contents-item=""
+						 class="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[active]:text-foreground">CheckboxItem</a>
+				</div>
+			</li>
+			<li class="mt-0 false">
+				<div
+					class="-mx-[1px] inline-flex items-center justify-center gap-1 border-l border-l-transparent pb-2 text-muted-foreground no-underline transition-colors data-[hover]:border-l-foreground pl-8">
+					<a href="#menubarcheckboxindicator" data-id="menubarcheckboxindicator" data-melt-table-of-contents-item=""
+						 class="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[active]:text-foreground">CheckboxIndicator</a>
+				</div>
+			</li>
+			<li class="mt-0 false">
+				<div
+					class="-mx-[1px] inline-flex items-center justify-center gap-1 border-l border-l-transparent pb-2 text-muted-foreground no-underline transition-colors data-[hover]:border-l-foreground pl-8">
+					<a href="#menubarradiogroup" data-id="menubarradiogroup" data-melt-table-of-contents-item=""
+						 class="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[active]:text-foreground">RadioGroup</a>
+				</div>
+			</li>
+			<li class="mt-0 false">
+				<div
+					class="-mx-[1px] inline-flex items-center justify-center gap-1 border-l border-l-transparent pb-2 text-muted-foreground no-underline transition-colors data-[hover]:border-l-foreground pl-8">
+					<a href="#menubarradioitem" data-id="menubarradioitem" data-melt-table-of-contents-item=""
+						 class="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[active]:text-foreground">RadioItem</a>
+				</div>
+			</li>
+			<li class="mt-0 false">
+				<div
+					class="-mx-[1px] inline-flex items-center justify-center gap-1 border-l border-l-transparent pb-2 text-muted-foreground no-underline transition-colors data-[hover]:border-l-foreground pl-8">
+					<a href="#menubarradioindicator" data-id="menubarradioindicator" data-melt-table-of-contents-item=""
+						 class="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[active]:text-foreground">RadioIndicator</a>
+				</div>
+			</li>
+			<li class="mt-0 false">
+				<div
+					class="-mx-[1px] inline-flex items-center justify-center gap-1 border-l border-l-transparent pb-2 text-muted-foreground no-underline transition-colors data-[hover]:border-l-foreground pl-8">
+					<a href="#menubarseparator" data-id="menubarseparator" data-melt-table-of-contents-item=""
+						 class="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[active]:text-foreground">Separator</a>
+				</div>
+			</li>
+			<li class="mt-0 false">
+				<div
+					class="-mx-[1px] inline-flex items-center justify-center gap-1 border-l border-l-transparent pb-2 text-muted-foreground no-underline transition-colors data-[hover]:border-l-foreground pl-8">
+					<a href="#menubararrow" data-id="menubararrow" data-melt-table-of-contents-item=""
+						 class="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[active]:text-foreground">Arrow</a>
+				</div>
+			</li>
+			<li class="mt-0 false">
+				<div
+					class="-mx-[1px] inline-flex items-center justify-center gap-1 border-l border-l-transparent pb-2 text-muted-foreground no-underline transition-colors data-[hover]:border-l-foreground pl-8">
+					<a href="#menubargroup" data-id="menubargroup" data-melt-table-of-contents-item=""
+						 class="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[active]:text-foreground">Group</a>
+				</div>
+			</li>
+			<li class="mt-0 false">
+				<div
+					class="-mx-[1px] inline-flex items-center justify-center gap-1 border-l border-l-transparent pb-2 text-muted-foreground no-underline transition-colors data-[hover]:border-l-foreground pl-8">
+					<a href="#menubarlabel" data-id="menubarlabel" data-melt-table-of-contents-item=""
+						 class="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[active]:text-foreground">Label</a>
+				</div>
+			</li>
+			<li class="mt-0 false">
+				<div
+					class="-mx-[1px] inline-flex items-center justify-center gap-1 border-l border-l-transparent pb-2 text-muted-foreground no-underline transition-colors data-[hover]:border-l-foreground pl-8">
+					<a href="#menubarsub" data-id="menubarsub" data-melt-table-of-contents-item=""
+						 class="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[active]:text-foreground">Sub</a>
+				</div>
+			</li>
+			<li class="mt-0 false">
+				<div
+					class="-mx-[1px] inline-flex items-center justify-center gap-1 border-l border-l-transparent pb-2 text-muted-foreground no-underline transition-colors data-[hover]:border-l-foreground pl-8">
+					<a href="#menubarsubtrigger" data-id="menubarsubtrigger" data-melt-table-of-contents-item=""
+						 class="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[active]:text-foreground">SubTrigger</a>
+				</div>
+			</li>
+			<li class="mt-0 false">
+				<div
+					class="-mx-[1px] inline-flex items-center justify-center gap-1 border-l border-l-transparent pb-2 text-muted-foreground no-underline transition-colors data-[hover]:border-l-foreground pl-8">
+					<a href="#menubarsubcontent" data-id="menubarsubcontent" data-melt-table-of-contents-item=""
+						 class="transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[active]:text-foreground">SubContent</a>
+				</div>
+			</li>
+		</ul>
+	</aside>
 </div>
 
 <style>
-    :root {
-        --color-background-light: #e0e5ec;
-        --color-background-dark: #1a202c;
-        --color-container-light: #ffffff;
-        --color-container-dark: #2d3748;
-        --color-border-light: #ddd;
-        --color-border-dark: #4a5568;
-        --color-text-light: #5a5a5a;
-        --color-text-dark: #e2e8f0;
-        --color-primary: #007bff;
-        --shadow-light: rgba(0, 0, 0, 0.1);
-        --shadow-dark: rgba(0, 0, 0, 0.4);
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: auto;
     }
 
-    .container {
-        max-width: 760px;
-        margin: 2rem auto;
-        padding: 1.5rem;
-        background: var(--color-container-light);
-        color: var(--color-text-light);
-        border: 1px solid var(--color-border-light);
-        border-radius: 10px;
-        box-shadow: 0 4px 10px var(--shadow-light);
-        transition: all 0.3s ease;
+		.grid-container {
+				display: grid;
+        max-width: none;
+        padding-top: 24px;
+        grid-template-rows: auto 1fr;
+        grid-template-columns: minmax(500px, 720px) minmax(220px, 1fr);
+        grid-template-areas:
+        "topper sidebar"
+        "intro sidebar"
+        "content sidebar";
+        column-gap: 80px;
+        row-gap: 0;
+		}
+
+		.terms__aside {
+				grid-area: sidebar;
+		}
+
+    /* Bloque principal */
+    .terms {
+				grid-area: content;
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        padding: 2rem;
+        background-color: #f9f9f9;
+        overflow-y: auto;
+        height: 100%;
+
+				@apply container flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[250px_minmax(0,1fr)] lg:gap-10;
     }
 
-    .dark .container {
-        background: var(--color-container-dark);
-        color: var(--color-text-dark);
-        border: 1px solid var(--color-border-dark);
-        box-shadow: 0 4px 10px var(--shadow-dark);
-    }
-
-    h1, h2 {
-        color: var(--color-text-light);
-        margin-bottom: 1rem;
-    }
-
-    .dark h1, .dark h2 {
-        color: var(--color-text-dark);
-    }
-
-    h1 {
-        text-align: center;
+    .terms__title {
         font-size: 2rem;
-        margin-bottom: 1.2rem;
+        font-weight: bold;
+        color: #111;
+        margin-bottom: 1rem;
+        text-align: center;
+        @apply scroll-m-20 text-5xl font-semibold tracking-[-0.02em];
     }
 
-    h2 {
-        margin-top: 1.5rem;
+    .terms__last-updated {
+        font-size: 0.9rem;
+        color: #666;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .terms__section {
+        margin-bottom: 2rem;
+    }
+
+    .terms__section-title {
         font-size: 1.5rem;
+        font-weight: bold;
+        color: #222;
+        margin-bottom: 1rem;
+        @apply mt-12 -scroll-m-36 text-[27px] font-semibold tracking-[-0.01em] first:mt-0
     }
 
-    p {
-        margin: 0.8rem 0;
-        text-align: justify;
+    .terms__text {
+        @apply leading-7 [&:not(:first-child)]:mt-6;
     }
 
-    ul {
-        margin: 1rem 0;
-        padding-left: 1.5rem;
+    .terms__list {
+        @apply my-6 ml-6 list-disc;
     }
 
-    li {
-        margin: 0.5rem 0;
+    .terms__list-item {
+        font-size: 0.95rem;
+        color: #555;
+        margin-bottom: 0.5rem;
     }
 
-    a {
-        color: var(--color-primary);
+    /* Estilización para enlaces */
+    .terms__link {
+        color: #007bff;
         text-decoration: none;
-        transition: color 0.2s ease, text-decoration 0.2s ease;
     }
 
-    a:hover,
-    a:focus {
-        color: darken(var(--color-primary), 10%);
+    .terms__link:hover {
         text-decoration: underline;
     }
 
-    /* Responsividad */
-    @media (max-width: 768px) {
-        .container {
-            padding: 1rem;
-        }
-
-        h1 {
-            font-size: 1.6rem;
-        }
-
-        h2 {
-            font-size: 1.3rem;
-        }
-
-        body {
-            font-size: 15px;
-        }
+    /* Estilo para el contacto */
+    .terms__contact {
+        font-size: 1rem;
+        margin-top: 2rem;
+        text-align: left;
     }
 
-    @media (max-width: 480px) {
-        .container {
-            padding: 0.8rem;
-        }
+    .terms__contact a {
+        color: #007bff;
+        text-decoration: none;
+    }
 
-        h1 {
-            font-size: 1.4rem;
-        }
-
-        h2 {
-            font-size: 1.2rem;
-        }
-
-        body {
-            font-size: 14px;
-        }
+    .terms__contact a:hover {
+        text-decoration: underline;
     }
 </style>
