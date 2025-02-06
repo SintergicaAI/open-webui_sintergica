@@ -1,7 +1,7 @@
 #!/bin/bash
 
-image_name="open-webui"
-container_name="open-webui"
+image_name="turing-webui"
+container_name="turing-webui"
 host_port=3000
 container_port=8080
 
