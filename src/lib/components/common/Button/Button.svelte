@@ -1,18 +1,20 @@
 <script lang="ts">
-	import { Search } from 'lucide-svelte';
-
-	type ButtonVariant = 'primary' | 'default' | 'secondary' | 'danger' | 'warning' | 'success' | 'info';
+	type ButtonVariant = 'primary' | 'default' | 'primary-outlined' | 'danger-outlined' | 'secondary' | 'danger' | 'warning' | 'success' | 'info';
 
 	export let variant: ButtonVariant = 'primary';
 	export let size: string = 'base';
 	export let isDisabled: boolean = true;
-	export let icon: string = '';
+	export let icon: any | undefined = undefined;
 
 	$: buttonClasses = `btn btn-${variant} btn-${size}`;
 </script>
 
 <button class={ buttonClasses } disabled={isDisabled}>
-	<Search size={16}/>
+	{#if icon}
+		{#if typeof icon === 'function'}
+			<svelte:component this={icon} />
+		{/if}
+	{/if}
 	<slot />
 </button>
 
@@ -20,16 +22,23 @@
 	@tailwind base;
 	@tailwind components;
 	@tailwind utilities;
+	.text-button {
+		font-size: 16pt;
+    @apply font-medium;
+	}
   .btn {
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		font-family: inherit;
+		height: 36px;
+		@apply space-x-sm;
 		@apply px-base py-2;
     @apply rounded-sm;
+		@apply text-button;
 
 		&.btn-primary {
-			background-color: #006EFA;
+			@apply bg-brand-500;
 			@apply text-white;
       &:hover {
         background-color: #3092F7;
@@ -43,6 +52,12 @@
       }
 		}
 
+		&.btn-primary-outlined {
+			background-color: transparent;
+			border: 1px solid #006EFA;
+			@apply text-brand-500;
+		}
+
 		&.btn-danger {
 			background-color: #FF4949;
 			@apply text-white;
@@ -54,7 +69,7 @@
       }
 		}
 
-		&.btn-danger-outline {
+		&.btn-danger-outlined {
 			background-color: transparent;
 			border: 1px solid #FF4949;
 			@apply text-red-500;
@@ -64,11 +79,11 @@
 			&:active {
 				background-color: #FF2626;
       }
+			&:disabled {
+				border: 1px solid #FF7A7A;
+				color: #FF7A7A;
+				cursor: not-allowed;
+      }
 		}
-
-		&.btn-base {
-			@apply px-base;
-    }
-
   }
 </style>

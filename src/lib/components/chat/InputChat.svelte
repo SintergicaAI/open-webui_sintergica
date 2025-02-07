@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { AudioLines, Globe, Icon as IconType, Paperclip } from 'lucide-svelte';
 	import Mic from '$lib/components/icons/Mic.svelte';
+	import { Button } from 'bits-ui';
 
 	type Icons = {
 		icon: IconType
@@ -23,12 +24,7 @@
 
 		</div>
 		<div class="input-chat__actions">
-			<Button.Root class="inline-flex h-12 items-center justify-center rounded-xl bg-brand-500
-	px-[21px] text-[15px] font-semibold text-background shadow-mini
-	hover:bg-dark/95 active:scale-98 active:transition-all">
-				Aceptar
-			</Button.Root>
-			<Mic size="20"/>
+			<Mic />
 			<AudioLines size="20" class="color-slate-500"/>
 		</div>
 
