@@ -166,7 +166,6 @@
 		};
 
 		window.addEventListener('resize', onResize);
-
 		let backendConfig = null;
 		try {
 			backendConfig = await getBackendConfig();
@@ -228,7 +227,7 @@
 			}
 		} else {
 			// Redirect to /error when Backend Not Detected
-			await goto('/error');
+			//await goto('/error');
 		}
 
 		await tick();

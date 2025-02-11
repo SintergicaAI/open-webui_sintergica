@@ -1,99 +1,79 @@
 <script lang="ts">
-	import { AudioLines, Globe, Icon as IconType, Paperclip } from 'lucide-svelte';
-	import Mic from '$lib/components/icons/Mic.svelte';
+	import { AudioLines, Globe, Mic, Paperclip } from 'lucide-svelte';
+	import Button from '$lib/components/common/Button/Button.svelte';
+	import Switch from '$lib/components/chat/Switch.svelte';
 
-	type Icons = {
-		icon: IconType
+	const inputPlaceholder = 'Escriba aquí';
+
+	function toggleSwitchActive(event: Event) {
+		const target = event.currentTarget as HTMLElement;
+		target.classList.toggle('active');
 	}
-
-
 </script>
 
-<div class="input-chat rounded-xl space-y-xs">
-	<div class="flex-grow">
-		<input class="text-gray-400 w-full outline-transparent" type="text" value="Hola" />
+<!-- Componente -->
+<div class="input-chat">
+	<div class="flex-grow flex justify-between align-center self-stretch">
+		<input
+			class="flex flex-grow text-slate-400 outline-transparent p-base"
+			type="text"
+			placeholder={inputPlaceholder}
+		/>
 	</div>
-	<div class="flex-grow flex justify-between w-full">
-		<div class="input-chat__actions space-x-xs">
-			<Paperclip className="paddings-xs" size="20"/>
-			<div class="flex bg-slate-100 rounded-sm paddings-xs">
-				<Globe size="20"/>
-				<span class="bg-slate-100">Inactivo</span>
-			</div>
 
+	<div class="flex-grow flex justify-between w-full">
+		<div class="input-chat__actions">
+			<Button variant="icon" size="sm" icon={Paperclip} iconSize="base"/>
+			<Switch
+				icon={Globe}
+				activeLabel="on"
+				inactiveLabel="off"
+				initialActive={true}
+				onToggle={toggleSwitchActive}
+				isDisabled={false}
+
+			/>
 		</div>
 		<div class="input-chat__actions">
-			<Button.Root class="inline-flex h-12 items-center justify-center rounded-xl bg-brand-500
-	px-[21px] text-[15px] font-semibold text-background shadow-mini
-	hover:bg-dark/95 active:scale-98 active:transition-all">
-				Aceptar
-			</Button.Root>
-			<Mic size="20"/>
-			<AudioLines size="20" class="color-slate-500"/>
+			<Button variant="icon" size="sm" icon={Mic} iconSize="base"/>
+			<Button variant="primary" size="sm" icon={AudioLines} iconSize="base"/>
 		</div>
-
 	</div>
 </div>
 
-<style lang="postcss">
-		:root {
-				--rounder-sm: 8px;
-				--rounder-base: 12px;
-				--rounder-lg: 16px;
+<style lang="scss">
+  // Variables para estilos reutilizables
+  $padding-sm: 8px;
+  $padding-xs: 4px;
+  $gap-sm: 8px;
 
-				--space-none: 0.0rem;
-				--space-xs: 0.25rem;
-				--space-sm: 0.5rem;
-				--space-base: 0.75rem;
-				--space-lg: 1rem;
-				--space-xl: 1.25rem;
-				--space-2xl: 1.5rem;
-				--space-3xl: 2rem;
-				--space-4xl: 2.5rem;
-				--space-5xl: 4rem;
-				--space-6xl: 8rem;
+  .input-chat {
+    display: flex;
+    flex-direction: column;
+		align-items: center;
+		gap:4px;
+		width: 640px;
+    max-width: 692px;
+    background-color: #fff;
 
-				--font-archivo: 'Archivo', sans-serif;
-		}
+    @apply p-base rounded-sm space-y-xs shadow-sm;
+  }
 
-		.text-title {
-				font-family: var(--font-archivo);
-				font-weight: bold;
-				font-size: 20pt;
-		}
+  .input-chat__actions {
+    display: flex;
+    align-items: center;
 
-		.text-subtitle {
-				font-family: var(--font-archivo);
-				font-weight: 600;
-				font-size: 16pt;
-		}
+    @apply gap-x-sm;
+  }
 
-		.text-base {
-				font-family: var(--font-archivo);
-				font-weight: 400;
-				font-size: 16pt;
-		}
-
-		.text-avatar {
-				font-family: var(--font-archivo);
-				font-size: 12pt;
-				text-transform: uppercase;
-				font-weight: 600;
-		}
-
-    .input-chat {
-        display: flex;
-        align-items: center;
-        flex-flow: row wrap;
-        padding: 0.5rem;
-        border: 1px solid #e2e8f0;
-				max-width: 692px;
-        background-color: #fff;
+  .switch {
+    @apply py-xs px-xs rounded-sm flex align-baseline gap-xs bg-slate-100;
+    &:hover {
+      @apply text-brand-500;
     }
-		.input-chat__actions {
-				display: flex;
-				align-items: center;
-				gap: 0.5rem;
 
-		}
+    &.active {
+      @apply text-brand-500 bg-brand-100;
+    }
+  }
 </style>
