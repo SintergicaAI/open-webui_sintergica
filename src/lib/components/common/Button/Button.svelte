@@ -1,10 +1,7 @@
 <script lang="ts">
-	import { Icon as IconType } from 'lucide-svelte';
+	import { Search } from 'lucide-svelte';
 
-	type ButtonVariant = 'primary' | 'default' | 'icon' | 'secondary' | 'danger' | 'warning' | 'success' | 'info';
-	type ButtonSize = 'base' | 'sm' | 'lg';
-	type IconPlacement = 'left' | 'right';
-	type IconSize = 'sm' | 'base' | 'lg';
+	type ButtonVariant = 'primary' | 'default' | 'secondary' | 'danger' | 'warning' | 'success' | 'info';
 
 	export let variant: ButtonVariant = 'primary';
 	export let size: ButtonSize = 'base';
@@ -67,7 +64,13 @@
       }
     }
 
-    &.btn-danger {
+    &.btn-primary-outlined {
+			background-color: transparent;
+			border: 1px solid #006EFA;
+			@apply text-brand-500;
+		}
+
+		&.btn-danger {
       background-color: #FF4949;
       @apply text-white;
       &:hover {
@@ -79,6 +82,12 @@
       }
     }
 
+		&.btn-danger-outlined {
+			background-color: transparent;
+			border: 1px solid #FF4949;
+			@apply text-red-500;
+			&:hover {
+				background-color: #FF7A7A;
     &.btn-danger-outline {
       background-color: transparent;
       border: 1px solid #FF4949;
