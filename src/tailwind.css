@@ -3,6 +3,24 @@
 @tailwind utilities;
 
 @layer base {
+	:root {
+		--rounder-sm: 8px;
+		--rounder-base: 12px;
+		--rounder-lg: 16px;
+		--space-none: 0.0rem;
+		--space-xs: 0.25rem;
+		--space-sm: 0.5rem;
+		--space-base: 0.75rem;
+		--space-lg: 1rem;
+		--space-xl: 1.25rem;
+		--space-2xl: 1.5rem;
+		--space-3xl: 2rem;
+		--space-4xl: 2.5rem;
+		--space-5xl: 4rem;
+		--space-6xl: 8rem;
+
+		--font-archivo: 'Archivo', sans-serif;
+	}
 	html,
 	pre {
 		font-family: -apple-system, BlinkMacSystemFont, 'Inter', ui-sans-serif, system-ui, 'Segoe UI',
@@ -12,5 +30,48 @@
 
 	pre {
 		white-space: pre-wrap;
+	}
+}
+
+@layer utilities {
+	.text-title {
+		@apply font-bold text-[20px];
+		font-family: var(--font-archivo);
+	}
+
+	.text-subtitle {
+		font-family: var(--font-archivo);
+		font-weight: 600;
+		font-size: 16px;
+	}
+
+	.text-base {
+		font-family: var(--font-archivo);
+		font-weight: 400;
+		font-size: 16px;
+		line-height: 120%;
+	}
+
+	.text-avatar {
+		font-family: var(--font-archivo);
+		font-size: 12px;
+		text-transform: uppercase;
+		font-weight: 600;
+	}
+
+	.text-button {
+		font-family: var(--font-archivo);
+		font-size: 16px;
+		font-weight: 500;
+		font-style: normal;
+		line-height: normal;
+	}
+
+	.text-label {
+		font-family: var(--font-archivo);
+		font-weight: 300;
+		font-size: 14px;
+		line-height: 15px;
+		letter-spacing: 0;
 	}
 }

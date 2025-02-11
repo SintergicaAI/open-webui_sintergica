@@ -45,7 +45,7 @@ export default {
 					700: '#004599',
 					800: '#003066',
 					900: '#001a33'
-				}
+				},
 			},
 			spacing: {
 				none: '0.0rem',
@@ -62,6 +62,14 @@ export default {
 			},
 			borderRadius: {
 				sm: '8px',
+				md: '12px',
+				lg: '16px',
+				xl: '24px',
+				'2xl': '32px',
+				'3xl': '48px',
+				'4xl': '64px',
+				'5xl': '96px',
+				full: '9999px',
 			},
 			typography: {
 				DEFAULT: {
