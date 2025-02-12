@@ -46,6 +46,8 @@
 	import ChannelItem from './Sidebar/ChannelItem.svelte';
 	import PencilSquare from '../icons/PencilSquare.svelte';
 	import NewFolderButton from '$lib/components/layout/Sidebar/NewFolderButton.svelte';
+	import { LibrarySquare, LogOut, MessageCircle, MessagesSquare, UserPen, Users } from 'lucide-svelte';
+	import Button from '$lib/components/common/Button/Button.svelte';
 
 	const i18n = getContext('i18n');
 
@@ -67,6 +69,8 @@
 	let allChatsLoaded = false;
 
 	let folders = {};
+
+	export let customClass: string = '';
 
 	const initFolders = async () => {
 		const folderList = await getFolders(localStorage.token).catch((error) => {
@@ -386,487 +390,46 @@
 		dropZone?.removeEventListener('drop', onDrop);
 		dropZone?.removeEventListener('dragleave', onDragLeave);
 	});
+
+	function logout() {
+		return '';
+	}
 </script>
 
-<ArchivedChatsModal
-	bind:show={$showArchivedChats}
-	on:change={async () => {
-		await initChatList();
-	}}
-/>
-
-<ChannelModal
-	bind:show={showCreateChannel}
-	onSubmit={async ({ name, access_control }) => {
-		const res = await createNewChannel(localStorage.token, {
-			name: name,
-			access_control: access_control
-		}).catch((error) => {
-			toast.error(error);
-			return null;
-		});
-
-		if (res) {
-			$socket.emit('join-channels', { auth: { token: $user.token } });
-			await initChannels();
-			showCreateChannel = false;
-		}
-	}}
-/>
-
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-
-{#if $showSidebar}
-	<div
-		class=" fixed md:hidden z-40 top-0 right-0 left-0 bottom-0 bg-black/60 w-full min-h-screen h-screen flex justify-center overflow-hidden overscroll-contain"
-		on:mousedown={() => {
-			showSidebar.set(!$showSidebar);
-		}}
-	/>
-{/if}
-
-<div
-	bind:this={navElement}
-	id="sidebar"
-	class="h-screen max-h-[100dvh] min-h-screen select-none {$showSidebar
-		? 'md:relative w-[260px] max-w-[260px]'
-		: '-translate-x-[260px] w-[0px]'} bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-200 text-sm transition fixed z-50 top-0 left-0 overflow-x-hidden
-        "
-	data-state={$showSidebar}
->
-	<div
-		class="py-2 my-auto flex flex-col justify-between h-screen max-h-[100dvh] w-[260px] overflow-x-hidden z-50 {$showSidebar
-			? ''
-			: 'invisible'}"
-	>
-		<div class="flex justify-between space-x-1 text-gray-600 dark:text-gray-400">
-			<a
-				id="sidebar-new-chat-button"
-				class="flex justify-between items-center flex-1 rounded-lg px-2 py-1 h-full text-right hover:bg-gray-100 dark:hover:bg-gray-900 transition"
-				href="/static"
-				draggable="false"
-				on:click={async () => {
-					await goto('/');
-				}}
-			>
-				<div class="flex justify-between items-center w-full h-full">
-					<div class="flex items-center">
-						<div class="self-center ml-4">
-							<img
-								crossorigin="anonymous"
-								src="{WEBUI_BASE_URL}/static/favicon.png"
-								class=" size-7 -translate-x-1.5 rounded-full"
-								alt="logo"
-							/>
-						</div>
-						<div class=" self-center font-medium text-lg text-gray-850 dark:text-white font-primary">
-							Turing
-						</div>
-					</div>
-
-					<button
-						class=" cursor-pointer p-[7px] flex rounded-xl hover:bg-gray-100 dark:hover:bg-gray-900 transition"
-						on:click={() => {
-					showSidebar.set(!$showSidebar);
-				}}
-					>
-						<div class=" m-auto self-center">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke-width="2"
-								stroke="currentColor"
-								class="size-5"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"
-								/>
-							</svg>
-						</div>
-					</button>
-				</div>
-
-			</a>
+<aside class="sidebar {customClass}">
+	<div class="button-group button-group--lg">
+		<div class="logo"/>
+		<div class="icon icon--lg">
+			<MessageCircle />
 		</div>
-		<div class="border-t border-gray-300 dark:border-gray-700 my-2"></div>
-
-		{#if $user?.role === 'admin' || $user?.permissions?.workspace?.models || $user?.permissions?.workspace?.knowledge || $user?.permissions?.workspace?.prompts || $user?.permissions?.workspace?.tools}
-			<div class="px-1.5 flex justify-center text-gray-800 dark:text-gray-200">
-				<a
-					class="flex-grow flex space-x-3 rounded-lg px-2 py-[7px] hover:bg-gray-100 dark:hover:bg-gray-900 transition"
-					href="/workspace"
-					on:click={() => {
-						selectedChatId = null;
-						chatId.set('');
-
-						if ($mobile) {
-							showSidebar.set(false);
-						}
-					}}
-					draggable="false"
-				>
-					<div class="self-center">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke-width="2"
-							stroke="currentColor"
-							class="size-[1.1rem]"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z"
-							/>
-						</svg>
-					</div>
-
-					<div class="flex self-center">
-						<div class=" self-center font-medium text-sm font-primary">{$i18n.t('Workspace')}</div>
-					</div>
-				</a>
-			</div>
-			<div class="border-t border-gray-300 dark:border-gray-700 my-2"></div>
-		{/if}
-		<div class="relative {$temporaryChatEnabled ? 'opacity-20' : ''}">
-			{#if $temporaryChatEnabled}
-				<div class="absolute z-40 w-full h-full flex justify-center"></div>
-			{/if}
-
-			<SearchInput
-				bind:value={search}
-				on:input={searchDebounceHandler}
-				placeholder={$i18n.t('Search')}
-			/>
+		<div class="icon icon--lg">
+			<MessagesSquare />
 		</div>
-		<div class="px-1.5 flex justify-center text-gray-600 dark:text-gray-400 cursor-pointer">
-			<NewFolderButton class="flex-grow flex space-x-3 rounded-lg px-2 py-[7px] hover:bg-gray-100 dark:hover:bg-gray-900 transition" handleClick={createFolder}
-											 content={$i18n.t('New folder')}
-			/>
+		<div class="icon icon--lg">
+			<UserPen />
 		</div>
-		<div class="px-1.5 flex justify-between space-x-1 text-gray-600 dark:text-gray-400">
-			<a
-				id="sidebar-new-chat-button"
-				class="flex justify-between items-center flex-1 rounded-lg px-2 py-1 h-full text-right hover:bg-gray-100 dark:hover:bg-gray-900 transition"
-				href="/static"
-				draggable="false"
-				on:click={async () => {
-					selectedChatId = null;
-					await goto('/');
-					const newChatButton = document.getElementById('new-chat-button');
-					setTimeout(() => {
-						newChatButton?.click();
-						if ($mobile) {
-							showSidebar.set(false);
-						}
-					}, 0);
-				}}
-			>
-				<div class="flex-grow flex space-x-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900 transition">
-
-					<div class="self-center">
-						<PencilSquare className=" size-[1.1rem]" strokeWidth="2" />
-					</div>
-					<div class=" self-center font-medium text-sm font-primary">
-						{$i18n.t('New Chat')}
-					</div>
-				</div>
-			</a>
+		<div class="icon icon--lg">
+			<Users />
 		</div>
-
-		<div class="border-t border-gray-300 dark:border-gray-700 my-2"></div>
-		<div
-			class="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden {$temporaryChatEnabled
-				? 'opacity-20'
-				: ''}"
-		>
-			{#if !search && $pinnedChats.length > 0}
-				<div class="flex flex-col space-y-1 rounded-xl">
-					<Folder
-						className="px-2"
-						bind:open={showPinnedChat}
-						on:change={(e) => {
-							localStorage.setItem('showPinnedChat', e.detail);
-						}}
-						on:import={(e) => {
-							importChatHandler(e.detail, true);
-						}}
-						on:drop={async (e) => {
-							const { type, id, item } = e.detail;
-
-							if (type === 'chat') {
-								let chat = await getChatById(localStorage.token, id).catch((error) => {
-									return null;
-								});
-								if (!chat && item) {
-									chat = await importChat(localStorage.token, item.chat, item?.meta ?? {});
-								}
-
-								if (chat) {
-									if (chat.folder_id) {
-										const res = await updateChatFolderIdById(
-											localStorage.token,
-											chat.id,
-											null
-										).catch((error) => {
-											toast.error(error);
-											return null;
-										});
-									}
-
-									if (!chat.pinned) {
-										const res = await toggleChatPinnedStatusById(localStorage.token, chat.id);
-									}
-
-									initChatList();
-								}
-							}
-						}}
-						name={$i18n.t('Pinned')}
-					>
-						<div
-							class="ml-3 pl-1 mt-[1px] flex flex-col overflow-y-auto scrollbar-hidden border-s border-gray-100 dark:border-gray-900"
-						>
-							{#each $pinnedChats as chat, idx}
-								<ChatItem
-									className=""
-									id={chat.id}
-									title={chat.title}
-									{shiftKey}
-									selected={selectedChatId === chat.id}
-									on:select={() => {
-										selectedChatId = chat.id;
-									}}
-									on:unselect={() => {
-										selectedChatId = null;
-									}}
-									on:change={async () => {
-										initChatList();
-									}}
-									on:tag={(e) => {
-										const { type, name } = e.detail;
-										tagEventHandler(type, name, chat.id);
-									}}
-								/>
-							{/each}
-						</div>
-					</Folder>
-				</div>
-			{/if}
-
-			{#if $config?.features?.enable_channels && ($user.role === 'admin' || $channels.length > 0) && !search}
-				<Folder
-					className="px-2 mt-0.5"
-					name={$i18n.t('Channels')}
-					dragAndDrop={false}
-					onAdd={$user.role === 'admin'
-						? () => {
-								showCreateChannel = true;
-							}
-						: null}
-					onAddLabel={$i18n.t('Create Channel')}
-				>
-					{#each $channels as channel}
-						<ChannelItem
-							{channel}
-							onUpdate={async () => {
-								await initChannels();
-							}}
-						/>
-					{/each}
-				</Folder>
-			{/if}
-
-			{#if !search && folders}
-				<Folders
-					{folders}
-					on:import={(e) => {
-						const { folderId, items } = e.detail;
-						importChatHandler(items, false, folderId);
-					}}
-					on:update={async (e) => {
-						initChatList();
-					}}
-					on:change={async () => {
-						initChatList();
-					}}
-				/>
-			{/if}
-
-			<Folder
-				collapsible={!search}
-				className="px-2 mt-0.5"
-				name={$i18n.t('Chats')}
-				on:import={(e) => {
-					importChatHandler(e.detail);
-				}}
-				on:drop={async (e) => {
-					const { type, id, item } = e.detail;
-
-					if (type === 'chat') {
-						let chat = await getChatById(localStorage.token, id).catch((error) => {
-							return null;
-						});
-						if (!chat && item) {
-							chat = await importChat(localStorage.token, item.chat, item?.meta ?? {});
-						}
-
-						if (chat) {
-							if (chat.folder_id) {
-								const res = await updateChatFolderIdById(localStorage.token, chat.id, null).catch(
-									(error) => {
-										toast.error(error);
-										return null;
-									}
-								);
-							}
-
-							if (chat.pinned) {
-								const res = await toggleChatPinnedStatusById(localStorage.token, chat, id);
-							}
-
-							initChatList();
-						}
-					} else if (type === 'folder') {
-						if (folders[id].parent_id === null) {
-							return;
-						}
-
-						const res = await updateFolderParentIdById(localStorage.token, id, null).catch(
-							(error) => {
-								toast.error(error);
-								return null;
-							}
-						);
-
-						if (res) {
-							await initFolders();
-						}
-					}
-				}}
-			>
-				{#if $temporaryChatEnabled}
-					<div class="absolute z-40 w-full h-full flex justify-center"></div>
-				{/if}
-
-				<div class=" flex-1 flex flex-col overflow-y-auto scrollbar-hidden">
-					<div class="pt-1.5">
-						{#if $chats}
-							{#each $chats as chat, idx}
-								{#if idx === 0 || (idx > 0 && chat.time_range !== $chats[idx - 1].time_range)}
-									<div
-										class="w-full pl-2.5 text-xs text-gray-500 dark:text-gray-500 font-medium {idx ===
-										0
-											? ''
-											: 'pt-5'} pb-1.5"
-									>
-										{$i18n.t(chat.time_range)}
-										<!-- localisation keys for time_range to be recognized from the i18next parser (so they don't get automatically removed):
-							{$i18n.t('Today')}
-							{$i18n.t('Yesterday')}
-							{$i18n.t('Previous 7 days')}
-							{$i18n.t('Previous 30 days')}
-							{$i18n.t('January')}
-							{$i18n.t('February')}
-							{$i18n.t('March')}
-							{$i18n.t('April')}
-							{$i18n.t('May')}
-							{$i18n.t('June')}
-							{$i18n.t('July')}
-							{$i18n.t('August')}
-							{$i18n.t('September')}
-							{$i18n.t('October')}
-							{$i18n.t('November')}
-							{$i18n.t('December')}
-							-->
-									</div>
-								{/if}
-
-								<ChatItem
-									className=""
-									id={chat.id}
-									title={chat.title}
-									{shiftKey}
-									selected={selectedChatId === chat.id}
-									on:select={() => {
-										selectedChatId = chat.id;
-									}}
-									on:unselect={() => {
-										selectedChatId = null;
-									}}
-									on:change={async () => {
-										initChatList();
-									}}
-									on:tag={(e) => {
-										const { type, name } = e.detail;
-										tagEventHandler(type, name, chat.id);
-									}}
-								/>
-							{/each}
-
-							{#if $scrollPaginationEnabled && !allChatsLoaded}
-								<Loader
-									on:visible={(e) => {
-										if (!chatListLoading) {
-											loadMoreChats();
-										}
-									}}
-								>
-									<div
-										class="w-full flex justify-center py-1 text-xs animate-pulse items-center gap-2"
-									>
-										<Spinner className=" size-4" />
-										<div class=" ">Loading...</div>
-									</div>
-								</Loader>
-							{/if}
-						{:else}
-							<div class="w-full flex justify-center py-1 text-xs animate-pulse items-center gap-2">
-								<Spinner className=" size-4" />
-								<div class=" ">Loading...</div>
-							</div>
-						{/if}
-					</div>
-				</div>
-			</Folder>
+		<div class="icon icon--lg">
+			<LibrarySquare />
 		</div>
-
-		<div class="px-2">
-			<div class="flex flex-col font-primary">
-				{#if $user !== undefined}
-					<UserMenu
-						role={$user.role}
-						on:show={(e) => {
-							if (e.detail === 'archived-chat') {
-								showArchivedChats.set(true);
-							}
-						}}
-					>
-						<button
-							class=" flex items-center rounded-xl py-2.5 px-2.5 w-full hover:bg-gray-100 dark:hover:bg-gray-900 transition"
-							on:click={() => {
-								showDropdown = !showDropdown;
-							}}
-						>
-							<div class=" self-center mr-3">
-								<img
-									src={$user.profile_image_url}
-									class=" max-w-[30px] object-cover rounded-full"
-									alt="User profile"
-								/>
-							</div>
-							<div class=" self-center font-medium">{$user.name}</div>
-						</button>
-					</UserMenu>
-				{/if}
-			</div>
+		<div data-svg-wrapper>
+			<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path fill-rule="evenodd" clip-rule="evenodd" d="M10.6873 11.595C11.1116 11.0859 11.8683 11.0171 12.3774 11.4414L17.1774 15.4413C17.4682 15.6837 17.6276 16.0491 17.6074 16.4272C17.5872 16.8053 17.3898 17.1516 17.0748 17.3617L12.2748 20.5616C11.7234 20.9293 10.9783 20.7803 10.6107 20.2288C10.2431 19.6774 10.3921 18.9324 10.9435 18.5647L14.4063 16.2562L10.841 13.2851C10.3318 12.8608 10.263 12.1041 10.6873 11.595ZM25.609 18.7632C26.9345 18.7632 28.009 17.6887 28.009 16.3632C28.009 15.0377 26.9345 13.9632 25.609 13.9632C24.2836 13.9632 23.2091 15.0377 23.2091 16.3632C23.2091 17.6887 24.2836 18.7632 25.609 18.7632ZM25.609 21.1631C28.26 21.1631 30.409 19.0141 30.409 16.3632C30.409 13.7122 28.26 11.5632 25.609 11.5632C22.9581 11.5632 20.8091 13.7122 20.8091 16.3632C20.8091 19.0141 22.9581 21.1631 25.609 21.1631ZM15.7204 24.3822C15.2891 23.879 14.5315 23.8207 14.0283 24.252C13.5251 24.6834 13.4669 25.4409 13.8982 25.9441C14.8244 27.0247 16.5121 28.3342 18.6326 28.7234C20.8497 29.1303 23.3535 28.4944 25.6885 25.9797C26.1395 25.494 26.1114 24.7348 25.6257 24.2838C25.1401 23.8328 24.3808 23.861 23.9299 24.3466C22.1049 26.3119 20.4088 26.6093 19.0658 26.3629C17.6264 26.0987 16.3942 25.1683 15.7204 24.3822Z" fill="#64748B"/>
+			</svg>
 		</div>
 	</div>
-</div>
+	<div class="button-group">
+		<div class="icon icon--lg" on:click={logout}>
+			<LogOut />
+		</div>
+		<div>
+			<img src="/static/favicon.png" alt="logo turing" class="w-[48px] h-[48px]" />
+		</div>
+	</div>
+</aside>
 
 <style lang="scss">
     .scrollbar-hidden:active::-webkit-scrollbar-thumb,
@@ -878,16 +441,112 @@
         visibility: hidden;
     }
 
+    $sidebar-width: 56px;
+
     .sidebar {
-        width: 56px;
-        overflow-y: hidden;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-content: center;
-        align-items: center;
-        @apply
-        py-sm
-        space-y-base;
+      width: $sidebar-width;
+      overflow-y: hidden;
+
+      // Estilo de disposición flex organizado
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+			flex: 0 0 auto;
+
+      // Clases utilitarias aplicadas
+      @apply py-sm space-y-base h-svh;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      @apply gap-lg;
+
+      &.button-group--sm {
+        @apply gap-sm
+      }
+
+      &.button-group--lg {
+        @apply gap-3xl
+      }
+    }
+
+    .button-group-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      @apply gap-lg;
+    }
+
+    .chat {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+
+      @apply
+      bg-slate-100
+      w-full
+      rounded-lg;
+
+      .chat__sidebar {
+        @apply flex flex-col gap-base border-r border-slate-300 w-full py-lg px-base;
+      }
+
+      .chat__container {
+        @apply flex flex-col gap-base w-full pb-lg h-full;
+      }
+    }
+
+    .app {
+      @apply flex
+      px-sm
+      py-base
+      space-x-sm
+      bg-slate-200
+      m-0
+      h-screen
+    }
+
+    .logo {
+      height: 48px;
+      width: 48px;
+      border-radius: 8px;
+      background-image: url('/favicon.png');
+      background-color: lightgray;
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+
+    .icon {
+      @apply p-xs
+      rounded-sm
+      text-slate-500;
+      height: 24px;
+      width: 24px;
+
+      &.icon--lg {
+        @apply p-sm
+        text-xs
+        rounded-sm;
+        height: 40px;
+        width: 40px;
+
+
+      }
+
+      &:active {
+        @apply text-brand-500
+        bg-brand-100;
+
+      }
+
+      &:hover {
+        @apply text-brand-500
+        bg-brand-100;
+      }
+
     }
 </style>
