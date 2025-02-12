@@ -20,31 +20,15 @@
 	import { getBanners } from '$lib/apis/configs/index.js';
 	import { getTools } from '$lib/apis/tools/index.js';
 
-	let pinnedOpen = false;
-	let folderOpen = false;
 
-	function togglePinned() {
-		pinnedOpen = !pinnedOpen;
-	}
-
-	function toggleFolder() {
-		folderOpen = !folderOpen;
-	}
-
-	const i18n = getContext('i18n');
-
-	let loaded = false;
 	let DB = null;
 	let localDBChats = [];
-
-	let version;
 
 	onMount(async () => {
 		if ($user === undefined) {
 			await goto('/auth');
 		} else if (['user', 'admin'].includes($user.role)) {
 			try {
-				// Check if IndexedDB exists
 				DB = await openDB('Chats', 1);
 
 				if (DB) {
