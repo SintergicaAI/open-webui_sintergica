@@ -16,7 +16,16 @@
 	import List from '$lib/components/common/List/List.svelte';
 	import NavbarRedesign from '$lib/components/layout/NavbarRedesign.svelte';
 
-	console.log('Chat redesign');
+	let username = 'Alexis Alvarez';
+
+	let items = [];
+
+	function addElement() {
+		items = [...items, `Elemento ${items.length + 1}`];
+	}
+
+
+
 </script>
 
 <main class="chat">
@@ -39,15 +48,31 @@
 				<List items={['Chat pinned 1','Chat pinned 2']}/>
 			</Accordeon>
 			<Accordeon title="Finanzas" icon={Pin}>
-				<List items={['Chat finanzas 1','Chat finanzas 2']}/>
+				<List {items}/>
 			</Accordeon>
+
+			<button on:click={addElement}>Agregar Elemento</button>
+
+
 		</section>
 	</aside>
 	<article class="chat__container">
 		<!-- Toolbar -->
 		<NavbarRedesign title="Title"/>
 		<section class="flex justify-center items-end w-full h-full">
-			<InputChat />
+			{#if false}
+					<InputChat />
+				{:else}
+				<div class="flex flex-col justify-center items-center h-full gap-3xl">
+					<div class="flex flex-col justify-center items-center">
+						<h1 class="text-[32px] font-bold text-brand-500">{username}</h1>
+						<p class="text-subtitle">
+							En que te puedo ayudar?
+						</p>
+					</div>
+					<InputChat />
+					</div>
+				{/if}
 		</section>
 	</article>
 </main>
