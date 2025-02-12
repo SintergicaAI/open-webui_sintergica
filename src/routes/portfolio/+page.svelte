@@ -19,7 +19,7 @@
 		</div>
 
 		<div class="preview-area">
-			<Accordeon>
+			<Accordeon title="Title" icon={Search}>
 				<List items={['Item 1', 'Item 2', 'Item 3']}/>
 			</Accordeon>
 		</div>
