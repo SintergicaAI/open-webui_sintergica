@@ -1,32 +1,24 @@
-<script xmlns:slot="http://www.w3.org/1999/html">
+<script lang="ts">
 	import '../../tailwind.css';
 	import '../../app.css';
 	import 'tippy.js/dist/tippy.css';
+	import SidebarRedesign from '$lib/components/layout/SidebarRedesign.svelte';
+	import { getContext, onMount, tick } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { deleteDB, openDB } from 'idb';
+	import { getUserSettings } from '$lib/apis/users/index.js';
 	import {
-		ChevronDown,
-		ChevronUp,
-		CircleHelp,
-		Clipboard,
-		FolderPlus,
-		LibrarySquare,
-		LogOut,
-		MessageCircle,
-		MessageCirclePlus,
-		MessagesSquare,
-		Package,
-		Pin,
-		Search,
-		Settings,
-		Share2,
-		SidebarClose,
-		UserPen,
-		Users
-	} from 'lucide-svelte';
-	import Button from '$lib/components/common/Button/Button.svelte';
-	import InputChat from '$lib/components/chat/InputChat.svelte';
-	import Accordeon from '$lib/components/common/List/Accordeon.svelte';
-	import List from '$lib/components/common/List/List.svelte';
-	import ModelList from '$lib/components/admin/Settings/Models/ModelList.svelte';
+		user,
+		settings,
+		models,
+		tools,
+		banners,
+		showSettings,
+		temporaryChatEnabled
+	} from '$lib/stores';
+	import { getModels } from '$lib/apis/index.js';
+	import { getBanners } from '$lib/apis/configs/index.js';
+	import { getTools } from '$lib/apis/tools/index.js';
 
 	let pinnedOpen = false;
 	let folderOpen = false;
@@ -38,106 +30,156 @@
 	function toggleFolder() {
 		folderOpen = !folderOpen;
 	}
+
+	const i18n = getContext('i18n');
+
+	let loaded = false;
+	let DB = null;
+	let localDBChats = [];
+
+	let version;
+
+	onMount(async () => {
+		if ($user === undefined) {
+			await goto('/auth');
+		} else if (['user', 'admin'].includes($user.role)) {
+			try {
+				// Check if IndexedDB exists
+				DB = await openDB('Chats', 1);
+
+				if (DB) {
+					const chats = await DB.getAllFromIndex('chats', 'timestamp');
+					localDBChats = chats.map((item, idx) => chats[chats.length - 1 - idx]);
+
+					if (localDBChats.length === 0) {
+						await deleteDB('Chats');
+					}
+				}
+
+				console.log(DB);
+			} catch (error) {
+				// IndexedDB Not Found
+			}
+
+			const userSettings = await getUserSettings(localStorage.token).catch((error) => {
+				console.error(error);
+				return null;
+			});
+
+			if (userSettings) {
+				settings.set(userSettings.ui);
+			} else {
+				let localStorageSettings = {} as Parameters<(typeof settings)['set']>[0];
+
+				try {
+					localStorageSettings = JSON.parse(localStorage.getItem('settings') ?? '{}');
+				} catch (e: unknown) {
+					console.error('Failed to parse settings from localStorage', e);
+				}
+
+				settings.set(localStorageSettings);
+			}
+
+			models.set(await getModels(localStorage.token));
+			banners.set(await getBanners(localStorage.token));
+			tools.set(await getTools(localStorage.token));
+
+			document.addEventListener('keydown', async function (event) {
+				const isCtrlPressed = event.ctrlKey || event.metaKey; // metaKey is for Cmd key on Mac
+				// Check if the Shift key is pressed
+				const isShiftPressed = event.shiftKey;
+
+				// Check if Ctrl + Shift + O is pressed
+				if (isCtrlPressed && isShiftPressed && event.key.toLowerCase() === 'o') {
+					event.preventDefault();
+					console.log('newChat');
+					document.getElementById('sidebar-new-chat-button')?.click();
+				}
+
+				// Check if Shift + Esc is pressed
+				if (isShiftPressed && event.key === 'Escape') {
+					event.preventDefault();
+					console.log('focusInput');
+					document.getElementById('chat-input')?.focus();
+				}
+
+				// Check if Ctrl + Shift + ; is pressed
+				if (isCtrlPressed && isShiftPressed && event.key === ';') {
+					event.preventDefault();
+					console.log('copyLastCodeBlock');
+					const button = [...document.getElementsByClassName('copy-code-button')]?.at(-1);
+					button?.click();
+				}
+
+				// Check if Ctrl + Shift + C is pressed
+				if (isCtrlPressed && isShiftPressed && event.key.toLowerCase() === 'c') {
+					event.preventDefault();
+					console.log('copyLastResponse');
+					const button = [...document.getElementsByClassName('copy-response-button')]?.at(-1);
+					console.log(button);
+					button?.click();
+				}
+
+				// Check if Ctrl + Shift + S is pressed
+				if (isCtrlPressed && isShiftPressed && event.key.toLowerCase() === 's') {
+					event.preventDefault();
+					console.log('toggleSidebar');
+					document.getElementById('sidebar-toggle-button')?.click();
+				}
+
+				// Check if Ctrl + Shift + Backspace is pressed
+				if (
+					isCtrlPressed &&
+					isShiftPressed &&
+					(event.key === 'Backspace' || event.key === 'Delete')
+				) {
+					event.preventDefault();
+					console.log('deleteChat');
+					document.getElementById('delete-chat-button')?.click();
+				}
+
+				// Check if Ctrl + . is pressed
+				if (isCtrlPressed && event.key === '.') {
+					event.preventDefault();
+					console.log('openSettings');
+					showSettings.set(!$showSettings);
+				}
+
+				// Check if Ctrl + / is pressed
+				if (isCtrlPressed && event.key === '/') {
+					event.preventDefault();
+					console.log('showShortcuts');
+					document.getElementById('show-shortcuts-button')?.click();
+				}
+
+				// Check if Ctrl + Shift + ' is pressed
+				if (isCtrlPressed && isShiftPressed && event.key.toLowerCase() === `'`) {
+					event.preventDefault();
+					console.log('temporaryChat');
+					temporaryChatEnabled.set(!$temporaryChatEnabled);
+					await goto('/');
+					const newChatButton = document.getElementById('new-chat-button');
+					setTimeout(() => {
+						newChatButton?.click();
+					}, 0);
+				}
+			});
+			await tick();
+		}
+
+		loaded = true;
+	});
 </script>
 
 <svelte:head>
 	<title>Turing</title>
 </svelte:head>
 
-
 <div class="app">
-	<aside class="sidebar">
-		<div class="button-group button-group--lg">
-			<div class="logo">
-
-			</div>
-			<div class="icon icon--lg">
-				<MessageCircle />
-			</div>
-
-			<Button variant="icon" size="lg" icon={MessageCircle} buttonClasses="text-slate-500"/>
-			<div class="icon icon--lg">
-				<MessagesSquare />
-			</div>
-			<div class="icon icon--lg">
-				<UserPen />
-			</div>
-			<div class="icon icon--lg">
-				<Users />
-			</div>
-			<div class="icon icon--lg">
-				<LibrarySquare />
-			</div>
-		</div>
-		<div class="button-group">
-			<div class="icon icon--lg">
-				<LogOut />
-			</div>
-			<div>
-				<img src="/static/favicon.png" alt="logo turing" class="w-[48px] h-[48px]" />
-			</div>
-		</div>
-	</aside>
-	<main class="chat">
-		<aside class="chat__sidebar">
-			<header class="flex justify-between items-center self-stretch">
-				<h1 class="text-title">Turing</h1>
-				<menu class="button-group-row text-slate-500">
-					<Button variant="icon" size="sm" icon={Search} buttonClasses="text-slate-500"/>
-					<Button variant="icon" size="sm" icon={FolderPlus} buttonClasses="text-slate-500"/>
-					<Button variant="icon" size="sm" icon={MessageCirclePlus} buttonClasses="text-slate-500"/>
-				</menu>
-			</header>
-			<div class="flex justify-center">
-				<Button variant="primary" icon={MessageCirclePlus} size="sm" buttonClasses="text-button w-full gap-sm">
-					Nuevo chat
-				</Button>
-			</div>
-			<section class="flex-col justify-center items-center">
-				<Accordeon title="Anclados" icon={Pin}>
-					<List items={['Chat pinned 1','Chat pinned 2']}/>
-				</Accordeon>
-				<Accordeon title="Finanzas" icon={Pin}>
-					<List items={['Chat finanzas 1','Chat finanzas 2']}/>
-				</Accordeon>
-			</section>
-			<slot/>
-			<div>
-
-			</div>
-		</aside>
-		<article class="chat-container__content">
-			<!-- Toolbar -->
-			<header class="border-b border-slate-300 flex justify-between items-center p-base">
-				<div class="flex gap-x-base items-center">
-					<SidebarClose class="icon icon--lg text-slate-500" />
-					<div class="flex gap-x-base items-center">
-						<div class="flex flex-col justify-center align-center rounded-full bg-orange-400 w-8 h-8 gap-sm ">
-						</div>
-						<h2 class="text-title">Model name</h2>
-						<ModelList />
-						<ChevronDown class="text-slate-500"/>
-					</div>
-					<span class="text-slate-500">|</span>
-					<h2 class="text-subtitle">Generated title</h2>
-				</div>
-
-				<div class="flex gap-x-sm">
-					<Button variant="icon" size="sm" icon={Package} buttonClasses="text-slate-500"/>
-					<Button variant="icon" size="sm" icon={Clipboard} buttonClasses="text-slate-500"/>
-					<Button variant="icon" size="sm" icon={Share2} buttonClasses="text-slate-500"/>
-					<Button variant="icon" size="sm" icon={CircleHelp} buttonClasses="text-slate-500"/>
-					<Button variant="icon" size="sm" icon={Settings} buttonClasses="text-slate-500"/>
-				</div>
-
-			</header>
-			<section class="flex justify-center items-end w-full h-full">
-				<InputChat />
-			</section>
-		</article>
-
-	</main>
-
+	<div class="sidebar">
+		<SidebarRedesign />
+	</div>
+		<slot/>
 </div>
 
 <style lang="scss">
@@ -145,16 +187,6 @@
     box-sizing: border-box;
   }
 
-  .logo {
-    height: 48px;
-    width: 48px;
-    border-radius: 8px;
-    background-image: url('/favicon.png');
-    background-color: lightgray;
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
-  }
 
   .sidebar {
     width: 56px;
@@ -197,7 +229,7 @@
     grid-template-columns: 250px 1fr;
 
     @apply
-    bg-slate-100
+    bg-lvl-1
     w-full
     rounded-lg;
 
@@ -205,19 +237,19 @@
       @apply flex flex-col gap-base border-r border-slate-300 w-full py-lg px-base;
     }
 
-		.chat-container__content {
+		.chat__container {
 			@apply flex flex-col gap-base w-full pb-lg h-full;
     }
   }
 
   .app {
     @apply flex
-    px-sm
-    py-base
+			bg-lvl-0
+    p-sm
     space-x-sm
-    bg-slate-200
+			gap-sm
     m-0
-    h-screen
+		bg-white dark:bg-gray-900 h-screen max-h-[100dvh] overflow-auto flex flex-row
   }
 
   .icon {
