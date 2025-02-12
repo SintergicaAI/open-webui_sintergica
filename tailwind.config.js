@@ -46,6 +46,11 @@ export default {
 					800: '#003066',
 					900: '#001a33'
 				},
+				lvl:{
+					0: 'var(--tw-color-slate-200)',
+					1:'var(--tw-color-slate-100)',
+					2:'var(--tw-color-slate-300)',
+				}
 			},
 			spacing: {
 				none: '0.0rem',

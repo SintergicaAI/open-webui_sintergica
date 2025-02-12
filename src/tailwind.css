@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @layer base {
+
 	:root {
 		--rounder-sm: 8px;
 		--rounder-base: 12px;
@@ -20,6 +21,17 @@
 		--space-6xl: 8rem;
 
 		--font-archivo: 'Archivo', sans-serif;
+
+		--tw-color-slate-50: #f8fafc;
+		--tw-color-slate-100: #f1f5f9;
+		--tw-color-slate-200: #e2e8f0;
+		--tw-color-slate-300: #cbd5e1;
+		--tw-color-slate-400: #94a3b8;
+		--tw-color-slate-500: #64748b;
+		--tw-color-slate-600: #475569;
+		--tw-color-slate-700: #334155;
+		--tw-color-slate-800: #1e293b;
+		--tw-color-slate-900: #020617;
 	}
 	html,
 	pre {
