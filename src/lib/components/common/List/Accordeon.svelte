@@ -55,10 +55,6 @@
       @apply py-sm text-slate-500 cursor-pointer;
 
 			&:hover {
-        // While hovering
-        // Change to: "hover, open=true";
-        // Animate: Smart animate;
-
 				@apply text-brand-500;
       }
 
@@ -66,8 +62,6 @@
 				@apply text-brand-800;
       }
     }
-
-
 
     &__header-content {
       display: flex;
@@ -108,7 +102,6 @@
 
     &--open {
 			@apply text-label;
-
     }
   }
 </style>
