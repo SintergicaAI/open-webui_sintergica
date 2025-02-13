@@ -1,31 +1,19 @@
 <script>
 	import InputChat from '$lib/components/chat/InputChat.svelte';
 	import Button from '$lib/components/common/Button/Button.svelte';
-	import {
-		ChevronDown, CircleHelp,
-		FolderPlus,
-		MessageCirclePlus,
-		Package,
-		Pin,
-		Search, Settings,
-		Share2,
-		SidebarClose,
-		Clipboard,
-	} from 'lucide-svelte';
+	import { ChevronDown, Folder, FolderPlus, MessageCirclePlus, Pin, Search } from 'lucide-svelte';
 	import Accordeon from '$lib/components/common/List/Accordeon.svelte';
 	import List from '$lib/components/common/List/List.svelte';
 	import NavbarRedesign from '$lib/components/layout/NavbarRedesign.svelte';
+	import { DropdownMenu } from 'bits-ui';
 
 	let username = 'Alexis Alvarez';
 
-	let items = [];
+	let chats = ['Nueva conversacion'];
 
 	function addElement() {
-		items = [...items, `Elemento ${items.length + 1}`];
+		chats = [...chats, `Elemento ${chats.length + 1}`];
 	}
-
-
-
 </script>
 
 <main class="chat">
@@ -39,7 +27,7 @@
 			</menu>
 		</header>
 		<div class="flex justify-center">
-			<Button variant="primary" icon={MessageCirclePlus} size="sm" buttonClasses="text-button w-full gap-sm">
+			<Button variant="primary" icon={MessageCirclePlus} size="sm" buttonClasses="text-button w-full gap-sm" onClick={addElement}>
 				Nuevo chat
 			</Button>
 		</div>
@@ -47,11 +35,9 @@
 			<Accordeon title="Anclados" icon={Pin}>
 				<List items={['Chat pinned 1','Chat pinned 2']}/>
 			</Accordeon>
-			<Accordeon title="Finanzas" icon={Pin}>
-				<List {items}/>
+			<Accordeon title="Finanzas" icon={Folder}>
+				<List items={chats}/>
 			</Accordeon>
-
-			<button on:click={addElement}>Agregar Elemento</button>
 
 
 		</section>
@@ -62,8 +48,26 @@
 		<section class="flex justify-center items-end w-full h-full">
 			{#if false}
 					<InputChat />
-				{:else}
+			{:else}
 				<div class="flex flex-col justify-center items-center h-full gap-3xl">
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger>
+							<div class="flex gap-x-base items-center">
+								<div class="flex flex-col justify-center align-center rounded-full bg-orange-400 w-8 h-8 gap-sm ">
+								</div>
+								<h2 class="text-title">Model name</h2>
+								<ChevronDown class="text-slate-500"/>
+							</div>
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content>
+							<DropdownMenu.Item class="text-label cursor-pointer hover:bg-slate-100">
+								Model 1
+							</DropdownMenu.Item>
+							<DropdownMenu.Item class="text-label">
+								Model 2
+							</DropdownMenu.Item>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
 					<div class="flex flex-col justify-center items-center">
 						<h1 class="text-[32px] font-bold text-brand-500">{username}</h1>
 						<p class="text-subtitle">
@@ -78,9 +82,6 @@
 </main>
 
 <style lang="scss">
-  *, :after, :before {
-    box-sizing: border-box;
-  }
 
   .button-group {
     display: flex;
