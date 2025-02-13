@@ -22,7 +22,7 @@ export default {
 					950: 'var(--color-gray-950, #0d0d0d)'
 				},
 				brand:{
-					50: '#F9F9FC',
+					50: '#DDF2FB',
 					100: '#B4E0F7',
 					200: '#89CAF5',
 					300: '#5DB0F5',
@@ -47,7 +47,7 @@ export default {
 					900: '#001a33'
 				},
 				lvl:{
-					0: 'var(--tw-color-slate-200)',
+					0:'var(--tw-color-slate-200)',
 					1:'var(--tw-color-slate-100)',
 					2:'var(--tw-color-slate-300)',
 				}
@@ -91,7 +91,9 @@ export default {
 				archivo: ['Archivo', 'sans-serif'],
 			},
 			padding: {
-				'safe-bottom': 'env(safe-area-inset-bottom)'
+				'safe-bottom': 'env(safe-area-inset-bottom)',
+				'base': '0.75rem'
+
 			}
 		}
 	},
