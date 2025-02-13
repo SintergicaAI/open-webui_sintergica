@@ -1,7 +1,4 @@
 <script lang="ts">
-	import '../../tailwind.css';
-	import '../../app.css';
-	import 'tippy.js/dist/tippy.css';
 	import SidebarRedesign from '$lib/components/layout/SidebarRedesign.svelte';
 	import { getContext, onMount, tick } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -160,18 +157,16 @@
 </svelte:head>
 
 <div class="app">
-	<div class="sidebar">
+	<div class="flex">
 		<SidebarRedesign />
 	</div>
+	<div class="content">
 		<slot/>
+	</div>
+
 </div>
 
 <style lang="scss">
-  *, :after, :before {
-    box-sizing: border-box;
-  }
-
-
   .sidebar {
     width: 56px;
     overflow-y: hidden;
@@ -208,12 +203,20 @@
     @apply gap-lg;
   }
 
+	.content {
+		@apply flex-grow flex
+    bg-lvl-1
+    w-full
+    rounded-lg
+		;
+	}
+
   .chat {
     display: grid;
     grid-template-columns: 250px 1fr;
 
     @apply
-    bg-lvl-1
+    bg-lvl-2
     w-full
     rounded-lg;
 
@@ -230,10 +233,8 @@
     @apply flex
 			bg-lvl-0
     p-sm
-    space-x-sm
 			gap-sm
-    m-0
-		bg-white dark:bg-gray-900 h-screen max-h-[100dvh] overflow-auto flex flex-row
+		dark:bg-gray-900 h-svh max-h-[100dvh]
   }
 
   .icon {

@@ -101,7 +101,6 @@
     }
 
     &--open {
-			@apply text-label;
     }
   }
 </style>

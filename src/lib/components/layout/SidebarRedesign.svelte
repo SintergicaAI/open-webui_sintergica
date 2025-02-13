@@ -48,6 +48,7 @@
 	import NewFolderButton from '$lib/components/layout/Sidebar/NewFolderButton.svelte';
 	import { LibrarySquare, LogOut, MessageCircle, MessagesSquare, UserPen, Users } from 'lucide-svelte';
 	import Button from '$lib/components/common/Button/Button.svelte';
+	import NavigationMenu from '$lib/components/layout/NavigationMenu.svelte';
 
 	const i18n = getContext('i18n');
 
@@ -394,27 +395,20 @@
 	function logout() {
 		return '';
 	}
+
+	const routes = [
+		{ name: 'Chat', path: '/dev', icon:MessageCircle},
+		{ name: 'Usuario', path: '/dev/user', icon: UserPen },
+		{ name: 'Usuarios', path: '/dev/users', icon: Users },
+		{ name: 'Conocimiento', path: '/dev/knowledge', icon: LibrarySquare}
+	];
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <aside class="sidebar {customClass}">
 	<div class="button-group button-group--lg">
 		<div class="logo"/>
-		<div class="icon icon--lg">
-			<MessageCircle />
-		</div>
-		<div class="icon icon--lg">
-			<MessagesSquare />
-		</div>
-		<div class="icon icon--lg">
-			<UserPen />
-		</div>
-		<div class="icon icon--lg">
-			<Users />
-		</div>
-		<div class="icon icon--lg">
-			<LibrarySquare />
-		</div>
+		<NavigationMenu routes={routes} />
 		<div data-svg-wrapper>
 			<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
 				<path fill-rule="evenodd" clip-rule="evenodd" d="M10.6873 11.595C11.1116 11.0859 11.8683 11.0171 12.3774 11.4414L17.1774 15.4413C17.4682 15.6837 17.6276 16.0491 17.6074 16.4272C17.5872 16.8053 17.3898 17.1516 17.0748 17.3617L12.2748 20.5616C11.7234 20.9293 10.9783 20.7803 10.6107 20.2288C10.2431 19.6774 10.3921 18.9324 10.9435 18.5647L14.4063 16.2562L10.841 13.2851C10.3318 12.8608 10.263 12.1041 10.6873 11.595ZM25.609 18.7632C26.9345 18.7632 28.009 17.6887 28.009 16.3632C28.009 15.0377 26.9345 13.9632 25.609 13.9632C24.2836 13.9632 23.2091 15.0377 23.2091 16.3632C23.2091 17.6887 24.2836 18.7632 25.609 18.7632ZM25.609 21.1631C28.26 21.1631 30.409 19.0141 30.409 16.3632C30.409 13.7122 28.26 11.5632 25.609 11.5632C22.9581 11.5632 20.8091 13.7122 20.8091 16.3632C20.8091 19.0141 22.9581 21.1631 25.609 21.1631ZM15.7204 24.3822C15.2891 23.879 14.5315 23.8207 14.0283 24.252C13.5251 24.6834 13.4669 25.4409 13.8982 25.9441C14.8244 27.0247 16.5121 28.3342 18.6326 28.7234C20.8497 29.1303 23.3535 28.4944 25.6885 25.9797C26.1395 25.494 26.1114 24.7348 25.6257 24.2838C25.1401 23.8328 24.3808 23.861 23.9299 24.3466C22.1049 26.3119 20.4088 26.6093 19.0658 26.3629C17.6264 26.0987 16.3942 25.1683 15.7204 24.3822Z" fill="#64748B"/>
@@ -447,15 +441,12 @@
       width: $sidebar-width;
       overflow-y: hidden;
 
-      // Estilo de disposición flex organizado
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       align-items: center;
-			flex: 0 0 auto;
 
-      // Clases utilitarias aplicadas
-      @apply py-sm space-y-base h-svh;
+      @apply py-sm space-y-base;
     }
 
     .button-group {

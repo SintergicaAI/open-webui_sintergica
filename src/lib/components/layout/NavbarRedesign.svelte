@@ -14,12 +14,12 @@
 						<div class="flex gap-x-base items-center">
 							<div class="flex flex-col justify-center align-center rounded-full bg-orange-400 w-8 h-8 gap-sm ">
 							</div>
-							<h2 class="text-title">Model name</h2>
+							<h2 class="text-title">Turing Flow</h2>
 							<ChevronDown class="text-slate-500"/>
 						</div>
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content>
-						<DropdownMenu.Item class="text-label cursor-pointer hover:bg-slate-100">
+						<DropdownMenu.Item class=" text-label cursor-pointer hover:bg-slate-100">
 							Model 1
 						</DropdownMenu.Item>
 						<DropdownMenu.Item class="text-label">
