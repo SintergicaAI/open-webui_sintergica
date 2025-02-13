@@ -1,53 +1,21 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
 	import { v4 as uuidv4 } from 'uuid';
-
-	import { goto } from '$app/navigation';
 	import {
 		channels,
-		chatId,
 		chats,
-		config,
 		currentChatPage,
 		mobile,
 		pinnedChats,
 		scrollPaginationEnabled,
-		showArchivedChats,
 		showSidebar,
-		socket,
-		tags,
-		temporaryChatEnabled,
-		user
+		tags
 	} from '$lib/stores';
 	import { getContext, onDestroy, onMount } from 'svelte';
-	import {
-		getAllTags,
-		getChatById,
-		getChatList,
-		getChatListBySearchText,
-		getPinnedChatList,
-		importChat,
-		toggleChatPinnedStatusById,
-		updateChatFolderIdById
-	} from '$lib/apis/chats';
-	import { createNewFolder, getFolders, updateFolderParentIdById } from '$lib/apis/folders';
-	import { WEBUI_BASE_URL } from '$lib/constants';
-
-	import ArchivedChatsModal from './Sidebar/ArchivedChatsModal.svelte';
-	import UserMenu from './Sidebar/UserMenu.svelte';
-	import ChatItem from './Sidebar/ChatItem.svelte';
-	import Spinner from '../common/Spinner.svelte';
-	import Loader from '../common/Loader.svelte';
-	import SearchInput from './Sidebar/SearchInput.svelte';
-	import Folder from '../common/Folder.svelte';
-	import Folders from './Sidebar/Folders.svelte';
-	import { createNewChannel, getChannels } from '$lib/apis/channels';
-	import ChannelModal from './Sidebar/ChannelModal.svelte';
-	import ChannelItem from './Sidebar/ChannelItem.svelte';
-	import PencilSquare from '../icons/PencilSquare.svelte';
-	import NewFolderButton from '$lib/components/layout/Sidebar/NewFolderButton.svelte';
-	import { LibrarySquare, LogOut, MessageCircle, MessagesSquare, UserPen, Users } from 'lucide-svelte';
-	import Button from '$lib/components/common/Button/Button.svelte';
+	import { getAllTags, getChatList, getChatListBySearchText, getPinnedChatList, importChat } from '$lib/apis/chats';
+	import { createNewFolder, getFolders } from '$lib/apis/folders';
+	import { getChannels } from '$lib/apis/channels';
+	import { LibrarySquare, LogOut, MessageCircle, UserPen, Users } from 'lucide-svelte';
 	import NavigationMenu from '$lib/components/layout/NavigationMenu.svelte';
 
 	const i18n = getContext('i18n');
@@ -331,7 +299,8 @@
 		}
 	};
 
-	const onFocus = () => {};
+	const onFocus = () => {
+	};
 
 	const onBlur = () => {
 		shiftKey = false;
@@ -397,21 +366,23 @@
 	}
 
 	const routes = [
-		{ name: 'Chat', path: '/dev', icon:MessageCircle},
+		{ name: 'Chat', path: '/dev', icon: MessageCircle },
 		{ name: 'Usuario', path: '/dev/user', icon: UserPen },
 		{ name: 'Usuarios', path: '/dev/users', icon: Users },
-		{ name: 'Conocimiento', path: '/dev/knowledge', icon: LibrarySquare}
+		{ name: 'Conocimiento', path: '/dev/knowledge', icon: LibrarySquare }
 	];
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <aside class="sidebar {customClass}">
 	<div class="button-group button-group--lg">
-		<div class="logo"/>
+		<div class="logo" />
 		<NavigationMenu routes={routes} />
 		<div data-svg-wrapper>
 			<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-				<path fill-rule="evenodd" clip-rule="evenodd" d="M10.6873 11.595C11.1116 11.0859 11.8683 11.0171 12.3774 11.4414L17.1774 15.4413C17.4682 15.6837 17.6276 16.0491 17.6074 16.4272C17.5872 16.8053 17.3898 17.1516 17.0748 17.3617L12.2748 20.5616C11.7234 20.9293 10.9783 20.7803 10.6107 20.2288C10.2431 19.6774 10.3921 18.9324 10.9435 18.5647L14.4063 16.2562L10.841 13.2851C10.3318 12.8608 10.263 12.1041 10.6873 11.595ZM25.609 18.7632C26.9345 18.7632 28.009 17.6887 28.009 16.3632C28.009 15.0377 26.9345 13.9632 25.609 13.9632C24.2836 13.9632 23.2091 15.0377 23.2091 16.3632C23.2091 17.6887 24.2836 18.7632 25.609 18.7632ZM25.609 21.1631C28.26 21.1631 30.409 19.0141 30.409 16.3632C30.409 13.7122 28.26 11.5632 25.609 11.5632C22.9581 11.5632 20.8091 13.7122 20.8091 16.3632C20.8091 19.0141 22.9581 21.1631 25.609 21.1631ZM15.7204 24.3822C15.2891 23.879 14.5315 23.8207 14.0283 24.252C13.5251 24.6834 13.4669 25.4409 13.8982 25.9441C14.8244 27.0247 16.5121 28.3342 18.6326 28.7234C20.8497 29.1303 23.3535 28.4944 25.6885 25.9797C26.1395 25.494 26.1114 24.7348 25.6257 24.2838C25.1401 23.8328 24.3808 23.861 23.9299 24.3466C22.1049 26.3119 20.4088 26.6093 19.0658 26.3629C17.6264 26.0987 16.3942 25.1683 15.7204 24.3822Z" fill="#64748B"/>
+				<path fill-rule="evenodd" clip-rule="evenodd"
+							d="M10.6873 11.595C11.1116 11.0859 11.8683 11.0171 12.3774 11.4414L17.1774 15.4413C17.4682 15.6837 17.6276 16.0491 17.6074 16.4272C17.5872 16.8053 17.3898 17.1516 17.0748 17.3617L12.2748 20.5616C11.7234 20.9293 10.9783 20.7803 10.6107 20.2288C10.2431 19.6774 10.3921 18.9324 10.9435 18.5647L14.4063 16.2562L10.841 13.2851C10.3318 12.8608 10.263 12.1041 10.6873 11.595ZM25.609 18.7632C26.9345 18.7632 28.009 17.6887 28.009 16.3632C28.009 15.0377 26.9345 13.9632 25.609 13.9632C24.2836 13.9632 23.2091 15.0377 23.2091 16.3632C23.2091 17.6887 24.2836 18.7632 25.609 18.7632ZM25.609 21.1631C28.26 21.1631 30.409 19.0141 30.409 16.3632C30.409 13.7122 28.26 11.5632 25.609 11.5632C22.9581 11.5632 20.8091 13.7122 20.8091 16.3632C20.8091 19.0141 22.9581 21.1631 25.609 21.1631ZM15.7204 24.3822C15.2891 23.879 14.5315 23.8207 14.0283 24.252C13.5251 24.6834 13.4669 25.4409 13.8982 25.9441C14.8244 27.0247 16.5121 28.3342 18.6326 28.7234C20.8497 29.1303 23.3535 28.4944 25.6885 25.9797C26.1395 25.494 26.1114 24.7348 25.6257 24.2838C25.1401 23.8328 24.3808 23.861 23.9299 24.3466C22.1049 26.3119 20.4088 26.6093 19.0658 26.3629C17.6264 26.0987 16.3942 25.1683 15.7204 24.3822Z"
+							fill="#64748B" />
 			</svg>
 		</div>
 	</div>
@@ -426,118 +397,119 @@
 </aside>
 
 <style lang="scss">
-    .scrollbar-hidden:active::-webkit-scrollbar-thumb,
-    .scrollbar-hidden:focus::-webkit-scrollbar-thumb,
-    .scrollbar-hidden:hover::-webkit-scrollbar-thumb {
-        visibility: visible;
-    }
-    .scrollbar-hidden::-webkit-scrollbar-thumb {
-        visibility: hidden;
-    }
+  .scrollbar-hidden:active::-webkit-scrollbar-thumb,
+  .scrollbar-hidden:focus::-webkit-scrollbar-thumb,
+  .scrollbar-hidden:hover::-webkit-scrollbar-thumb {
+    visibility: visible;
+  }
 
-    $sidebar-width: 56px;
+  .scrollbar-hidden::-webkit-scrollbar-thumb {
+    visibility: hidden;
+  }
 
-    .sidebar {
-      width: $sidebar-width;
-      overflow-y: hidden;
+  $sidebar-width: 56px;
 
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
+  .sidebar {
+    width: $sidebar-width;
+    overflow-y: hidden;
 
-      @apply py-sm space-y-base;
-    }
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
 
-    .button-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      @apply gap-lg;
+    @apply py-sm space-y-base;
+  }
 
-      &.button-group--sm {
-        @apply gap-sm
-      }
+  .button-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    @apply gap-lg;
 
-      &.button-group--lg {
-        @apply gap-3xl
-      }
+    &.button-group--sm {
+      @apply gap-sm
     }
 
-    .button-group-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      @apply gap-lg;
+    &.button-group--lg {
+      @apply gap-3xl
+    }
+  }
+
+  .button-group-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @apply gap-lg;
+  }
+
+  .chat {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+
+    @apply
+    bg-slate-100
+    w-full
+    rounded-lg;
+
+    .chat__sidebar {
+      @apply flex flex-col gap-base border-r border-slate-300 w-full py-lg px-base;
     }
 
-    .chat {
-      display: grid;
-      grid-template-columns: 250px 1fr;
+    .chat__container {
+      @apply flex flex-col gap-base w-full pb-lg h-full;
+    }
+  }
 
-      @apply
-      bg-slate-100
-      w-full
-      rounded-lg;
+  .app {
+    @apply flex
+    px-sm
+    py-base
+    space-x-sm
+    bg-slate-200
+    m-0
+    h-screen
+  }
 
-      .chat__sidebar {
-        @apply flex flex-col gap-base border-r border-slate-300 w-full py-lg px-base;
-      }
+  .logo {
+    height: 48px;
+    width: 48px;
+    border-radius: 8px;
+    background-image: url('/favicon.png');
+    background-color: lightgray;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
 
-      .chat__container {
-        @apply flex flex-col gap-base w-full pb-lg h-full;
-      }
+  .icon {
+    @apply p-xs
+    rounded-sm
+    text-slate-500;
+    height: 24px;
+    width: 24px;
+
+    &.icon--lg {
+      @apply p-sm
+      text-xs
+      rounded-sm;
+      height: 40px;
+      width: 40px;
+
+
     }
 
-    .app {
-      @apply flex
-      px-sm
-      py-base
-      space-x-sm
-      bg-slate-200
-      m-0
-      h-screen
-    }
-
-    .logo {
-      height: 48px;
-      width: 48px;
-      border-radius: 8px;
-      background-image: url('/favicon.png');
-      background-color: lightgray;
-      background-position: center;
-      background-size: cover;
-      background-repeat: no-repeat;
-    }
-
-    .icon {
-      @apply p-xs
-      rounded-sm
-      text-slate-500;
-      height: 24px;
-      width: 24px;
-
-      &.icon--lg {
-        @apply p-sm
-        text-xs
-        rounded-sm;
-        height: 40px;
-        width: 40px;
-
-
-      }
-
-      &:active {
-        @apply text-brand-500
-        bg-brand-100;
-
-      }
-
-      &:hover {
-        @apply text-brand-500
-        bg-brand-100;
-      }
+    &:active {
+      @apply text-brand-500
+      bg-brand-100;
 
     }
+
+    &:hover {
+      @apply text-brand-500
+      bg-brand-100;
+    }
+
+  }
 </style>
