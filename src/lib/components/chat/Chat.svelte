@@ -337,8 +337,6 @@
 
 		// Replace with your iframe's origin
 		if (event.data.type === 'input:prompt') {
-			console.debug(event.data.text);
-
 			const inputElement = document.getElementById('chat-input');
 
 			if (inputElement) {
@@ -348,8 +346,6 @@
 		}
 
 		if (event.data.type === 'action:submit') {
-			console.debug(event.data.text);
-
 			if (prompt !== '') {
 				await tick();
 				submitPrompt(prompt);
@@ -367,7 +363,6 @@
 	};
 
 	onMount(async () => {
-		console.log('mounted');
 		window.addEventListener('message', onMessageHandler);
 		$socket?.on('chat-events', chatEventHandler);
 
