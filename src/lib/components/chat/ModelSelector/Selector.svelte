@@ -6,7 +6,6 @@
 	import { flyAndScale } from '$lib/utils/transitions';
 	import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
 
-	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
 	import Check from '$lib/components/icons/Check.svelte';
 	import Search from '$lib/components/icons/Search.svelte';
 
@@ -21,6 +20,7 @@
 	import Switch from '$lib/components/common/Switch.svelte';
 	import ChatBubbleOval from '$lib/components/icons/ChatBubbleOval.svelte';
 	import { goto } from '$app/navigation';
+	import { ChevronDown } from 'lucide-svelte';
 
 	const i18n = getContext('i18n');
 	const dispatch = createEventDispatcher();
@@ -229,20 +229,35 @@
 	}}
 	closeFocus={false}
 >
-	<DropdownMenu.Trigger
-		class="relative w-full font-primary"
-		aria-label={placeholder}
-		id="model-selector-{id}-button"
-	>
-		<div
-			class="flex w-full text-left px-0.5 outline-none bg-transparent truncate {triggerClassName} justify-between font-medium placeholder-gray-400 focus:outline-none"
-		>
-			{#if selectedModel}
-				{selectedModel.label}
-			{:else}
-				{placeholder}
-			{/if}
-			<ChevronDown className=" self-center ml-2 size-3" strokeWidth="2.5" />
+<!--	<DropdownMenu.Trigger-->
+<!--		class="relative w-full font-primary"-->
+<!--		aria-label={placeholder}-->
+<!--		id="model-selector-{id}-button"-->
+<!--	>-->
+<!--		<div-->
+<!--			class="flex w-full text-left px-0.5 outline-none bg-transparent truncate {triggerClassName} justify-between font-medium placeholder-gray-400 focus:outline-none"-->
+<!--		>-->
+<!--			{#if selectedModel}-->
+<!--				{selectedModel.label}-->
+<!--			{:else}-->
+<!--				{placeholder}-->
+<!--			{/if}-->
+<!--			<ChevronDown class="text-slate-500"/>-->
+<!--		</div>-->
+<!--	</DropdownMenu.Trigger>-->
+
+	<DropdownMenu.Trigger>
+		<div class="flex gap-x-base items-center">
+			<div class="flex flex-col justify-center align-center rounded-full bg-orange-400 w-8 h-8 gap-sm ">
+			</div>
+			<h2 class="text-title {triggerClassName}">
+				{#if selectedModel}
+					{selectedModel.label}
+				{:else}
+					{placeholder}
+				{/if}
+			</h2>
+			<ChevronDown class="text-slate-500"/>
 		</div>
 	</DropdownMenu.Trigger>
 

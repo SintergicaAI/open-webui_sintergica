@@ -2,6 +2,7 @@
 	import '../../tailwind.css';
 	import '../../app.css';
 	import 'tippy.js/dist/tippy.css';
+
 	export let title = 'Catálogo de Componentes';
 </script>
 <div class="layout">
@@ -30,5 +31,21 @@
 
     .content {
         padding: 1rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .layout {
+            background: #121212;
+            color: #e0e0e0;
+        }
+
+        header {
+            background: #1e88e5;
+            color: white;
+        }
+
+        .content {
+            color: #e0e0e0;
+        }
     }
 </style>

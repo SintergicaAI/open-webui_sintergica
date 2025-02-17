@@ -32,63 +32,86 @@
 </script>
 
 <button
-	class={buttonClasses}
+	class={computedClasses}
 	disabled={isDisabled}
 	on:click|stopPropagation={onClick}
 	{...$$restProps}
 >
 	{#if icon && (iconPlacement === 'left')}
-		<svelte:component this={icon} size={iconSizesEquivalence[iconSize]} />
+		<svelte:component this={icon} size={ICON_SIZES[iconSize]} />
 	{/if}
 	<slot />
 	{#if icon && iconPlacement === 'right'}
-		<svelte:component this={icon} size={iconSizesEquivalence[iconSize]} />
+		<svelte:component this={icon} size={ICON_SIZES[iconSize]} />
 	{/if}
 </button>
 
 <style lang="scss">
   .btn {
+		@apply rounded-sm py-sm px-base;
+		white-space: nowrap;
+		flex-wrap: nowrap;
 
     &.btn-primary {
       @apply text-white bg-brand-500;
       @apply px-base py-2 rounded-sm transition-all focus:ring-2 focus:ring-brand-500;
       &:hover {
-        background-color: #3092F7;
+        @apply bg-brand-400
       }
 
       &:active {
-        background-color: #005ACD;
+				@apply bg-brand-600;
       }
 
       &:disabled {
-        background-color: #3092F7;
+        background-color: #3092f7;
         cursor: not-allowed;
-        opacity: 0.7;
+        opacity: 0.4;
       }
     }
 
+    // Variants outline
+    &.btn-outline-primary {
+      background-color: transparent;
+      border: 1px solid #3092f7;
+      @apply text-brand-500 transition-all;
+      &:hover {
+        @apply bg-brand-50;
+      }
+
+      &:active {
+        @apply bg-brand-200;
+      }
+
+			&:disabled {
+				opacity: 0.4;
+				cursor: not-allowed;
+      }
+    }
+
+    &.btn-outline-danger {
+      background-color: transparent;
+      border: 1px solid #ff4949;
+      @apply text-red-500 transition-all;
+      &:hover {
+        background-color: #ffeaea;
+      }
+
+      &:active {
+        background-color: #ffdbdb;
+      }
+    }
+
+    // Variants
     &.btn-danger {
-      background-color: #FF4949;
+      background-color: #ff4949;
       @apply text-white;
       &:hover {
-        background-color: #FF7A7A;
+        background-color: #ff7a7a;
       }
 
       &:active {
-        background-color: #FF2626;
-      }
-    }
-
-    &.btn-danger-outline {
-      background-color: transparent;
-      border: 1px solid #FF4949;
-      @apply text-red-500;
-      &:hover {
-        background-color: #FF7A7A;
-      }
-
-      &:active {
-        background-color: #FF2626;
+        background-color: #ff2626;
       }
     }
 
@@ -106,15 +129,13 @@
 
     &:focus {
       outline: none;
-      box-shadow: 0 0 0 3px rgba(48, 146, 247, 0.5); // Indicar foco claramente
+      box-shadow: 0 0 0 3px rgba(48, 146, 247, 0.5); // Clearer focus indication
     }
   }
 
   .btn-icon {
     background-color: transparent;
     border: none;
-    height: auto;
-    width: auto;
     display: inline-flex;
     justify-content: center;
     align-items: center;
@@ -122,36 +143,26 @@
 
     &.btn-icon-primary {
       @apply text-brand-500;
-      @apply p-sm rounded-sm;
     }
 
     &.btn-icon-base {
       @apply p-xs rounded-sm;
-      //icon size base : 20px
     }
 
     &.btn-icon-lg {
       @apply p-sm rounded-sm;
-      //icon size lg : 24px
     }
 
     &.btn-icon-sm {
       @apply p-xs rounded-sm;
-      //icon size sm: 16px
     }
 
     &:hover {
       @apply text-brand-500;
     }
 
-    &:focus {
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(48, 146, 247, 0.5); // Indicar foco claramente
-    }
-
     &:disabled {
       opacity: 0.4;
     }
-
   }
 </style>
