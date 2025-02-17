@@ -6,12 +6,14 @@
 	import Tooltip from '../common/Tooltip.svelte';
 
 	import { updateUserSettings } from '$lib/apis/users';
+
 	const i18n = getContext('i18n');
 
 	export let selectedModels = [''];
 	export let disabled = false;
 
 	export let showSetDefault = true;
+	export let showAddModel = true;
 
 	const saveDefaultModel = async () => {
 		const hasEmptyModel = selectedModels.filter((it) => it === '');
@@ -31,6 +33,7 @@
 		);
 	}
 </script>
+
 
 <div class="flex flex-col w-full items-start">
 	{#each selectedModels as selectedModel, selectedModelIdx}
@@ -53,7 +56,7 @@
 				</div>
 			</div>
 
-			{#if selectedModelIdx === 0}
+			{#if selectedModelIdx === 0 && showAddModel}
 				<div
 					class="  self-center mx-1 disabled:text-gray-600 disabled:hover:text-gray-600 -translate-y-[0.5px]"
 				>
@@ -79,7 +82,7 @@
 						</button>
 					</Tooltip>
 				</div>
-			{:else}
+			{:else if (showAddModel)}
 				<div
 					class="  self-center mx-1 disabled:text-gray-600 disabled:hover:text-gray-600 -translate-y-[0.5px]"
 				>
