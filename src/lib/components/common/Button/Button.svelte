@@ -1,36 +1,61 @@
 <script lang="ts">
 	import { Icon as IconType } from 'lucide-svelte';
 
-	type ButtonVariant = 'primary' | 'default' | 'icon' | 'secondary' | 'danger' | 'warning' | 'success' | 'info';
+	// Extracted types (could be in a separate `types.ts` file)
+	type ButtonVariant =
+		'primary'
+		| 'default'
+		| 'icon'
+		| 'secondary'
+		| 'danger'
+		| 'warning'
+		| 'success'
+		| 'info'
+		| 'outline-primary'
+		| 'outline-danger';
 	type ButtonSize = 'base' | 'sm' | 'lg';
 	type IconPlacement = 'left' | 'right';
 	type IconSize = 'sm' | 'base' | 'lg';
 
+	// Component Props
 	export let variant: ButtonVariant = 'primary';
 	export let size: ButtonSize = 'base';
 	export let isDisabled: boolean = false;
-	export let buttonClasses: string = ''; // Clases extra para el botón
-	export let icon: typeof IconType; // Icono mostrado en el Switch
-	export let iconPlacement: IconPlacement = 'left'; // Posición del ícono
+	export let buttonClasses: string = '';
+	export let icon: typeof IconType;
+	export let iconPlacement: IconPlacement = 'left';
 	export let iconSize: IconSize = 'base';
 	export let onClick: (event: MouseEvent) => void = () => {
 	};
-	const baseClasses = 'btn flex items-center justify-center font-inherit';
 
-	function computedButtonClasses(): string {
-		const isIconOnly = variant === 'icon';
-		return `${baseClasses} ${buttonClasses} ${isIconOnly ? `btn-icon btn-icon-${variant} btn-icon-${size}` : `btn-${variant} btn-${size}`}`;
-	}
-
-	const iconSizesEquivalence = {
-		'sm': '16',
-		'base': '20',
-		'lg': '24'
+	// Constants
+	const BASE_CLASSES = 'btn flex items-center justify-center font-inherit gap-sm';
+	const ICON_SIZES = {
+		sm: '16',
+		base: '20',
+		lg: '24'
 	};
 
-	$: buttonClasses = computedButtonClasses();
+	/** Utility function to compute dynamic classes */
+	const computeButtonClasses = (
+		variant: ButtonVariant,
+		size: ButtonSize,
+		buttonClasses: string
+	) => {
+		const isIconOnly = variant === 'icon';
+		return `${BASE_CLASSES} ${buttonClasses} ${
+			isIconOnly
+				? `btn-icon btn-icon-${variant} btn-icon-${size}`
+				: `btn-${variant} btn-${size}`
+		}`;
+	};
+
+	// Reactive derived states
+	$: computedClasses = computeButtonClasses(variant, size, buttonClasses);
+
 </script>
 
+<!-- Main Button -->
 <button
 	class={computedClasses}
 	disabled={isDisabled}
@@ -139,7 +164,6 @@
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    @apply text-slate-500 p-xs rounded-sm;
 
     &.btn-icon-primary {
       @apply text-brand-500;
