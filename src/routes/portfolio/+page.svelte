@@ -32,6 +32,18 @@
 				<List items={['Item 1', 'Item 2', 'Item 3']} />
 			</Accordeon>
 		</div>
+
+		<div class="preview-area">
+			<p>
+				Default
+				<Avatar type="button" initials="AB" size="sm"/>
+			</p>
+			<p>
+				User
+				<Avatar type="user" initials="AB" size="base"/>
+			</p>
+
+		</div>
 	</div>
 </div>
 
