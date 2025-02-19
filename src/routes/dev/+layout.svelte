@@ -16,6 +16,7 @@
 	import { getModels } from '$lib/apis/index.js';
 	import { getBanners } from '$lib/apis/configs/index.js';
 	import { getTools } from '$lib/apis/tools/index.js';
+	import SettingsModal from '$lib/components/chat/SettingsModal.svelte';
 
 
 	let DB = null;
@@ -155,6 +156,9 @@
 <svelte:head>
 	<title>Turing</title>
 </svelte:head>
+
+
+<SettingsModal bind:show={$showSettings} />
 
 <div class="app">
 	<div class="flex">
