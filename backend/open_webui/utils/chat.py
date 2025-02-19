@@ -11,7 +11,6 @@ import inspect
 from fastapi import Request
 from starlette.responses import Response, StreamingResponse
 
-
 from open_webui.models.users import UserModel
 
 from open_webui.socket.main import (
@@ -36,7 +35,6 @@ from open_webui.routers.pipelines import (
 from open_webui.models.functions import Functions
 from open_webui.models.models import Models
 
-
 from open_webui.utils.plugin import load_function_module_by_id
 from open_webui.utils.models import get_all_models, check_model_access
 from open_webui.utils.payload import convert_payload_openai_to_ollama
@@ -47,17 +45,16 @@ from open_webui.utils.response import (
 
 from open_webui.env import SRC_LOG_LEVELS, GLOBAL_LOG_LEVEL, BYPASS_MODEL_ACCESS_CONTROL
 
-
 logging.basicConfig(stream=sys.stdout, level=GLOBAL_LOG_LEVEL)
 log = logging.getLogger(__name__)
 log.setLevel(SRC_LOG_LEVELS["MAIN"])
 
 
 async def generate_chat_completion(
-    request: Request,
-    form_data: dict,
-    user: Any,
-    bypass_filter: bool = False,
+        request: Request,
+        form_data: dict,
+        user: Any,
+        bypass_filter: bool = False,
 ):
     if BYPASS_MODEL_ACCESS_CONTROL:
         bypass_filter = True
@@ -382,12 +379,9 @@ async def chat_action(request: Request, action_id: str, form_data: dict, user: A
 
     return data
 
+
 def splice_chat(chat: dict) -> dict:
     chat["messages"] = sorted(chat["messages"], key=lambda x: x["timestamp"])[:30]
-    history: dict = {}
-    for message in chat["messages"]:
-        history[message["id"]] = message
-
-    chat["history"]["messages"] = history
+    chat["history"]["messages"] = {message["id"]: message for message in chat["messages"]}
 
     return chat
