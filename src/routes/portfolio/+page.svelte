@@ -3,6 +3,7 @@
 	import Button from '$lib/components/common/Button/Button.svelte';
 	import { Search } from 'lucide-svelte';
 	import Accordeon from '$lib/components/common/List/Accordeon.svelte';
+	import Avatar from '$lib/components/common/Avatar.svelte';
 </script>
 
 <div class="catalog">
