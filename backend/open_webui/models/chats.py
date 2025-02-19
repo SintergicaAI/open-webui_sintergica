@@ -12,6 +12,9 @@ from sqlalchemy import BigInteger, Boolean, Column, String, Text, JSON
 from sqlalchemy import or_, func, select, and_, text
 from sqlalchemy.sql import exists
 
+from backend.open_webui.utils.chat import splice_chat
+
+
 ####################
 # Chat DB Schema
 ####################
@@ -159,6 +162,9 @@ class ChatTable:
             with get_db() as db:
                 chat_item = db.get(Chat, id)
                 chat_item.chat = chat
+
+                chat = splice_chat(chat)
+
                 chat_item.title = chat["title"] if "title" in chat else "New Chat"
                 chat_item.updated_at = int(time.time())
                 db.commit()
@@ -174,6 +180,7 @@ class ChatTable:
             return None
 
         chat = chat.chat
+        chat = splice_chat(chat)
         chat["title"] = title
 
         return self.update_chat_by_id(id, chat)

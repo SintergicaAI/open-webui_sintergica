@@ -381,3 +381,13 @@ async def chat_action(request: Request, action_id: str, form_data: dict, user: A
             return Exception(f"Error: {e}")
 
     return data
+
+def splice_chat(chat: dict) -> dict:
+    chat["messages"] = sorted(chat["messages"], key=lambda x: x["timestamp"])[:30]
+    history: dict = {}
+    for message in chat["messages"]:
+        history[message["id"]] = message
+
+    chat["history"]["messages"] = history
+
+    return chat
