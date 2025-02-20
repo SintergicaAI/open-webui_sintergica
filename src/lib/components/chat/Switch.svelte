@@ -1,42 +1,45 @@
 <script lang="ts">
 	import { Icon as IconType } from 'lucide-svelte';
 
-	export let icon: typeof IconType; // Icono mostrado en el Switch
-	export let initialActive: boolean = false; // Estado inicial del Switch
-	export let activeLabel: string = 'Activo';
-	export let inactiveLabel: string = 'Inactivo';
-	export let onToggle: (event: Event) => void; // Función callback al cambiar estado
-	export let isDisabled: boolean = false;
+	export let icon: typeof IconType;
+	export let initialActive = false;
+	export let activeLabel = 'Activo';
+	export let inactiveLabel = 'Inactivo';
+	export let label: string = '';
+	export let onToggle: (event: Event) => void;
+	export let isDisabled = false;
 	export let size: 'sm' | 'base' | 'lg' = 'base';
-	const iconSizesEquivalence = {
-		'sm': '16',
-		'base': '20',
-		'lg': '24'
-	}
+	export let value: string | number | boolean;
+	export let variant: 'toggle' | 'static' = 'toggle';
 
-	let isActive = initialActive;
+	const iconSizeMap = { sm: '16', base: '20', lg: '24' };
 
-	function handleClick(event: Event) {
-		isActive = !isActive;
-		onToggle(event);
+	let active = initialActive;
+
+	function toggleSwitch(event: Event) {
+		if (!isDisabled) {
+			active = !active;
+			onToggle(event);
+		}
 	}
 </script>
 
 <div
-	class="switch {isActive ? 'active' : ''}"
+	class="switch {active ? 'active' : ''}"
 	tabindex="0"
-	on:click={handleClick}
-	on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick(e); }}
-	aria-label={inactiveLabel}
+	on:click={toggleSwitch}
+	on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleSwitch(e)}
 	role="switch"
-	aria-checked="{isActive}"
-	aria-disabled="{isDisabled}"
+	aria-label={variant === 'toggle' ? (active ? activeLabel : inactiveLabel) : label}
+	aria-checked={variant === 'toggle' ? active : undefined}
+	aria-disabled={isDisabled.toString()}
+	data-value={value}
 >
 	{#if icon}
-		<svelte:component this={icon} size={iconSizesEquivalence[size]} />
+		<svelte:component this={icon} size={iconSizeMap[size]} />
 	{/if}
 	<span class="text-button">
-		{isActive ? activeLabel : inactiveLabel}
+		{variant === 'toggle' ? (active ? activeLabel : inactiveLabel) : label}
 	</span>
 </div>
 
@@ -49,7 +52,7 @@
 			inline-flex
 			align-baseline
 			gap-xs
-		bg-slate-100
+		bg-slate-200
 		text-slate-500;
 
 		&:hover {
@@ -71,8 +74,8 @@
 			opacity: 0.4;
 		}
 
-		&:focus {
-
+    &:focus {
+      @apply outline-none ring-2 ring-offset-2 ring-brand-500;
     }
 	}
 </style>
