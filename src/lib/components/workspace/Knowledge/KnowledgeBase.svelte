@@ -622,7 +622,6 @@
 	}}
 />
 
-<KnowledgeBasePage />
 <div class="flex flex-col w-full translate-y-1" id="collection-container">
 	{#if id && knowledge}
 		<AccessControlModal
