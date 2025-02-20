@@ -3,9 +3,7 @@
 	import Button from '$lib/components/common/Button/Button.svelte';
 	import { Settings } from 'lucide-svelte';
 	import { Clipboard } from 'lucide-svelte';
-	import { DropdownMenu } from 'bits-ui';
 	import { getContext } from 'svelte';
-	import { toast } from 'svelte-sonner';
 
 	import {
 		WEBUI_NAME,
@@ -135,24 +133,6 @@
 				</div>
 			</button>
 		</Tooltip>
-
-		{#if $user !== undefined}
-			<UserMenu
-				className="max-w-[200px]"
-				role={$user.role}
-				on:show={(e) => {
-							if (e.detail === 'archived-chat') {
-								showArchivedChats.set(true);
-							}
-						}}
-			>
-				<button
-					class="select-none flex rounded-xl p-1.5 w-full hover:bg-gray-50 dark:hover:bg-gray-850 transition"
-					aria-label="User Menu">
-					<Avatar initials='AO'/>
-				</button>
-			</UserMenu>
-		{/if}
 	</div>
 
 	<div class="flex gap-x-sm">

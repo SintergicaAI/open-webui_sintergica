@@ -1,7 +1,12 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page} from '$app/stores';
+	import{
+	user
+	} from '$lib/stores';
 	import { derived } from 'svelte/store';
-
+	import { showArchivedChats } from '$lib/stores';
+	import UserMenu from '$lib/components/layout/Sidebar/UserMenu.svelte';
+	import Avatar from '$lib/components/common/Avatar.svelte';
 	export let routes: { name: string; path: string; icon: any }[] = [];
 
 	const currentPath = derived(page, ($page) => $page.url.pathname);
@@ -12,6 +17,23 @@
 </script>
 
 <nav class="nav">
+	{#if $user !== undefined}
+		<UserMenu
+			className="max-w-[200px]"
+			role={$user.role}
+			on:show={(e) => {
+							if (e.detail === 'archived-chat') {
+								showArchivedChats.set(true);
+							}
+						}}
+		>
+			<button
+				class="select-none flex rounded-xl p-1.5 w-full hover:bg-gray-50 dark:hover:bg-gray-850 transition"
+				aria-label="User Menu">
+				<Avatar initials='AO'/>
+			</button>
+		</UserMenu>
+	{/if}
 	{#each routes as route}
 		<a
 			href={route.path}

@@ -9,7 +9,7 @@
 		pinnedChats,
 		scrollPaginationEnabled,
 		showSidebar,
-		tags
+		tags,
 	} from '$lib/stores';
 	import { getContext, onDestroy, onMount } from 'svelte';
 	import { getAllTags, getChatList, getChatListBySearchText, getPinnedChatList, importChat } from '$lib/apis/chats';
@@ -17,6 +17,8 @@
 	import { getChannels } from '$lib/apis/channels';
 	import { LibrarySquare, LogOut, MessageCircle, UserPen, Users } from 'lucide-svelte';
 	import NavigationMenu from '$lib/components/layout/NavigationMenu.svelte';
+	import UserMenu from '$lib/components/layout/Sidebar/UserMenu.svelte';
+	import { Avatar } from 'bits-ui';
 
 	const i18n = getContext('i18n');
 
