@@ -10,11 +10,11 @@
 	export let small = false;
 </script>
 
-<div class=" max-h-full flex flex-col w-full">
+<div class=" max-h-full flex flex-col gap-sm w-full">
 	{#each files as file}
 		<div class="mt-1 px-2">
 			<FileItem
-				className="w-full"
+				className="w-full bg-white dark:bg-gray-850"
 				colorClassName="{selectedFileId === file.id
 					? ' bg-gray-50 dark:bg-gray-850'
 					: 'bg-transparent'} hover:bg-gray-50 dark:hover:bg-gray-850 transition"
@@ -23,6 +23,7 @@
 				name={file?.name ?? file?.meta?.name}
 				type="file"
 				size={file?.size ?? file?.meta?.size ?? ''}
+				media={file?.meta['content_type']}
 				loading={file.status === 'uploading'}
 				dismissible
 				on:click={() => {
