@@ -332,7 +332,6 @@
 	});
 
 	onDestroy(() => {
-		console.log('destroy');
 		window.removeEventListener('keydown', handleKeyDown);
 
 		const dropzoneElement = document.getElementById('chat-container');
@@ -349,7 +348,7 @@
 
 {#if loaded}
 	<div class="w-full font-primary">
-		<div class=" mx-auto inset-x-0 bg-transparent flex justify-center">
+		<div class=" mx-auto inset-x-0 bg-white dark:bg-gray-900 flex justify-center">
 			<div
 				class="flex flex-col px-3 {($settings?.widescreenMode ?? null)
 					? 'max-w-full'
@@ -490,7 +489,7 @@
 			</div>
 		</div>
 
-		<div class="{transparentBackground ? 'bg-transparent' : 'bg-white dark:bg-gray-900'} shadow-sm mx-auto inset-x-0 rounded-sm">
+		<div class="bg-white dark:bg-gray-900 shadow-sm mx-auto inset-x-0 rounded-sm">
 			<div
 				class="max-w-[692px] gap-1 p-base space-y-xs "
 			>
@@ -538,7 +537,7 @@
 						/>
 					{:else}
 						<form
-							class="w-full flex gap-1.5 bg-green-200"
+							class="w-full flex gap-1.5"
 							on:submit|preventDefault={() => {
 								// check if selectedModels support image input
 								dispatch('submit', prompt);
@@ -1261,7 +1260,6 @@
     gap: 4px;
     width: 640px;
     max-width: 692px;
-    background-color: #fff;
 
     @apply p-base rounded-sm space-y-xs shadow-sm;
   }
