@@ -98,6 +98,8 @@
 	import Placeholder from './Placeholder.svelte';
 	import NotificationToast from '../NotificationToast.svelte';
 	import MessageInputRedesign from '$lib/components/chat/MessageInputRedesign.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import PencilSquare from '$lib/components/icons/PencilSquare.svelte';
 
 	export let chatIdProp = '';
 
@@ -1786,6 +1788,25 @@
 
 </script>
 
+<EventConfirmDialog
+	bind:show={showEventConfirmation}
+	title={eventConfirmationTitle}
+	message={eventConfirmationMessage}
+	input={eventConfirmationInput}
+	inputPlaceholder={eventConfirmationInputPlaceholder}
+	inputValue={eventConfirmationInputValue}
+	on:confirm={(e) => {
+		if (e.detail) {
+			eventCallback(e.detail);
+		} else {
+			eventCallback(true);
+		}
+	}}
+	on:cancel={() => {
+		eventCallback(false);
+	}}
+/>
+
 <svelte:head>
 	<title>
 		{$chatTitle
@@ -1794,9 +1815,9 @@
 	</title>
 </svelte:head>
 
-<main class="chat dark:bg-black">
-	<aside class="chat__sidebar dark:bg-black">
-		<header class="flex justify-between items-center self-stretch">
+<main class="chat dark:bg-zinc-900">
+	<aside class="chat__sidebar dark:bg-zinc-950">
+		<header class=" flex justify-between items-center self-stretch">
 			<h1 class="text-title">Turing</h1>
 			<menu class="button-group-row text-slate-500">
 				<Button variant="icon" size="sm" icon={Search} buttonClasses="text-slate-500" />
@@ -1805,10 +1826,12 @@
 			</menu>
 		</header>
 		<div class="flex justify-center">
-			<Button variant="primary" icon={MessageCirclePlus} size="sm" buttonClasses="text-button w-full gap-sm"
-							onClick={addElement}>
-				Nuevo chat
-			</Button>
+			<Tooltip content={$i18n.t('New Chat')}>
+				<Button variant="primary" icon={MessageCirclePlus} size="sm" buttonClasses="text-button w-full gap-sm"
+								on:click={() => { initNewChat(); }}>
+					Nuevo chat
+				</Button>
+			</Tooltip>
 		</div>
 		<section class="flex-col justify-center items-center">
 			<Accordeon title="Anclados" icon={Pin}>
@@ -1961,31 +1984,6 @@
 
 			{:else}
 				<div class="flex flex-col justify-center items-center h-full gap-3xl">
-<!--					<DropdownMenu.Root>-->
-<!--						<DropdownMenu.Trigger>-->
-<!--							<div class="flex gap-x-base items-center">-->
-<!--								<div class="flex flex-col justify-center align-center rounded-full bg-orange-400 w-8 h-8 gap-sm ">-->
-<!--								</div>-->
-<!--								<h2 class="text-title">Model name</h2>-->
-<!--								<ChevronDown class="text-slate-500" />-->
-<!--							</div>-->
-<!--						</DropdownMenu.Trigger>-->
-<!--						<DropdownMenu.Content>-->
-<!--							<DropdownMenu.Item class="text-label cursor-pointer hover:bg-slate-100">-->
-<!--								Model 1-->
-<!--							</DropdownMenu.Item>-->
-<!--							<DropdownMenu.Item class="text-label">-->
-<!--								Model 2-->
-<!--							</DropdownMenu.Item>-->
-<!--						</DropdownMenu.Content>-->
-<!--					</DropdownMenu.Root>-->
-<!--					<div class="flex flex-col justify-center items-center">-->
-<!--						<h1 class="text-[32px] font-bold text-brand-500">{username}</h1>-->
-<!--						<p class="text-subtitle">-->
-<!--							En que te puedo ayudar?-->
-<!--						</p>-->
-<!--					</div>-->
-
 					<div class="flex flex-col flex-auto z-10 w-full">
 						{#if $settings?.landingPageMode === 'chat' || createMessagesList(history.currentId).length > 0}
 							<div
@@ -2110,7 +2108,6 @@
 </main>
 
 <style lang="scss">
-
   .button-group {
     display: flex;
     flex-direction: column;
@@ -2144,7 +2141,7 @@
     rounded-lg;
 
     .chat__sidebar {
-      @apply flex flex-col flex-grow gap-base border-r border-slate-300 w-full py-lg px-base h-full;
+      @apply flex flex-col flex-grow gap-base border-r border-slate-300 dark:border-zinc-900 w-full py-lg px-base h-full;
     }
 
     .chat__container {
