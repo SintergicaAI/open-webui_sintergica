@@ -3,20 +3,19 @@
 	export let pillColor: string = 'red';
 	const COLORS = ['red', 'blue', 'green', 'yellow', 'purple'];
 
-	// Validation or fallback
 	$: safeColor = COLORS.includes(pillColor) ? pillColor : 'red';
 </script>
-<p class={`pill ${safeColor}`} role="status" aria-live="polite">
+<p class={`pill ${safeColor} text-subtitles`} role="status" aria-live="polite">
   {text}
 </p>
 
 <style>
     .pill {
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        border: 1px solid;
-        font-size: 0.875rem;
-        font-weight: 500;
+        @apply flex flex-nowrap items-center justify-center gap-[10px] rounded-md py-sm px-base border;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      max-width: 100%;
+
     }
 
     .red {
