@@ -5,22 +5,35 @@
 @layer base {
 
 	:root {
-		--rounder-sm: 8px;
-		--rounder-base: 12px;
-		--rounder-lg: 16px;
-		--space-none: 0.0rem;
-		--space-xs: 0.25rem;
-		--space-sm: 0.5rem;
-		--space-base: 0.75rem;
-		--space-lg: 1rem;
-		--space-xl: 1.25rem;
-		--space-2xl: 1.5rem;
-		--space-3xl: 2rem;
-		--space-4xl: 2.5rem;
-		--space-5xl: 4rem;
-		--space-6xl: 8rem;
+		--spacing-none: 0;
+		--spacing-xs: 0.25rem;
+		--spacing-sm: 0.5rem;
+		--spacing-base: 0.75rem;
+		--spacing-lg: 1rem;
+		--spacing-xl: 1.25rem;
+		--spacing-2xl: 1.5rem;
+		--spacing-3xl: 2rem;
+		--spacing-4xl: 2.5rem;
+		--spacing-5xl: 4rem;
+		--spacing-6xl: 8rem;
+
+		--brand-50: #ddf2fb;
+		--brand-100: #b4e0f7;
+		--brand-200: #89caf5;
+		--brand-300: #5d80f5;
+		--brand-400: #3092f7;
+		--brand-500: #006efa;
+		--brand-600: #005acd;
+		--brand-700: #0046a0;
+		--brand-800: #003373;
+		--brand-900: #001f46;
+		--brand-1000: #000b19;
 
 		--font-archivo: 'Archivo', sans-serif;
+
+		--sky-200: #bae6fd;
+		--sky-400: #38bdf8;
+		--sky-600: #0284c7;
 
 		--tw-color-slate-50: #f8fafc;
 		--tw-color-slate-100: #f1f5f9;
@@ -46,6 +59,25 @@
 }
 
 @layer utilities {
+
+	.bg-lvl-0 {
+		@apply bg-slate-200 dark:bg-slate-800;
+	}
+
+	.bg-lvl-1 {
+		@apply bg-slate-100 dark:bg-slate-900;
+	}
+
+	.bg-lvl-2 {
+		@apply bg-slate-100 border-slate-300
+		dark:bg-slate-900 dark:border-slate-700;
+	}
+
+	.bg-lvl-3 {
+		@apply bg-white border-slate-300
+		dark:bg-slate-950 dark:border-slate-300
+	}
+
 	.text-title {
 		@apply font-bold text-[20px];
 		font-family: var(--font-archivo);
@@ -67,7 +99,8 @@
 	.text-avatar {
 		font-family: var(--font-archivo);
 		font-size: 12px;
-		text-transform: uppercase;
+		font-style: normal;
+		line-height: normal;
 		font-weight: 600;
 	}
 
@@ -83,7 +116,15 @@
 		font-family: var(--font-archivo);
 		font-weight: 300;
 		font-size: 14px;
-		line-height: 15px;
-		letter-spacing: 0;
+		font-style: normal;
+		line-height: normal;
+	}
+
+	.text-placeholder {
+		font-family: var(--font-archivo);
+		font-size: 14px;
+		font-weight: 300;
+		font-style: italic;
+		line-height: normal;
 	}
 }
