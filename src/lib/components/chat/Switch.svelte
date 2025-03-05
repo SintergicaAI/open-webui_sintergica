@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Icon as IconType } from 'lucide-svelte';
+	import { createEventDispatcher } from 'svelte'
+	import {Switch} from 'bits-ui'
 
 	export let icon: typeof IconType;
 	export let initialActive = false;
@@ -12,8 +14,11 @@
 	export let value: string | number | boolean;
 	export let variant: 'toggle' | 'static' = 'toggle';
 
+	export let state = true;
 	const iconSizeMap = { sm: '16', base: '20', lg: '24' };
 
+	const dispatch = createEventDispatcher();
+	$: dispatch('change', state)
 	let active = initialActive;
 
 	function toggleSwitch(event: Event) {
@@ -24,24 +29,28 @@
 	}
 </script>
 
-<div
-	class="switch {active ? 'active' : ''}"
-	tabindex="0"
-	on:click={toggleSwitch}
-	on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleSwitch(e)}
-	role="switch"
-	aria-label={variant === 'toggle' ? (active ? activeLabel : inactiveLabel) : label}
-	aria-checked={variant === 'toggle' ? active : undefined}
-	aria-disabled={isDisabled.toString()}
-	data-value={value}
->
-	{#if icon}
-		<svelte:component this={icon} size={iconSizeMap[size]} />
-	{/if}
-	<span class="text-button">
-		{variant === 'toggle' ? (active ? activeLabel : inactiveLabel) : label}
+<Switch.Root
+	bind:checked={state}
+	>
+	<div
+		class="switch {state ? 'active' : ''}"
+		tabindex="0"
+		on:click={toggleSwitch}
+		on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleSwitch(e)}
+		role="switch"
+		aria-label={variant === 'toggle' ? (state ? activeLabel : inactiveLabel) : label}
+		aria-checked={variant === 'toggle' ? state : undefined}
+		data-value={value}
+	>
+		{#if icon}
+			<svelte:component this={icon} size={iconSizeMap[size]} />
+		{/if}
+		<span class="text-button">
+		{variant === 'toggle' ? (state ? activeLabel : inactiveLabel) : label}
 	</span>
-</div>
+	</div>
+</Switch.Root>
+
 
 <style lang="scss">
 	.switch {
