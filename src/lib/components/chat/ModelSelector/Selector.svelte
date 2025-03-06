@@ -19,7 +19,6 @@
 	import Switch from '$lib/components/common/Switch.svelte';
 	import ChatBubbleOval from '$lib/components/icons/ChatBubbleOval.svelte';
 	import { goto } from '$app/navigation';
-	import { ChevronDown } from 'lucide-svelte';
 	import { ChevronDown, Search, X } from 'lucide-svelte';
 	import TuringFace from '$lib/components/icons/TuringFace.svelte';
 	import Button from '$lib/components/common/Button/Button.svelte';
