@@ -326,11 +326,11 @@
 </script>
 
 <Modal size="xl" bind:show>
-	<div class="text-gray-700 dark:text-gray-100">
-		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-1">
-			<div class=" text-lg font-medium self-center">{$i18n.t('Settings')}</div>
+	<div class="text-base text-black dark:text-white">
+		<header class=" p-lg border-b border-slate-300 dark:border-slate-700 flex justify-between">
+			<div class=" text-title text-black dark:text-gray-300 self-center">{$i18n.t('Settings')}</div>
 			<button
-				class="self-center"
+				class="self-center text-slate-500"
 				on:click={() => {
 					show = false;
 				}}
@@ -346,7 +346,7 @@
 					/>
 				</svg>
 			</button>
-		</div>
+		</header>
 
 		<div class="flex flex-col md:flex-row w-full px-4 pt-1 pb-4 md:space-x-4">
 			<div
@@ -358,7 +358,7 @@
 						<Search className="size-3.5" />
 					</div>
 					<input
-						class="w-full py-1.5 text-sm bg-transparent dark:text-gray-300 outline-none"
+							class="w-full py-1.5 text-sm bg-transparent dark:text-gray-300 outline-none"
 						bind:value={search}
 						on:input={searchDebounceHandler}
 						placeholder={$i18n.t('Search')}
@@ -369,10 +369,10 @@
 					{#each visibleTabs as tabId (tabId)}
 						{#if tabId === 'general'}
 							<button
-								class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition {selectedTab ===
+								class="p-sm min-w-fit rounded-sm border flex-1 md:flex-none flex text-left transition {selectedTab ===
 								'general'
-									? ''
-									: ' text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
+									? 'bg-brand-50 text-brand-500'
+									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-white'}"
 								on:click={() => {
 									selectedTab = 'general';
 								}}
@@ -395,10 +395,10 @@
 							</button>
 						{:else if tabId === 'interface'}
 							<button
-								class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition {selectedTab ===
+								class="p-sm min-w-fit rounded-sm border flex-1 md:flex-none flex text-left transition {selectedTab ===
 								'interface'
-									? ''
-									: ' text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
+									? 'bg-brand-50 text-brand-500'
+									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-white'}"
 								on:click={() => {
 									selectedTab = 'interface';
 								}}
@@ -421,10 +421,10 @@
 							</button>
 						{:else if tabId === 'personalization'}
 							<button
-								class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition {selectedTab ===
+								class="p-sm min-w-fit rounded-sm border flex-1 md:flex-none flex text-left transition {selectedTab ===
 								'personalization'
-									? ''
-									: ' text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
+									? 'bg-brand-50 text-brand-500'
+									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-white'}"
 								on:click={() => {
 									selectedTab = 'personalization';
 								}}
@@ -436,10 +436,10 @@
 							</button>
 						{:else if tabId === 'audio'}
 							<button
-								class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition {selectedTab ===
+								class="p-sm min-w-fit rounded-sm border flex-1 md:flex-none flex text-left transition {selectedTab ===
 								'audio'
-									? ''
-									: ' text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
+									? 'bg-brand-50 text-brand-500'
+									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-white'}"
 								on:click={() => {
 									selectedTab = 'audio';
 								}}
@@ -463,10 +463,10 @@
 							</button>
 						{:else if tabId === 'chats'}
 							<button
-								class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition {selectedTab ===
+								class="p-sm min-w-fit rounded-sm border flex-1 md:flex-none flex text-left transition {selectedTab ===
 								'chats'
-									? ''
-									: ' text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
+									? 'bg-brand-50 text-brand-500'
+									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-white'}"
 								on:click={() => {
 									selectedTab = 'chats';
 								}}
@@ -489,10 +489,10 @@
 							</button>
 						{:else if tabId === 'account'}
 							<button
-								class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition {selectedTab ===
+								class="p-sm min-w-fit rounded-sm border flex-1 md:flex-none flex text-left transition {selectedTab ===
 								'account'
-									? ''
-									: ' text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
+									? 'bg-brand-50 text-brand-500'
+									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-white'}"
 								on:click={() => {
 									selectedTab = 'account';
 								}}
@@ -515,10 +515,10 @@
 							</button>
 						{:else if tabId === 'about'}
 							<button
-								class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition {selectedTab ===
+								class="p-sm min-w-fit rounded-sm border flex-1 md:flex-none flex text-left transition {selectedTab ===
 								'about'
-									? ''
-									: ' text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
+									? 'bg-brand-50 text-brand-500'
+									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-white'}"
 								on:click={() => {
 									selectedTab = 'about';
 								}}
@@ -542,10 +542,10 @@
 						{:else if tabId === 'admin'}
 							{#if $user.role === 'admin'}
 								<button
-									class="px-0.5 py-1 min-w-fit rounded-lg flex-1 md:flex-none flex text-left transition {selectedTab ===
+									class="p-sm min-w-fit rounded-sm border flex-1 md:flex-none flex text-left transition {selectedTab ===
 									'admin'
-										? ''
-										: ' text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
+										? 'bg-brand-50 text-brand-500'
+										: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-white'}"
 									on:click={async () => {
 										await goto('/admin/settings');
 										show = false;
