@@ -39,6 +39,7 @@
 	import { bestMatchingLanguage } from '$lib/utils';
 	import { getAllTags, getChatList } from '$lib/apis/chats';
 	import NotificationToast from '$lib/components/NotificationToast.svelte';
+	import { CircleAlert, CircleCheck, CircleX } from 'lucide-svelte';
 
 	setContext('i18n', i18n);
 
@@ -285,6 +286,16 @@
 				? 'dark'
 				: 'light'
 			: 'light'}
-	richColors
-	position="top-right"
-/>
+	toastOptions={{
+		classes: {
+			'success': 'text-base bg-green-100 text-green-600 dark:bg-green-600 dark:text-green-100 border border-green-600 dark:border-green-100',
+			'warning': 'text-base bg-orange-100 text-orange-600 dark:bg-orange-600 dark:text-orange-100 border border-orange-600 dark:border-orange-100',
+			'error': 'text-base bg-red-100 text-red-600 dark:bg-red-600 dark:text-red-100 border border-red-600 dark:border-red-100',
+		}
+	}}
+	position="top-center"
+>
+	<CircleCheck size="20" slot="success-icon"/>
+	<CircleAlert size="20" slot="warning-icon" />
+	<CircleX size="20" slot="error-icon" />
+</Toaster>

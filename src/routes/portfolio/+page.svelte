@@ -4,9 +4,12 @@
 	import { Search } from 'lucide-svelte';
 	import Accordeon from '$lib/components/common/List/Accordeon.svelte';
 	import Avatar from '$lib/components/common/Avatar.svelte';
+	import { flyAndScale } from '$lib/utils/transitions';
+	import { toast, Toaster } from 'svelte-sonner';
 </script>
 
-<div class="catalog">
+
+<div class="catalog overflow-y-auto">
 	<h1>Catálogo de Componentes</h1>
 	<div class="preview-section">
 		<div class="preview-area">
@@ -45,6 +48,30 @@
 			</p>
 
 		</div>
+
+		<div class="preview-area">
+			<Button onClick={() => toast.success('Success custom')}>Success toast</Button>
+			<Button onClick={() => toast.warning('Warning custom')}>Warning toast</Button>
+			<Button onClick={() => toast.error('Error custom')}>Error toast</Button>
+			<Button onClick={() => toast('Success', {
+	unstyled: true,
+	classes: {
+		toast: 'inline-flex max-w-[320px] gap-sm justify-center items-center p-sm bg-green-100 dark:bg-green-600 rounded-sm',
+		title: 'text-base text-green-600 dark:text-green-100',
+		description: 'text-red-400',
+		actionButton: 'bg-zinc-400',
+		cancelButton: 'bg-orange-400',
+		closeButton: 'bg-lime-400'
+	},
+	icon: CircleCheck,
+})}>Error</Button>
+		</div>
+
+		<article class="preview-area max-h-[100px] overflow-y-auto ">
+			<p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repudiandae ab alias provident illo rerum incidunt, dolorum quam, corporis quos, deleniti unde. Officiis magni quia laudantium quod, voluptatum sint minus deleniti!</p>
+			<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Recusandae asperiores rerum officia sunt vero tenetur cupiditate eligendi neque animi quae. Suscipit voluptates eum placeat error excepturi veniam ipsa rerum consectetur!</p>
+
+		</article>
 	</div>
 </div>
 
