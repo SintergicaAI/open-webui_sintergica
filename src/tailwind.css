@@ -45,6 +45,17 @@
 		--tw-color-slate-700: #334155;
 		--tw-color-slate-800: #1e293b;
 		--tw-color-slate-900: #020617;
+
+		--tw-color-green-50: #f0fdf4;
+		--tw-color-green-100: #dcfce7;
+		--tw-color-green-200: #bbf7d0;
+		--tw-color-green-300: #86efac;
+		--tw-color-green-400: #4ade80;
+		--tw-color-green-500: #22c55e;
+		--tw-color-green-600: #16a34a;
+		--tw-color-green-700: #15803d;
+		--tw-color-green-800: #166534;
+		--tw-color-green-900: #14532d;
 	}
 	html,
 	pre {
@@ -126,5 +137,30 @@
 		font-weight: 300;
 		font-style: italic;
 		line-height: normal;
+	}
+
+	.text-markdown-h1 {
+		font-family: var(--font-archivo);
+		font-size: 24px;
+		font-weight: bold;
+		font-style: normal;
+		line-height: 150%;
+
+	}
+
+	.text-markdown-h2 {
+		font-family: var(--font-archivo);
+		font-size: 20px;
+		font-weight: normal;
+		font-style: normal;
+		line-height: 150%;
+	}
+
+	.text-markdown-base {
+		font-family: var(--font-archivo);
+		font-size: 16px;
+		font-weight: 400;
+		font-style: normal;
+		line-height: 150%;
 	}
 }
