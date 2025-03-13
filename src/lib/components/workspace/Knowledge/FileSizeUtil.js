@@ -1,3 +1,4 @@
+// @ts-nocheck
 export class FileSizeUtil {
     /**
      * Convierte un tamaño en bytes a un formato legible (KB, MB, GB).
