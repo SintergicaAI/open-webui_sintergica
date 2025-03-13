@@ -16,6 +16,7 @@
 	import Button from '$lib/components/common/Button/Button.svelte';
 	import { CircleHelp, Search, SquarePlus } from 'lucide-svelte';
 	import { FileSizeUtil } from '$lib/components/workspace/Knowledge/FileSizeUtil';
+	import { capitalizeFirstLetter } from '$lib/utils/index.js';
 
 	dayjs.extend(relativeTime);
 
@@ -88,54 +89,56 @@
 	<div class="knowledge">
 		<div class="knowledge__header">
 			<div class="flex items-center">
-				<div class="flex md:self-center text-title font-medium px-0.5 items-center">
+				<div class="flex md:self-center text-title dark:text-white font-medium px-0.5 items-center">
 					Bases de conocimientos
 				</div>
-				<Button size="base" variant="icon" icon={CircleHelp} />
+				<Button size="base" variant="icon" icon={CircleHelp} buttonClasses="text-slate-500" />
 			</div>
 		</div>
 		<section class="knowledge__container">
 			<header id="action-panel" class="knowledge__action-panel">
-				<div class="flex space-x-2">
+				<div class="flex ">
 					<Button variant="primary" icon="{SquarePlus}" iconSize="lg"
 									onClick={() => {goto('/workspace/knowledge/create');}} aria-label={$i18n.t('Create Knowledge')}>
 						Nueva base
 					</Button>
 				</div>
-				<div class="flex space-x-base">
-						<span class="text-lg font-medium text-gray-500 dark:text-gray-300"
-						>{filteredItems.length}</span>
-					<div class=" self-center ml-1 mr-3">
-						<Search size="24" class="text-gray-500 dark:text-gray-300" />
+				<div class="flex items-center gap-sm">
+						<span class="text-label text-slate-500"
+						>{filteredItems.length} {$i18n.t('bases')}</span>
+
+					<div class="self-stretch p-base inline-flex justify-center rounded-sm items-center border 	bg-white dark:bg-brand-950 dark:border-slate-700">
+						<input
+							class=" flex-1 text-base text-slate-500 placeholder:text-slate-500 placeholder:text-placeholder w-full outline-none bg-transparent"
+							bind:value={query}
+							placeholder={$i18n.t('Search')}
+						/>
+						<Search size="20" class="text-slate-500" />
 					</div>
-					<input
-						class=" w-full text-sm py-1 rounded-r-xl outline-none bg-transparent"
-						bind:value={query}
-						placeholder={$i18n.t('Search Knowledge')}
-					/>
 				</div>
 			</header>
 			<section class="knowledge__content">
 				{#each filteredItems as item}
-					<button class="card" on:click={() => {
-						goto(`/workspace/knowledge/${item.id}`);
-				}}>
-						<div>
+					<a class="card" href={`/dev/knowledge/${item.id}`}>
+						<header class="card__header">
 							<div class="line-clamp-1">
 								<Pill text={item.name} pillColor="green" />
 							</div>
-						</div>
-						<div id="card__info" class="card__info">
-							<span>{item?.files.length} of files</span>
-							<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850" />
-							<span>{getTotalFileSize(item?.files)}</span>
-							<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850" />
-							<div class=" text-xs text-gray-500 line-clamp-1">
-								{$i18n.t('Updated')}
-								{dayjs(item.updated_at * 1000).fromNow()}
+							<p class="text-label text-slate-400">
+								<span>{item?.files.length} of files</span>
+							</p>
+						</header>
+						<footer id="card__info" class="card__footer">
+							<div class="flex items-center gap-xs">
+								<div class=" text-label text-slate-400 line-clamp-1">
+									{$i18n.t('Updated')}
+									{dayjs(item.updated_at * 1000).fromNow()}
+								</div>
+								<b class=" text-avatar text-brand-500 ">{capitalizeFirstLetter(item?.user?.name ?? $i18n.t('Deleted User'))}</b>
 							</div>
-						</div>
-					</button>
+							<span class=" text-label text-slate-400"> {getTotalFileSize(item?.files)}</span>
+						</footer>
+					</a>
 				{/each}
 			</section>
 		</section>
@@ -162,29 +165,52 @@
     }
 
     &__content {
-      @apply mb-5 px-lg py-2xl grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2;
-
+      @apply flex-1 self-stretch px-lg py-2xl grid grid-cols-1 items-start content-start md:grid-cols-2 gap-sm;
     }
 
     &__action-panel {
-      @apply flex justify-between items-center py-2xl px-lg;
+      @apply self-stretch flex justify-between items-center py-2xl px-lg;
     }
 
     &__container {
-      @apply py-2xl px-lg;
+      @apply self-stretch py-2xl px-lg flex flex-col gap-2xl items-center flex-shrink-0 ;
 
     }
   }
 
   .card {
-    @apply flex justify-between items-center self-start py-base px-lg bg-slate-50
-    border border-slate-300
-    hover:bg-white dark:bg-gray-850 rounded-md
+    @apply w-full flex flex-col items-start py-base px-lg;
+    gap: 12px;
+		border-radius: var(--spacing-base, 12px);
+
+    @apply border bg-slate-50 border-slate-200 dark:bg-slate-800 dark:border-slate-800 rounded-md
     cursor-pointer;
+
+		&:hover {
+			@apply bg-white border-slate-200 dark:border-slate-800 dark:bg-slate-900 ;
+		}
+
+		&:active {
+			@apply bg-brand-50 border-brand-200 dark:border-slate-700 dark:bg-brand-800 ;
+		}
 
     .card__info {
       @apply flex items-baseline text-slate-300 font-light text-sm;
     }
+
+		.card__header {
+      display: flex;
+			justify-content: space-between;
+      align-items: center;
+			align-self: stretch;
+    }
+
+		.card__footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      align-self: stretch;
+		}
   }
 
 </style>
