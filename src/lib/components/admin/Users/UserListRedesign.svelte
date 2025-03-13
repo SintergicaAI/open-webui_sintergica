@@ -1,7 +1,5 @@
 <script>
-	import { WEBUI_BASE_URL } from '$lib/constants';
-	import { WEBUI_NAME, config, user, showSidebar } from '$lib/stores';
-	import { goto } from '$app/navigation';
+	import { config, user } from '$lib/stores';
 	import { onMount, getContext } from 'svelte';
 
 	import dayjs from 'dayjs';
@@ -21,23 +19,49 @@
 	import AddUserModal from '$lib/components/admin/Users/UserList/AddUserModal.svelte';
 
 	import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
-	import Badge from '$lib/components/common/Badge.svelte';
-	import Plus from '$lib/components/icons/Plus.svelte';
 	import ChevronUp from '$lib/components/icons/ChevronUp.svelte';
 	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
-	import About from '$lib/components/chat/Settings/About.svelte';
+	import { Toggle, ToggleGroup, Popover } from 'bits-ui';
+	import Pill from '$lib/components/common/Pill/Pill.svelte';
+	import { Search, Send, SquarePlus } from 'lucide-svelte';
+	import Button from '$lib/components/common/Button/Button.svelte';
+	import Avatar from '$lib/components/common/Avatar.svelte';
+	import InviteUserModal from '$lib/components/admin/Users/UserList/InviteUserModal.svelte';
 
 	const i18n = getContext('i18n');
 
+	// Constants
+	const DEFAULT_SORT_KEY = 'created_at';
+	const DEFAULT_SORT_ORDER = 'asc';
+
+	// Props
 	export let users = [];
+	export let groups = [];
+
+
+	let selectedGroupFilters = [];
+
+	onMount(async () => {
+		groups.forEach(filter => {
+			selectedGroupFilters[filter.id] = false;
+		})
+	})
+
+	$: applyFilters = () => {
+		const activeFilters = Object.keys(selectedGroupFilters).filter(key => selectedGroupFilters[key]);
+		console.log('Filtros aplicados', activeFilters);
+	}
+	export let handleSelectedUser = () => {};
 
 	let search = '';
 	let selectedUser = null;
+	let popoverOpen = false;
 
 	let page = 1;
 
 	let showDeleteConfirmDialog = false;
 	let showAddUserModal = false;
+	let showInviteUserModal = false;
 
 	let showUserChatsModal = false;
 	let showEditUserModal = false;
@@ -79,13 +103,30 @@
 
 	$: filteredUsers = users
 		.filter((user) => {
-			if (search === '') {
-				return true;
-			} else {
-				let name = user.name.toLowerCase();
+			if (search !== '') {
+				const name = user.name.toLowerCase();
 				const query = search.toLowerCase();
-				return name.includes(query);
+				if (!name.includes(query)) {
+					return false;
+				}
 			}
+
+			// FILTRO POR GRUPOS
+			const activeFilters = Object.keys(selectedGroupFilters).filter(
+				(key) => selectedGroupFilters[key]
+			);
+
+			if (activeFilters.length > 0) {
+				// Comprueba si el usuario tiene algún grupo con un ID en `activeFilters`
+				const hasMatchingGroup = user.groups.some((group) =>
+					activeFilters.includes(String(group.id))
+				);
+				if (!hasMatchingGroup) {
+					return false;
+				}
+			}
+
+			return true;
 		})
 		.sort((a, b) => {
 			if (a[sortKey] < b[sortKey]) return sortOrder === 'asc' ? -1 : 1;
@@ -119,73 +160,87 @@
 		users = await getUsers(localStorage.token);
 	}}
 />
+
+<InviteUserModal
+	bind:show={showInviteUserModal}
+	on:save={async () => {
+		users = await getUsers(localStorage.token);
+	}}
+/>
 <UserChatsModal bind:show={showUserChatsModal} user={selectedUser} />
 
-<div class="mt-0.5 mb-2 gap-1 flex flex-col md:flex-row justify-between">
-	<div class="flex md:self-center text-lg font-medium px-0.5">
-		{$i18n.t('Users')}
-		<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850" />
+<header class="mt-0.5 mb-2 gap-1 flex flex-col md:flex-row justify-between">
+	<div class="flex gap-1">
+		<Tooltip content={$i18n.t('Add User')}>
+			<Button onClick={() => {
+						showAddUserModal = !showAddUserModal;
+					}} icon={SquarePlus}>
+				Nuevo usuario
+			</Button>
+		</Tooltip>
 
-		<span class="text-lg font-medium text-gray-500 dark:text-gray-300">{users.length}</span>
+		<Tooltip content={$i18n.t('Invite User')}>
+			<Button onClick={() => {
+				showInviteUserModal = !showInviteUserModal;
+			}} variant="outline-primary" icon={Send}>
+				Invitar usuario
+			</Button>
+		</Tooltip>
 	</div>
 
 	<div class="flex gap-1">
-		<div class=" flex w-full space-x-2">
-			<div class="flex flex-1">
-				<div class=" self-center ml-1 mr-3">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 20 20"
-						fill="currentColor"
-						class="w-4 h-4"
-					>
-						<path
-							fill-rule="evenodd"
-							d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
-							clip-rule="evenodd"
-						/>
-					</svg>
-				</div>
+		<div class=" flex items-center gap-base w-full space-x-2">
+			<span class="text-label text-slate-500 dark:text-gray-300">{users.length} {$i18n.t('users')}</span>
+
+			<div class="self-stretch p-base inline-flex justify-center rounded-sm items-center border 	bg-white dark:bg-brand-950 dark:border-slate-700">
 				<input
-					class=" w-full text-sm pr-4 py-1 rounded-r-xl outline-none bg-transparent"
+					class=" flex-1 text-base text-slate-500 placeholder:text-slate-500 placeholder:text-placeholder text-sm w-full outline-none bg-transparent"
 					bind:value={search}
 					placeholder={$i18n.t('Search')}
 				/>
-			</div>
-
-			<div>
-				<Tooltip content={$i18n.t('Add User')}>
-					<button
-						class=" p-2 rounded-xl hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-850 transition font-medium text-sm flex items-center space-x-1"
-						on:click={() => {
-							showAddUserModal = !showAddUserModal;
-						}}
-					>
-						<Plus className="size-3.5" />
-					</button>
-				</Tooltip>
+				<Search size="20" class="text-slate-500" />
 			</div>
 		</div>
 	</div>
-</div>
+</header>
 
 <div class="scrollbar-hidden relative whitespace-nowrap overflow-x-auto max-w-full rounded pt-0.5">
+	<section class="flex flex-col gap-sm">
+		<!-- Filter per groups -->
+		<p class="text-slate-500 text-label">Filtrar por grupos</p>
+		<div class="flex flex-wrap gap-1">
+			<form on:change={applyFilters}>
+				{#each groups as group}
+					<label>
+						<input type="checkbox" bind:checked="{selectedGroupFilters[group.id]}" id={group.name}  />
+						{group.name}
+					</label>
+				{/each}
+			</form>
+
+
+			<!--{#each groups as group}-->
+			<!--	<Switch activeLabel={group.name} inactiveLabel={group.name}/>-->
+			<!--	<input type="checkbox" id={group.name} name="filters[]" class="hidden" />-->
+			<!--{/each}-->
+		</div>
+	</section>
 	<table
-		class="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto max-w-full rounded"
+		class="border-separate border-spacing-y-sm w-full text-label text-left text-slate-500 table-auto max-w-full rounded"
 	>
 		<thead
-			class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-850 dark:text-gray-400 -translate-y-0.5"
+			class="text-label text-slate-500 bg-transparent "
 		>
 			<tr class="">
 				<th
 					scope="col"
 					class="px-3 py-1.5 cursor-pointer select-none"
-					on:click={() => setSortKey('role')}
+					on:click={() => setSortKey('name')}
 				>
 					<div class="flex gap-1.5 items-center">
-						{$i18n.t('Role')}
+						{$i18n.t('Name')}
 
-						{#if sortKey === 'role'}
+						{#if sortKey === 'name'}
 							<span class="font-normal"
 								>{#if sortOrder === 'asc'}
 									<ChevronUp className="size-2" />
@@ -203,14 +258,14 @@
 				<th
 					scope="col"
 					class="px-3 py-1.5 cursor-pointer select-none"
-					on:click={() => setSortKey('name')}
+					on:click={() => setSortKey('role')}
 				>
 					<div class="flex gap-1.5 items-center">
-						{$i18n.t('Name')}
+						{$i18n.t('Role')}
 
-						{#if sortKey === 'name'}
+						{#if sortKey === 'role'}
 							<span class="font-normal"
-								>{#if sortOrder === 'asc'}
+							>{#if sortOrder === 'asc'}
 									<ChevronUp className="size-2" />
 								{:else}
 									<ChevronDown className="size-2" />
@@ -247,129 +302,60 @@
 					</div>
 				</th>
 
-				<th
-					scope="col"
-					class="px-3 py-1.5 cursor-pointer select-none"
-					on:click={() => setSortKey('last_active_at')}
-				>
+				<th scope="col" class="px-3 py-1.5 cursor-pointer select-none">
 					<div class="flex gap-1.5 items-center">
-						{$i18n.t('Last Active')}
-
-						{#if sortKey === 'last_active_at'}
-							<span class="font-normal"
-								>{#if sortOrder === 'asc'}
-									<ChevronUp className="size-2" />
-								{:else}
-									<ChevronDown className="size-2" />
-								{/if}
-							</span>
-						{:else}
-							<span class="invisible">
-								<ChevronUp className="size-2" />
-							</span>
-						{/if}
-					</div>
-				</th>
-				<th
-					scope="col"
-					class="px-3 py-1.5 cursor-pointer select-none"
-					on:click={() => setSortKey('created_at')}
-				>
-					<div class="flex gap-1.5 items-center">
-						{$i18n.t('Created at')}
-						{#if sortKey === 'created_at'}
-							<span class="font-normal"
-								>{#if sortOrder === 'asc'}
-									<ChevronUp className="size-2" />
-								{:else}
-									<ChevronDown className="size-2" />
-								{/if}
-							</span>
-						{:else}
-							<span class="invisible">
-								<ChevronUp className="size-2" />
-							</span>
-						{/if}
-					</div>
-				</th>
-
-				<th
-					scope="col"
-					class="px-3 py-1.5 cursor-pointer select-none"
-					on:click={() => setSortKey('oauth_sub')}
-				>
-					<div class="flex gap-1.5 items-center">
-						{$i18n.t('OAuth ID')}
-
-						{#if sortKey === 'oauth_sub'}
-							<span class="font-normal"
-								>{#if sortOrder === 'asc'}
-									<ChevronUp className="size-2" />
-								{:else}
-									<ChevronDown className="size-2" />
-								{/if}
-							</span>
-						{:else}
-							<span class="invisible">
-								<ChevronUp className="size-2" />
-							</span>
-						{/if}
+						{$i18n.t('Groups')}
 					</div>
 				</th>
 
 				<th scope="col" class="px-3 py-2 text-right" />
 			</tr>
 		</thead>
-		<tbody class="">
-			{#each filteredUsers as user, userIdx}
-				<tr class="bg-white dark:bg-gray-900 dark:border-gray-850 text-xs">
-					<td class="px-3 py-1 min-w-[7rem] w-28">
-						<button
-							class=" translate-y-0.5"
-							on:click={() => {
-								if (user.role === 'user') {
-									updateRoleHandler(user.id, 'admin');
-								} else if (user.role === 'pending') {
-									updateRoleHandler(user.id, 'user');
-								} else {
-									updateRoleHandler(user.id, 'pending');
-								}
-							}}
-						>
-							<Badge
-								type={user.role === 'admin' ? 'info' : user.role === 'user' ? 'success' : 'muted'}
-								content={$i18n.t(user.role)}
-							/>
-						</button>
-					</td>
-					<td class="px-3 py-1 font-medium text-gray-900 dark:text-white w-max">
-						<div class="flex flex-row w-max">
-							<img
-								class=" rounded-full w-6 h-6 object-cover mr-2.5"
-								src={user.profile_image_url.startsWith(WEBUI_BASE_URL) ||
-								user.profile_image_url.startsWith('https://www.gravatar.com/avatar/') ||
-								user.profile_image_url.startsWith('data:')
-									? user.profile_image_url
-									: `/user.png`}
-								alt="user"
-							/>
-
+		<tbody class="space-y-1.5">
+			{#each filteredUsers as user}
+				<tr class="{selectedUser?.name === user.name ?
+					(selectedUser?.name === 'Yaz'? 'bg-pink-50 text-pink-600' : 'bg-brand-50 dark:bg-brand-900 dark:border-brand-700 text-brand-500')
+					:' bg-slate-50 dark:bg-slate-800 dark:border-slate-800'} p-base   " on:click={() => {selectedUser=user; handleSelectedUser(user)}}>
+					<td class=" rounded-l-md border-l border-y {selectedUser?.name === user.name ? selectedUser?.name === 'Yaz'? 'border-pink-600' :'border-brand-200 dark:border-brand-700 dark:border-brand-700':'border-slate-200 dark:border-slate-800'} px-3 py-base dark:text-white w-max">
+						<div class="flex flex-row w-max gap-base">
+							<Avatar name={user.name}/>
 							<div class=" font-medium self-center">{user.name}</div>
 						</div>
 					</td>
-					<td class=" px-3 py-1"> {user.email} </td>
+					<td class="border-y {selectedUser?.name === user.name ? selectedUser?.name === 'Yaz'? 'border-pink-600' :'border-brand-200 dark:border-brand-700':'border-slate-200 dark:border-slate-800'} px-3 py-base min-w-[7rem] w-44">
+						<button
+							class=" translate-y-0.5"
+						>
+							{$i18n.t(user.role).at(0).toUpperCase() + $i18n.t(user.role).slice(1)}
+						</button>
+					</td>
+					<td class=" border-y {selectedUser?.name === user.name ? selectedUser?.name === 'Yaz'? 'border-pink-600' :'border-brand-200 dark:border-brand-700':'border-slate-200 dark:border-slate-800'} px-3 py-base"> {user.email} </td>
 
-					<td class=" px-3 py-1">
-						{dayjs(user.last_active_at * 1000).fromNow()}
+					<td class=" border-y {selectedUser?.name === user.name ? selectedUser?.name === 'Yaz'? 'border-pink-600' :'border-brand-200 dark:border-brand-700':'border-slate-200 dark:border-slate-800'} px-3 py-base w-20">
+						{#if user.groups.length > 0}
+								<Popover.Root bind:open={popoverOpen}>
+								<Popover.Trigger class="inline-flex h-10
+									items-center justify-center whitespace-nowrap rounded-input bg-transparent px-[21px] text-[15px] font-medium shadow-mini transition-all hover:cursor-pointer hover:bg-dark/95 active:scale-98">
+									{`${user.groups.length} ${$i18n.t('groups')} `}
+								</Popover.Trigger>
+								<Popover.Content
+									class="z-30 flex flex-col items-start rounded-lg gap-sm max-w-[420px] border border-slate-300 bg-white p-lg shadow-md"
+									sideOffset={8}
+								>
+									<div class="self-stretch text-slate-500 text-label ">Grupos a los que pertenece</div>
+									<div class="self-stretch flex flex-wrap items-center content-center gap-xs">
+										{#each user.groups as group}
+											<Pill text="{group.name}" pillColor="brand"/>
+										{/each}
+									</div>
+								</Popover.Content>
+							</Popover.Root>
+						{:else}
+							Sin grupos
+						{/if}
 					</td>
 
-					<td class=" px-3 py-1">
-						{dayjs(user.created_at * 1000).format($i18n.t('MMMM DD, YYYY'))}
-					</td>
-
-					<td class=" px-3 py-1"> {user.oauth_sub ?? ''} </td>
-
-					<td class="px-3 py-1 text-right">
+					<td class=" rounded-r-md border-r border-y {selectedUser?.name === user.name ? selectedUser?.name === 'Yaz'? 'border-pink-600' :'border-brand-200 dark:border-brand-700':'border-slate-200 dark:border-slate-800'} px-3 py-base text-right">
 						<div class="flex justify-end w-full">
 							{#if $config.features.enable_admin_chat_access && user.role !== 'admin'}
 								<Tooltip content={$i18n.t('Chats')}>
@@ -442,10 +428,6 @@
 			{/each}
 		</tbody>
 	</table>
-</div>
-
-<div class=" text-gray-500 text-xs mt-1.5 text-right">
-	ⓘ {$i18n.t("Click on the user role button to change a user's role.")}
 </div>
 
 <Pagination bind:page count={users.length} />
