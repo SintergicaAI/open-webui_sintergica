@@ -113,15 +113,6 @@
 	const uploadFileHandler = async (file) => {
 		console.log(file);
 
-		let allowedMimeTypes = [
-			'text/plain',
-			'application/pdf',
-			'application/msword',
-			'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
-			'application/vnd.ms-excel', // .xls
-			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-		];
-
 		const tempItemId = uuidv4();
 		const fileItem = {
 			type: 'file',
@@ -134,11 +125,6 @@
 			error: '',
 			itemId: tempItemId
 		};
-
-		if(!allowedMimeTypes.includes(file.type) || file.type === ''){
-			toast.error('Try');
-			return null;
-		}
 
 		if (fileItem.size == 0) {
 			toast.error($i18n.t('You cannot upload an empty file.'));

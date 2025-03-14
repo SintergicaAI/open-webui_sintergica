@@ -7,17 +7,17 @@
 	export let selectedFileId = null;
 	export let files = [];
 
-	export let small = false;
+	export let small = false; //If is small will render the Avatar file icon
 </script>
 
 <div class=" max-h-full flex flex-col gap-sm w-full">
 	{#each files as file}
 		<div class="mt-1 px-2">
 			<FileItem
-				className="w-full bg-white dark:bg-gray-850"
-				colorClassName="{selectedFileId === file.id
-					? ' bg-gray-50 dark:bg-gray-850'
-					: 'bg-transparent'} hover:bg-gray-50 dark:hover:bg-gray-850 transition"
+				className="w-full"
+				colorClassName="border {selectedFileId === file.id
+					? 'bg-brand-50 border-brand-200 dark:border-brand-700 dark:bg-brand-800'
+					: ' bg-slate-50 border-slate-200 dark:border-slate-800 dark:bg-slate-800'} hover:bg-white hover:border-slate-200 dark:hover:bg-slate-900 transition"
 				{small}
 				{file}
 				name={file?.name ?? file?.meta?.name}
@@ -25,6 +25,7 @@
 				size={file?.size ?? file?.meta?.size ?? ''}
 				media={file?.meta['content_type']}
 				loading={file.status === 'uploading'}
+				author={file?.user_name }
 				dismissible
 				on:click={() => {
 					if (file.status === 'uploading') {

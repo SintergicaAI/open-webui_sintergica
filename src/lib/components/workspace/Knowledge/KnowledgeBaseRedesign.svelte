@@ -1,22 +1,17 @@
 <script lang="ts">
 	import Fuse from 'fuse.js';
-	import { Icon, toast } from 'svelte-sonner';
+	import { toast } from 'svelte-sonner';
 	import { v4 as uuidv4 } from 'uuid';
-	import { PaneGroup, Pane, PaneResizer } from 'paneforge';
 
-	import { onMount, getContext, onDestroy, tick } from 'svelte';
-
-	const i18n = getContext('i18n');
-
+	import { createEventDispatcher, getContext, onDestroy, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { mobile, showSidebar, knowledge as _knowledge } from '$lib/stores';
-
+	import { knowledge as _knowledge, showSidebar } from '$lib/stores';
 	import { updateFileDataContentById, uploadFile } from '$lib/apis/files';
 	import {
 		addFileToKnowledgeById,
-		getKnowledgeById,
 		getKnowledgeBases,
+		getKnowledgeById,
 		removeFileFromKnowledgeById,
 		resetKnowledgeById,
 		updateFileFromKnowledgeById,
@@ -24,8 +19,7 @@
 	} from '$lib/apis/knowledge';
 
 	import { transcribeAudio } from '$lib/apis/audio';
-	import { blobToFile } from '$lib/utils';
-	import { processFile } from '$lib/apis/retrieval';
+	import { blobToFile, formatFileSize } from '$lib/utils';
 
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import Files from './KnowledgeBase/Files.svelte';
@@ -36,22 +30,32 @@
 
 	import SyncConfirmDialog from '../../common/ConfirmDialog.svelte';
 	import RichTextInput from '$lib/components/common/RichTextInput.svelte';
-	import EllipsisVertical from '$lib/components/icons/EllipsisVertical.svelte';
 	import Drawer from '$lib/components/common/Drawer.svelte';
 	import ChevronLeft from '$lib/components/icons/ChevronLeft.svelte';
-	import LockClosed from '$lib/components/icons/LockClosed.svelte';
 	import AccessControlModal from '../common/AccessControlModal.svelte';
 
-	import './KnowledgeBase.css';
-	import Document from '$lib/components/icons/Document.svelte';
-	import DocumentDuplicate from '$lib/components/icons/DocumentDuplicate.svelte';
-	import Website from '$lib/components/icons/Website.svelte';
-	import Markdown from '$lib/components/icons/Markdown.svelte';
-	import Badge from '$lib/components/common/Badge.svelte';
-	import FiltersSelector from '$lib/components/workspace/Models/FiltersSelector.svelte';
-	import Filter from '$lib/components/common/Filter.svelte';
-	import Bookmark from '$lib/components/icons/Bookmark.svelte';
-	import Filters from '$lib/components/common/Filters.svelte';
+	import Button from '$lib/components/common/Button/Button.svelte';
+	import {
+		ArrowLeftFromLine,
+		ArrowRightFromLine,
+		Edit,
+		Globe,
+		Menu,
+		Save,
+		Trash2,
+		Undo2,
+		Upload,
+		X
+	} from 'lucide-svelte';
+	import ButtonFilter from '$lib/components/workspace/Knowledge/KnowledgeBase/Filters.svelte';
+	import Pill from '$lib/components/common/Pill/Pill.svelte';
+	import SwatchList from '$lib/components/common/Swatch/SwatchList.svelte';
+	import Avatar from '$lib/components/common/Avatar.svelte';
+	import { getUserById } from '$lib/apis/users';
+
+	const dispatch = createEventDispatcher();
+
+	const i18n = getContext('i18n');
 
 	let largeScreen = true;
 
@@ -67,7 +71,10 @@
 			file_ids: string[];
 		};
 		files: any[];
+		color: string;
 	};
+
+	let fullSize = false;
 
 	let id = null;
 	let knowledge: Knowledge | null = null;
@@ -118,13 +125,10 @@
 		const blob = new Blob([content], { type: 'text/plain' });
 		const file = blobToFile(blob, `${name}.txt`);
 
-		console.log(file);
 		return file;
 	};
 
 	const uploadFileHandler = async (file) => {
-		console.log(file);
-
 		const tempItemId = uuidv4();
 		const fileItem = {
 			type: 'file',
@@ -143,7 +147,7 @@
 			return null;
 		}
 
-		knowledge.files = [...(knowledge.files ?? []), fileItem];
+		_knowledge.files = [...(knowledge.files ?? []), fileItem];
 
 		// Check if the file is an audio file and transcribe/convert it to text file
 		if (['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/x-m4a'].includes(file['type'])) {
@@ -153,20 +157,24 @@
 			});
 
 			if (res) {
-				console.log(res);
 				const blob = new Blob([res.text], { type: 'text/plain' });
 				file = blobToFile(blob, `${file.name}.txt`);
 			}
 		}
 
 		try {
-			const uploadedFile = await uploadFile(localStorage.token, file).catch((e) => {
+			toast.loading($i18n.t('Uploading file...'));
+			const uploadedFile = await uploadFile(localStorage.token, file).then(
+				(res) => {
+					console.log('Uploading', res);
+					return res;
+				}
+			).catch((e) => {
 				toast.error(e);
 				return null;
 			});
 
 			if (uploadedFile) {
-				console.log(uploadedFile);
 				knowledge.files = knowledge.files.map((item) => {
 					if (item.itemId === tempItemId) {
 						item.id = uploadedFile.id;
@@ -268,8 +276,6 @@
 
 		if (totalFiles > 0) {
 			await processDirectory(dirHandle);
-		} else {
-			console.log('No files to upload.');
 		}
 	};
 
@@ -421,7 +427,6 @@
 	};
 
 	const changeDebounceHandler = () => {
-		console.log('debounce');
 		if (debounceTimeout) {
 			clearTimeout(debounceTimeout);
 		}
@@ -490,6 +495,41 @@
 		}
 	};
 
+	async function mapUsersFromKnowledge(knowledge) {
+		if (!knowledge || !knowledge.files || !Array.isArray(knowledge.files)) {
+			console.error("La estructura del conocimiento no es válida.");
+			return [];
+		}
+
+		// Extraer los user_id únicos de los archivos
+		const userIds = knowledge.files
+			.map(file => file.user_id)
+			.filter((id, index, array) => id && array.indexOf(id) === index); // Filtrar nulos y duplicados
+
+		const userMap = {};
+
+		const users = await Promise.all(
+			userIds.map(async (userId) => {
+				try{
+					const userData = await getUserById(localStorage.token, userId);
+						userMap[userId] = userData.name
+				}catch (e){
+					userMap[userId] = 'Desconocido'
+				}
+			})
+		);
+
+		const enrichedFiles = knowledge.files.map(file => ({
+			...file,
+				user_name: userMap[file.user_id] || 'Desconocido'
+		}))
+
+		return {
+			...knowledge,
+			files: enrichedFiles
+		}
+	}
+
 	onMount(async () => {
 		// listen to resize 1024px
 		mediaQuery = window.matchMedia('(min-width: 1024px)');
@@ -536,6 +576,9 @@
 
 		if (res) {
 			knowledge = res;
+			const enrichedKnowledge = await mapUsersFromKnowledge(knowledge);
+			console.log('Knowledge by id:',enrichedKnowledge);
+			knowledge = enrichedKnowledge;
 		} else {
 			goto('/workspace/knowledge');
 		}
@@ -621,7 +664,7 @@
 	}}
 />
 
-<div class="flex flex-col w-full translate-y-1" id="collection-container">
+<div class="{!fullSize ? 'layout' : 'layout--full-size'} w-full translate-y-1" id="collection-container">
 	{#if id && knowledge}
 		<AccessControlModal
 			bind:show={showAccessControlModal}
@@ -632,188 +675,129 @@
 		/>
 
 		<!-- Header -->
-		<div class="w-full mb-2.5">
+		<header class="header w-full py-lg px-base border-b border-slate-300">
 			<div class=" flex w-full">
-				<div class="flex-1">
-					<div class="flex items-center justify-between w-full px-0.5 mb-1">
-						<div class="w-full">
-							<input
-								type="text"
-								class="text-left w-full font-semibold text-2xl font-primary bg-transparent outline-none"
-								bind:value={knowledge.name}
-								placeholder="Knowledge Name"
-								on:input={() => {
-									changeDebounceHandler();
-								}}
-							/>
+					<div class="flex items-center justify-between w-full dark:border-gray-850">
+						<div class="flex items-center gap-lg">
+							<Button variant="icon" size="sm" icon={Undo2} buttonClasses="text-slate-500" />
+							<span class="text-left w-full text-title text-slate-400 font-primary bg-transparent outline-none">Bases de conocimiento ></span>
+							<Pill text={knowledge.name} />
 						</div>
 
-						<div class="self-center flex-shrink-0">
-							<button
-								class="bg-gray-50 hover:bg-gray-100 text-black dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-white transition px-2 py-1 rounded-full flex gap-1 items-center"
-								type="button"
-								on:click={() => {
-									showAccessControlModal = true;
-								}}
-							>
-								<LockClosed strokeWidth="2.5" className="size-3.5" />
+						<div class="flex items-center gap-lg">
+							<p class="font-[Archivo] text-sm text-slate-400">{$i18n.t('files')}: {knowledge.files.length}</p>
+							<span class="text-label text-slate-400">|</span>
+						<p class="font-[Archivo] text-sm text-slate-400">
+							{$i18n.t('size')}:
+							{formatFileSize(knowledge.files.reduce((total, file) => total + file.meta.size, 0))}
+						</p>
+						<span class="text-label text-slate-400">|</span>
+						<p class="font-[Archivo] text-sm text-slate-400">
+							{$i18n.t('last modified')}:
+							{new Date(Math.max(...knowledge.files.map(file => new Date(file.updated_at * 1000).getTime()))).toLocaleDateString('es-ES', {
+								year: 'numeric',
+								month: 'long',
+								day: 'numeric',
+							})}
 
-								<div class="text-sm font-medium flex-shrink-0">
-									{$i18n.t('Access')}
-								</div>
-							</button>
-						</div>
-					</div>
-
-					<div class="flex w-full px-1">
-						<input
-							type="text"
-							class="text-left text-xs w-full text-gray-500 bg-transparent outline-none"
-							bind:value={knowledge.description}
-							placeholder="Knowledge Description"
-							on:input={() => {
-								changeDebounceHandler();
-							}}
-						/>
+						</p>
+						<Avatar initials="AO" />
+						<Button variant="icon" size="sm" icon={Trash2} />
 					</div>
 				</div>
 			</div>
-		</div>
+		</header>
 
-		<!-- -->
-		<div class="flex flex-row flex-1 h-full max-h-full pb-2.5 gap-3">
-			{#if largeScreen}
-				<div class="flex-1 flex justify-start w-full h-full max-h-full">
-					{#if selectedFile}
-						<div class=" flex flex-col w-full h-full max-h-full">
-							<div class="flex-shrink-0 mb-2 flex items-center">
-								{#if !showSidepanel}
-									<div class="-translate-x-2">
-										<button
-											class="w-full text-left text-sm p-1.5 rounded-lg dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-gray-850"
-											on:click={() => {
-												pane.expand();
-											}}
-										>
-											<ChevronLeft strokeWidth="2.5" />
-										</button>
-									</div>
-								{/if}
-
-								<div class=" flex-1 text-xl font-medium">
-									<a
-										class="hover:text-gray-500 hover:dark:text-gray-100 hover:underline flex-grow line-clamp-1"
-										href={selectedFile.id ? `/api/v1/files/${selectedFile.id}/content` : '#'}
-										target="_blank"
-									>
-										{selectedFile?.meta?.name}
-									</a>
-								</div>
-
-								<div>
-									<button
-										class="self-center w-fit text-sm py-1 px-2.5 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-lg"
-										on:click={() => {
-											updateFileContentHandler();
-										}}
-									>
-										{$i18n.t('Save')}
-									</button>
-								</div>
-							</div>
-
-							<div
-								class=" flex-1 w-full h-full max-h-full text-sm bg-transparent outline-none overflow-y-auto scrollbar-hidden"
-							>
-								{#key selectedFile.id}
-									<RichTextInput
-										className="input-prose-sm"
-										bind:value={selectedFile.data.content}
-										placeholder={$i18n.t('Add content here')}
-										preserveBreaks={true}
-									/>
-								{/key}
-							</div>
-						</div>
-					{:else}
-						<div class="h-full flex w-full">
-							<div class="m-auto text-xs text-center text-gray-200 dark:text-gray-700">
-								{$i18n.t('Drag and drop a file to upload or select a file to view')}
-							</div>
-						</div>
-					{/if}
-				</div>
-			{:else if !largeScreen && selectedFileId !== null}
-				<Drawer
-					className="h-full"
-					show={selectedFileId !== null}
-					on:close={() => {
-						selectedFileId = null;
-					}}
-				>
-					<div class="flex flex-col justify-start h-full max-h-full p-2">
-						<div class=" flex flex-col w-full h-full max-h-full">
-							<div class="flex-shrink-0 mt-1 mb-2 flex items-center">
-								<div class="mr-2">
-									<button
-										class="w-full text-left text-sm p-1.5 rounded-lg dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-gray-850"
-										on:click={() => {
-											selectedFileId = null;
-										}}
-									>
-										<ChevronLeft strokeWidth="2.5" />
-									</button>
-								</div>
-								<div class=" flex-1 text-xl line-clamp-1">
-									{selectedFile?.meta?.name}
-								</div>
-
-								<div>
-									<button
-										class="self-center w-fit text-sm py-1 px-2.5 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-lg"
-										on:click={() => {
-											updateFileContentHandler();
-										}}
-									>
-										{$i18n.t('Save')}
-									</button>
-								</div>
-							</div>
-
-							<div
-								class=" flex-1 w-full h-full max-h-full py-2.5 px-3.5 rounded-lg text-sm bg-transparent overflow-y-auto scrollbar-hidden"
-							>
-								{#key selectedFile.id}
-									<RichTextInput
-										className="input-prose-sm"
-										bind:value={selectedFile.data.content}
-										placeholder={$i18n.t('Add content here')}
-										preserveBreaks={true}
-									/>
-								{/key}
-							</div>
-						</div>
-					</div>
-				</Drawer>
-			{/if}
-
-			<div
-				class="{largeScreen ? 'flex-shrink-0 w-72 max-w-72' : 'flex-1'}
+		{#if fullSize}
+			<div class="side-toggle flex items-center">
+				<Button variant="icon" size="base" icon={ArrowRightFromLine} buttonClasses="text-slate-500" onClick={()=>{fullSize = false;}} />
+			</div>
+		{/if}
+		<!-- Results -->
+		<div class="content {largeScreen ? 'flex-shrink-0 w-full' : 'flex-1'}
 			flex
-			py-2
-			rounded-2xl
-			border
-			border-gray-50
-			h-full
+			flex-col
+			p-3xl
+			gap-lg
 			dark:border-gray-850"
-			>
-				<div class=" flex flex-col w-full space-x-2 rounded-lg h-full">
-					<div class="w-full h-full flex flex-col">
-						<div class=" px-3">
+		>
+			<div class="flex w-full px-1">
+				<div class="flex-1">
+					<label for="knowledge-name" class="text-label text-slate-400">{$i18n.t('Knowledge base name')}</label>
+					<input
+						id="knowledge-name"
+						type="text"
+						class="text-left w-full text-black dark:text-white text-title bg-transparent outline-none"
+						bind:value={knowledge.name}
+						placeholder="Knowledge Name"
+						on:input={() => {
+									changeDebounceHandler();
+								}}
+					/>
+					<label for="knowledge-description" class="text-label text-slate-400">{$i18n.t('Description')}</label>
+					<input
+						id="knowledge-description"
+						type="text"
+						class="text-left text-base w-full text-slate-500 bg-transparent outline-none"
+						bind:value={knowledge.description}
+						placeholder="Knowledge Description"
+						on:input={() => {
+								changeDebounceHandler();
+							}}
+					/>
+				</div>
 
+				<div class="flex-1">
+					<SwatchList />
+				</div>
 
-							<div class="flex mb-0.5">
-								<div class=" self-center ml-1 mr-3">
+			</div>
+
+			<div class="flex flex-wrap justify-between w-full">
+				<div class="flex justify-between items-center w-full mb-2">
+					<h3 class="flex text-label text-slate-400">Añadir archivo</h3>
+					<h3 class="flex justify-end text-right text-label text-slate-400">{'Permisos'}</h3>
+				</div>
+
+				<div class="flex justify-between items-center w-full mb-2">
+					<div class="flex justify-between gap-sm">
+						<Button variant="primary" icon={Upload} onClick={() => {document.getElementById('files-input').click();}}>
+							{$i18n.t('Subir archivos')}</Button>
+						<Button variant="outline-primary" icon={Edit} onClick={()=>{showAddTextContentModal = true;}}>
+							{$i18n.t('Escribir nuevo archivo')}
+						</Button>
+						<Button variant="outline-primary" icon={Globe}>{'Añadir URL'}</Button>
+					</div>
+					<Button variant="outline-primary" icon={Edit} onClick={() => {
+									showAccessControlModal = true;
+								}}>Administrar accesos
+					</Button>
+				</div>
+			</div>
+
+			<div class=" flex flex-col w-full rounded-lg h-full">
+				<div class="w-full flex justify-start gap-sm flex-col flex-auto self-stretch">
+					<div class="flex flex-wrap flex-col w-full">
+
+						<div class="flex justify-between items-center w-full mb-2">
+							<h3 class="text-label text-slate-400">{$i18n.t('Filters')}</h3>
+							<h3 class="text-label text-right text-slate-400">{`${filteredItems.length} ${$i18n.t('files')}`}</h3>
+						</div>
+
+						<!-- Filters -->
+						<div class="self-stretch flex justify-between items-center">
+							<div>
+								<ButtonFilter />
+							</div>
+							<!-- Search input-->
+							<div class="flex items-center bg-white border border-slate-300 p-base rounded-sm gap-[10px]">
+								<input
+									class="w-full text-sm pr-4 py-1 outline-none bg-transparent"
+									bind:value={query}
+									placeholder={$i18n.t('Search Collection')}
+									on:focus={() => {selectedFileId = null;}}
+								/>
+								<div class="self-center ml-1 mr-3">
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
 										viewBox="0 0 20 20"
@@ -827,14 +811,6 @@
 										/>
 									</svg>
 								</div>
-								<input
-									class=" w-full text-sm pr-4 py-1 rounded-r-xl outline-none bg-transparent"
-									bind:value={query}
-									placeholder={$i18n.t('Search Collection')}
-									on:focus={() => {
-										selectedFileId = null;
-									}}
-								/>
 								<div>
 									<AddContentMenu
 										on:upload={(e) => {
@@ -854,57 +830,232 @@
 							</div>
 						</div>
 
-						<Filters>
-							<Filter text="All" color="gray">
-								<Icon slot="icon" />
-							</Filter>
-							<Filter text="documents" color="blue">
-								<DocumentDuplicate slot="icon" />
-							</Filter>
-							<Filter text="tablas" color="teal">
-								<Bookmark slot="icon" />
-							</Filter>
-							<Filter text="Website" color="pink">
-								<Markdown slot="icon" />
-							</Filter>
-							<Filter text="All" color="blue">
-								<Markdown slot="icon" />
-							</Filter>
-							<Filter text="All" color="blue">
-								<Markdown slot="icon" />
-							</Filter>
-						</Filters>
-
-
-						{#if filteredItems.length > 0}
-							<div class=" flex overflow-y-auto h-full w-full scrollbar-hidden text-xs">
-								<Files
-									small
-									files={filteredItems}
-									{selectedFileId}
-									on:click={(e) => {
+					</div>
+					{#if filteredItems.length > 0}
+						<div class=" flex overflow-y-auto h-full w-full scrollbar-hidden text-xs">
+							<Files
+								small={true}
+								files={filteredItems}
+								{selectedFileId}
+								on:click={(e) => {
 										selectedFileId = selectedFileId === e.detail ? null : e.detail;
 									}}
-									on:delete={(e) => {
-										console.log(e.detail);
-
+								on:delete={(e) => {
 										selectedFileId = null;
 										deleteFileHandler(e.detail);
 									}}
-								/>
+							/>
+						</div>
+					{:else}
+						<div class="my-3 flex flex-col justify-center text-center text-gray-500 text-xs py-10">
+							<div class="flex flex-col items-center">
+								<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path
+										d="M0 5.39326C0 2.41465 2.41464 0 5.39326 0H34.6067C37.5854 0 40 2.41464 40 5.39326V34.6067C40 37.5854 37.5854 40 34.6067 40H5.39326C2.41465 40 0 37.5854 0 34.6067V5.39326Z"
+										fill="#DDF2FB" />
+									<path fill-rule="evenodd" clip-rule="evenodd"
+												d="M28.3145 18.8764C30.4244 18.8764 32.1347 17.166 32.1347 15.0562C32.1347 12.9463 30.4244 11.2359 28.3145 11.2359C26.2047 11.2359 24.4943 12.9463 24.4943 15.0562C24.4943 17.166 26.2047 18.8764 28.3145 18.8764ZM28.3145 21.573C31.9137 21.573 34.8314 18.6553 34.8314 15.0562C34.8314 11.457 31.9137 8.53931 28.3145 8.53931C24.7154 8.53931 21.7977 11.457 21.7977 15.0562C21.7977 18.6553 24.7154 21.573 28.3145 21.573Z"
+												fill="#5DB0F5" />
+									<path fill-rule="evenodd" clip-rule="evenodd"
+												d="M15.3989 21.1231C15.8951 21.6784 16.7474 21.7263 17.3027 21.2301C17.8579 20.7339 17.9058 19.8815 17.4096 19.3263L13.511 14.9636L17.3899 10.8076C17.898 10.2632 17.8686 9.41002 17.3242 8.90193C16.7799 8.39384 15.9267 8.42326 15.4186 8.96765L11.6043 13.0544L7.97169 8.98935C7.4755 8.43409 6.62314 8.38621 6.06789 8.88239C5.51263 9.37858 5.46474 10.2309 5.96093 10.7862L9.85952 15.1489L5.98062 19.3049C5.47253 19.8493 5.50195 20.7025 6.04633 21.2105C6.59071 21.7186 7.44391 21.6892 7.952 21.1448L11.7663 17.0581L15.3989 21.1231Z"
+												fill="#5DB0F5" />
+									<path
+										d="M19.8876 24.9438C22.556 24.9438 24.7191 27.1069 24.7191 29.7752C24.7191 32.4436 22.556 34.6067 19.8876 34.6067C17.2193 34.6067 15.0562 32.4436 15.0562 29.7752C15.0562 27.1069 17.2193 24.9438 19.8876 24.9438Z"
+										fill="#5DB0F5" />
+								</svg>
+								<h2 class="text-brand-500 text-title">Esta base no tiene archivos</h2>
+								<span>Escribe un nuevo documento o carga archivos para continuar</span>
 							</div>
-						{:else}
-							<div class="my-3 flex flex-col justify-center text-center text-gray-500 text-xs">
-								<div>
-									{$i18n.t('No content found')}
-								</div>
-							</div>
-						{/if}
-					</div>
+						</div>
+					{/if}
 				</div>
 			</div>
 		</div>
+
+		<!-- Contenido -->
+		<aside class="sidebar flex flex-shrink-0 flex-col flex-1 py-xl px-2xl
+		bg-slate-50 border-slate-300 dark:bg-slate-950 border-l dark:border-slate-700">
+			{#if largeScreen}
+				<div class="flex-1 flex justify-start w-full h-full max-h-full">
+					{#if selectedFile}
+						<div class=" flex flex-col w-full h-full max-h-full gap-lg">
+							<header class=" flex justify-between items-center flex-shrink-0">
+								<div class="flex items-center gap-sm">
+									{#if !showSidepanel}
+										<div class="-translate-x-2">
+											<button
+												class="w-full text-left text-sm p-1.5 rounded-lg dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-gray-850"
+												on:click={() => {
+												pane.expand();
+											}}
+											>
+												<ChevronLeft strokeWidth="2.5" />
+											</button>
+										</div>
+									{/if}
+									<Button variant="icon" icon={ArrowLeftFromLine} onClick={() => {fullSize = !fullSize; console.log(fullSize)}}/>
+									<h2 class="text-subtitle">{$i18n.t('Upload files')}</h2>
+
+								</div>
+								<div class="flex items-center gap-sm">
+									<Button variant="primary" icon={Save} onClick={() => {
+											updateFileContentHandler();
+										}} aria-label="{$i18n.t('Save')}"/>
+									<Button variant="icon" icon={X} onClick={() => {}} class="text-slate-500" aria-label="{$i18n.t('Close')}"/>
+								</div>
+
+
+							</header>
+							<section class="flex flex-col gap-sm justify-center items-start self-stretch">
+								<h2 class="text-label text-slate-400">Titulo</h2>
+								<div class=" flex-1 text-title">
+									<a
+										class="hover:text-gray-500 hover:dark:text-gray-100 hover:underline flex-grow line-clamp-1"
+										href={selectedFile.id ? `/api/v1/files/${selectedFile.id}/content` : '#'}
+										target="_blank"
+									>
+										{selectedFile?.meta?.name}
+									</a>
+								</div>
+							</section>
+							<div class=" flex-1 ">
+								<div class="flex justify-between items-center w-full mb-2">
+									<h2 class=" text-label text-slate-400">{$i18n.t('Content')}</h2>
+									{#if selectedFile.data.content.length > 0}
+										<div class=" text-label text-slate-400">{selectedFile.data.content.length} {$i18n.t('characters')}</div>
+									{/if}
+								</div>
+
+
+								<div
+									class=" self-stretch h-[521px] text-black text-base font-normal font-['Archivo'] leading-normaltext-sm p-sm border border-slate-300 rounded-sm bg-white outline-none overflow-y-auto scrollbar-hidden"
+								>
+									{#key selectedFile.id}
+										<RichTextInput
+											className="input-prose-sm"
+											bind:value={selectedFile.data.content}
+											placeholder={$i18n.t('Add content here')}
+											preserveBreaks={true}
+										/>
+									{/key}
+								</div>
+
+							</div>
+						</div>
+					{:else}
+						<div class="h-full flex w-full py-lg px-2xl flex-col items-start gap-lg flex-shrink-0">
+							<header class="flex justify-between items-center self-stretch">
+								<h2 class="text-subtitle">{$i18n.t('Upload files')}</h2>
+								<button class="p-xs" on:click={() => {selectedFileId = null;}}>
+									<X class="text-slate-500" size="20"/>
+								</button>
+							</header>
+							<section class="dropzone">
+								<div class="flex justify-between items-center gap-sm">
+									{$i18n.t('Drag and drop a file to upload or select a file to view')}
+									<Upload size="20"/>
+
+								</div>
+							</section>
+						</div>
+					{/if}
+				</div>
+			{:else if !largeScreen && selectedFileId !== null}
+				<Drawer
+					className="h-full"
+					show={selectedFileId !== null}
+					on:close={() => {
+						selectedFileId = null;
+					}}
+				>
+					<div class="flex flex-col justify-start h-full max-h-full p-2">
+						<div class=" flex flex-col w-full h-full max-h-full">
+							<div class="flex-shrink-0 flex items-center">
+								<div class="">
+									<button
+										class="w-full text-left text-sm p-1.5 rounded-lg dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-gray-850"
+										on:click={() => {
+											selectedFileId = null;
+										}}
+									>
+										<ChevronLeft strokeWidth="2.5" />
+									</button>
+								</div>
+								<div class=" flex-1 text-xl line-clamp-1">
+									{selectedFile?.meta?.name}
+								</div>
+
+								<div>
+									<Button variant="primary" icon={Save} onClick={() => {
+											updateFileContentHandler();
+										}}/>
+								</div>
+							</div>
+
+							<div
+								class=" flex-1 w-full h-full max-h-full py-2.5 px-3.5 text-sm bg-transparent overflow-y-auto scrollbar-hidden"
+							>
+								{#key selectedFile.id}
+									<RichTextInput
+										className="input-prose-sm"
+										bind:value={selectedFile.data.content}
+										placeholder={$i18n.t('Add content here')}
+										preserveBreaks={true}
+									/>
+								{/key}
+							</div>
+						</div>
+					</div>
+				</Drawer>
+			{/if}
+		</aside>
 	{:else}
 		<Spinner />
 	{/if}
 </div>
+
+<style>
+    .layout{
+        display: grid;
+        grid-template-areas:
+				"header header"
+				"content sidebar";
+        grid-template-columns: 1fr minmax(437px, auto);
+        grid-template-rows: auto 1fr;
+    }
+
+		.layout--full-size {
+				display: grid;
+				grid-template-areas:
+				"header header"
+				"toggle sidebar";
+				grid-template-columns: auto 1fr;
+				grid-template-rows: auto 1fr;
+		}
+
+		.layout--full-size .content {
+				display: none;
+		}
+
+    .header {
+        grid-area: header;
+    }
+
+    .content {
+        grid-area: content;
+    }
+
+    .sidebar {
+        grid-area: sidebar;
+    }
+
+		.layout--full-size .side-toggle {
+				padding: var(--spacing-base);
+				grid-area: toggle;
+		}
+
+		.dropzone {
+				@apply flex flex-col gap-sm justify-center items-center flex-shrink-0 self-stretch p-lg border border-dashed h-[641px]
+        rounded-lg border-brand-500 text-button text-center bg-brand-50 text-brand-500 dark:text-gray-700;
+		}
+</style>
