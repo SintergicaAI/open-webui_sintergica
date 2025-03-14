@@ -6,7 +6,7 @@
 	import { getBackendConfig } from '$lib/apis';
 	import Database from './Settings/Database.svelte';
 
-	import General from './Settings/General.svelte';
+	import General from './Settings/GeneralRedesign.svelte';
 	import Pipelines from './Settings/Pipelines.svelte';
 	import Audio from './Settings/Audio.svelte';
 	import Images from './Settings/Images.svelte';
