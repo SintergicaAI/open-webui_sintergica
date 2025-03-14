@@ -9,14 +9,17 @@
 	import Modal from '../common/Modal.svelte';
 	import Account from './Settings/Account.svelte';
 	import About from './Settings/About.svelte';
-	import General from './Settings/General.svelte';
-	import Interface from './Settings/Interface.svelte';
-	import Audio from './Settings/Audio.svelte';
-	import Chats from './Settings/Chats.svelte';
+	import General from './Settings/GeneralRedesign.svelte';
+	import Interface from './Settings/InterfaceRedesign.svelte';
+	import Audio from './Settings/AudioRedesign.svelte';
+	import Chats from './Settings/ChatsRedesign.svelte';
 	import User from '../icons/User.svelte';
 	import Personalization from './Settings/Personalization.svelte';
 	import SearchInput from '../layout/Sidebar/SearchInput.svelte';
 	import Search from '../icons/Search.svelte';
+	import { flyAndScale } from '$lib/utils/transitions';
+	import { ChevronDown, CircleCheckBig } from 'lucide-svelte';
+	import {Select} from 'bits-ui'
 
 	const i18n = getContext('i18n');
 
@@ -323,11 +326,13 @@
 	} else {
 		removeScrollListener();
 	}
+
+	let themesRefactored = [{value:"dark", label:"Dark"}];
 </script>
 
 <Modal size="xl" bind:show>
-	<div class="text-base text-black dark:text-white">
-		<header class=" p-lg border-b border-slate-300 dark:border-slate-700 flex justify-between">
+	<article class="text-base text-black dark:text-white bg-slate-50 dark:bg-slate-900 rounded-xl">
+		<header class=" p-lg rounded-t-xl border-b border-slate-300 dark:border-slate-700 flex justify-between">
 			<div class=" text-title text-black dark:text-gray-300 self-center">{$i18n.t('Settings')}</div>
 			<button
 				class="self-center text-slate-500"
@@ -347,8 +352,7 @@
 				</svg>
 			</button>
 		</header>
-
-		<div class="flex flex-col md:flex-row w-full px-4 pt-1 pb-4 md:space-x-4">
+		<section class="flex flex-col md:flex-row w-full px-2xl py-xl pb-4 md:space-x-4">
 			<div
 				id="settings-tabs-container"
 				class="tabs flex flex-row overflow-x-auto gap-2.5 md:gap-1 md:flex-col flex-1 md:flex-none md:w-40 dark:text-gray-200 text-sm font-medium text-left mb-1 md:mb-0 -translate-y-1"
@@ -369,10 +373,10 @@
 					{#each visibleTabs as tabId (tabId)}
 						{#if tabId === 'general'}
 							<button
-								class="p-sm min-w-fit rounded-sm border flex-1 md:flex-none flex text-left transition {selectedTab ===
+								class="p-sm min-w-fit rounded-sm flex-1 md:flex-none flex text-left transition {selectedTab ===
 								'general'
-									? 'bg-brand-50 text-brand-500'
-									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-white'}"
+									? 'bg-brand-50 dark:bg-brand-900 text-brand-500'
+									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-brand-500'}"
 								on:click={() => {
 									selectedTab = 'general';
 								}}
@@ -395,10 +399,10 @@
 							</button>
 						{:else if tabId === 'interface'}
 							<button
-								class="p-sm min-w-fit rounded-sm border flex-1 md:flex-none flex text-left transition {selectedTab ===
+								class="p-sm min-w-fit rounded-sm flex-1 md:flex-none flex text-left transition {selectedTab ===
 								'interface'
-									? 'bg-brand-50 text-brand-500'
-									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-white'}"
+									? 'bg-brand-50 dark:bg-brand-900 text-brand-500'
+									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-brand-500'}"
 								on:click={() => {
 									selectedTab = 'interface';
 								}}
@@ -421,10 +425,10 @@
 							</button>
 						{:else if tabId === 'personalization'}
 							<button
-								class="p-sm min-w-fit rounded-sm border flex-1 md:flex-none flex text-left transition {selectedTab ===
+								class="p-sm min-w-fit rounded-sm flex-1 md:flex-none flex text-left transition {selectedTab ===
 								'personalization'
-									? 'bg-brand-50 text-brand-500'
-									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-white'}"
+									? 'bg-brand-50 dark:bg-brand-900 text-brand-500'
+									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-brand-500'}"
 								on:click={() => {
 									selectedTab = 'personalization';
 								}}
@@ -436,10 +440,10 @@
 							</button>
 						{:else if tabId === 'audio'}
 							<button
-								class="p-sm min-w-fit rounded-sm border flex-1 md:flex-none flex text-left transition {selectedTab ===
+								class="p-sm min-w-fit rounded-sm flex-1 md:flex-none flex text-left transition {selectedTab ===
 								'audio'
-									? 'bg-brand-50 text-brand-500'
-									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-white'}"
+									? 'bg-brand-50 dark:bg-brand-900 text-brand-500'
+									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-brand-500'}"
 								on:click={() => {
 									selectedTab = 'audio';
 								}}
@@ -463,10 +467,10 @@
 							</button>
 						{:else if tabId === 'chats'}
 							<button
-								class="p-sm min-w-fit rounded-sm border flex-1 md:flex-none flex text-left transition {selectedTab ===
+								class="p-sm min-w-fit rounded-sm flex-1 md:flex-none flex text-left transition {selectedTab ===
 								'chats'
-									? 'bg-brand-50 text-brand-500'
-									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-white'}"
+									? 'bg-brand-50 dark:bg-brand-900 text-brand-500'
+									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-brand-500'}"
 								on:click={() => {
 									selectedTab = 'chats';
 								}}
@@ -489,10 +493,10 @@
 							</button>
 						{:else if tabId === 'account'}
 							<button
-								class="p-sm min-w-fit rounded-sm border flex-1 md:flex-none flex text-left transition {selectedTab ===
+								class="p-sm min-w-fit rounded-sm flex-1 md:flex-none flex text-left transition {selectedTab ===
 								'account'
-									? 'bg-brand-50 text-brand-500'
-									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-white'}"
+									? 'bg-brand-50 dark:bg-brand-900 text-brand-500'
+									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-brand-500'}"
 								on:click={() => {
 									selectedTab = 'account';
 								}}
@@ -515,10 +519,10 @@
 							</button>
 						{:else if tabId === 'about'}
 							<button
-								class="p-sm min-w-fit rounded-sm border flex-1 md:flex-none flex text-left transition {selectedTab ===
+								class="p-sm min-w-fit rounded-sm flex-1 md:flex-none flex text-left transition {selectedTab ===
 								'about'
-									? 'bg-brand-50 text-brand-500'
-									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-white'}"
+									? 'bg-brand-50 dark:bg-brand-900 text-brand-500'
+									: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-brand-500'}"
 								on:click={() => {
 									selectedTab = 'about';
 								}}
@@ -542,10 +546,10 @@
 						{:else if tabId === 'admin'}
 							{#if $user.role === 'admin'}
 								<button
-									class="p-sm min-w-fit rounded-sm border flex-1 md:flex-none flex text-left transition {selectedTab ===
+									class="p-sm min-w-fit rounded-sm flex-1 md:flex-none flex text-left transition {selectedTab ===
 									'admin'
-										? 'bg-brand-50 text-brand-500'
-										: ' text-black dark:text-slate-200 hover:text-brand-500 dark:hover:text-white'}"
+										? 'bg-brand-50 dark:bg-brand-900 text-brand-500'
+										: ' text-black dark:text-slate-200 hover:text-brand-500 hover:dark:text-brand-500 dark:hover:text-white'}"
 									on:click={async () => {
 										await goto('/admin/settings');
 										show = false;
@@ -617,8 +621,8 @@
 					/>
 				{/if}
 			</div>
-		</div>
-	</div>
+		</section>
+	</article>
 </Modal>
 
 <style>
