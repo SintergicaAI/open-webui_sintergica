@@ -28,7 +28,6 @@
 		tags
 	} from '$lib/stores';
 
-	import ChatMenu from './ChatMenu.svelte';
 	import DeleteConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
 	import ShareChatModal from '$lib/components/chat/ShareChatModal.svelte';
 	import GarbageBin from '$lib/components/icons/GarbageBin.svelte';
@@ -38,6 +37,8 @@
 	import Check from '$lib/components/icons/Check.svelte';
 	import XMark from '$lib/components/icons/XMark.svelte';
 	import Document from '$lib/components/icons/Document.svelte';
+	import { EllipsisVertical } from 'lucide-svelte';
+	import ChatMenuRedesign from '$lib/components/layout/Sidebar/ChatMenuRedesign.svelte';
 
 	export let className = '';
 
@@ -222,13 +223,15 @@
 {/if}
 
 <div bind:this={itemElement} class=" w-full {className} relative group" {draggable}>
+
+	<!-- Styles applied after click Rename option-->
 	{#if confirmEdit}
 		<div
-			class=" w-full flex justify-between rounded-lg px-[11px] py-[6px] {id === $chatId ||
+			class=" w-full flex justify-between rounded-sm p-sm {id === $chatId ||
 			confirmEdit
-				? 'bg-gray-200 dark:bg-gray-900'
+				? 'border border-brand-200 dark:bg-gray-900'
 				: selected
-					? 'bg-gray-100 dark:bg-gray-950'
+						? 'bg-gray-100 dark:bg-gray-950'
 					: 'group-hover:bg-gray-100 dark:group-hover:bg-gray-950'}  whitespace-nowrap text-ellipsis"
 		>
 			<input
@@ -239,12 +242,12 @@
 		</div>
 	{:else}
 		<a
-			class=" w-full flex justify-between rounded-lg px-[11px] py-[6px] {id === $chatId ||
+			class=" w-full flex justify-between rounded-sm px-[11px] py-[6px] {id === $chatId ||
 			confirmEdit
-				? 'bg-gray-200 dark:bg-gray-900'
+				? ' text-brand-500 bg-brand-50 dark:bg-brand-900'
 				: selected
-					? 'bg-gray-100 dark:bg-gray-950'
-					: ' group-hover:bg-gray-100 dark:group-hover:bg-gray-950'}  whitespace-nowrap text-ellipsis"
+					? ' bg-brand-50 text-brand-500 dark:text-brand-500 dark:bg-brand-900'
+					:' dark:text-white group-hover:text-brand-500'}  whitespace-nowrap text-ellipsis"
 			href="/c/{id}"
 			on:click={() => {
 				dispatch('select');
@@ -267,21 +270,24 @@
 			draggable="false"
 		>
 			<div class=" flex self-center flex-1 w-full">
-				<div class=" text-left self-center overflow-hidden w-full h-[20px]">
+				<div class=" text-base text-ellipsis text-left self-center overflow-hidden w-full h-[20px]">
 					{title}
 				</div>
 			</div>
 		</a>
 	{/if}
 
+
+	<!-- Confirm save or cancel save tooltip-->
+	<!-- Estos estilos son para los tres puntos que aparecen a la derecha tras hacer hover en el chat. Y tambien aplican estilos dependiendo su estado de seleccion -->
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div
+	<nav
 		class="
         {id === $chatId || confirmEdit
-			? 'from-gray-200 dark:from-gray-900'
+			? ''
 			: selected
-				? 'from-gray-100 dark:from-gray-950'
-				: 'invisible group-hover:visible from-gray-100 dark:from-gray-950'}
+				? 'from-brand-50 dark:from-gray-950'
+				: 'invisible group-hover:visible'}
             absolute {className === 'pr-2'
 			? 'right-[8px]'
 			: 'right-0'}  top-[4px] py-1 pr-0.5 mr-1.5 pl-5 bg-gradient-to-l from-80%
@@ -351,7 +357,7 @@
 			</div>
 		{:else}
 			<div class="flex self-center space-x-1 z-10">
-				<ChatMenu
+				<ChatMenuRedesign
 					chatId={id}
 					cloneChatHandler={() => {
 						cloneChatHandler(id);
@@ -382,23 +388,13 @@
 				>
 					<button
 						aria-label="Chat Menu"
-						class=" self-center dark:hover:text-white transition"
+						class=" self-center text-slate-500 hover:text-brand-500 transition"
 						on:click={() => {
 							dispatch('select');
-						}}
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 16 16"
-							fill="currentColor"
-							class="w-4 h-4"
-						>
-							<path
-								d="M2 8a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM6.5 8a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM12.5 6.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"
-							/>
-						</svg>
+						}}>
+						<EllipsisVertical size="16" />
 					</button>
-				</ChatMenu>
+				</ChatMenuRedesign>
 
 				{#if id === $chatId}
 					<!-- Shortcut support using "delete-chat-button" id -->
@@ -423,5 +419,5 @@
 				{/if}
 			</div>
 		{/if}
-	</div>
+	</nav>
 </div>
