@@ -696,8 +696,9 @@
 						<div
 							class=" flex justify-end overflow-x-auto buttons text-slate-500 p-1 mt-0.5"
 						>
-							<div class="flex group-hover:dark:bg-slate-950">
+							<nav class=" flex rounded-sm gap-xs p-xs group-hover:shadow-md group:hover:bg-slate-50 group-hover:dark:bg-slate-950">
 
+								<!-- Previos and Next message response -->
 								{#if siblings.length > 1}
 									<div class="flex self-center min-w-fit" dir="ltr">
 										<button
@@ -751,6 +752,7 @@
 										</button>
 									</div>
 								{/if}
+
 								{#if message.done}
 									{#if !readOnly}
 										{#if $user.role === 'user' ? ($user?.permissions?.chat?.edit ?? true) : true}
@@ -758,7 +760,7 @@
 												<button
 													class="{isLastMessage
 													? 'visible'
-													: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition"
+													: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-brand-500 hover:text-brand-500 transition"
 													on:click={() => {
 													editMessageHandler();
 												}}
@@ -1002,7 +1004,7 @@
 													message?.annotation?.rating ?? ''
 												).toString() === '1'
 													? 'bg-gray-100 dark:bg-gray-800'
-													: ''} dark:hover:text-white hover:text-black transition disabled:cursor-progress disabled:hover:bg-transparent"
+													: ''} dark:hover:text-brand-500 hover:text-brand-500 transition disabled:cursor-progress disabled:hover:bg-transparent"
 													disabled={feedbackLoading}
 													on:click={async () => {
 													await feedbackHandler(1);
@@ -1038,7 +1040,7 @@
 													message?.annotation?.rating ?? ''
 												).toString() === '-1'
 													? 'bg-gray-100 dark:bg-gray-800'
-													: ''} dark:hover:text-white hover:text-black transition disabled:cursor-progress disabled:hover:bg-transparent"
+													: ''} dark:hover:text-brand-500 hover:text-brand-500 transition disabled:cursor-progress disabled:hover:bg-transparent"
 													disabled={feedbackLoading}
 													on:click={async () => {
 													await feedbackHandler(-1);
@@ -1074,7 +1076,7 @@
 													id="continue-response-button"
 													class="{isLastMessage
 													? 'visible'
-													: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition regenerate-response-button"
+													: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-brand-500 hover:text-brand-500 transition regenerate-response-button"
 													on:click={() => {
 													continueResponse();
 												}}
@@ -1107,7 +1109,7 @@
 												type="button"
 												class="{isLastMessage
 												? 'visible'
-												: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition regenerate-response-button"
+												: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-brand-500 hover:text-brand-500 transition regenerate-response-button"
 												on:click={() => {
 												showRateComment = false;
 												regenerateResponse(message);
@@ -1149,7 +1151,7 @@
 														type="button"
 														class="{isLastMessage
 														? 'visible'
-														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition regenerate-response-button"
+														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-brand-500 hover:text-brand-500 transition regenerate-response-button"
 														on:click={() => {
 														actionMessage(action.id, message);
 													}}
@@ -1173,7 +1175,7 @@
 									{/if}
 								{/if}
 
-							</div>
+							</nav>
 
 
 						</div>
