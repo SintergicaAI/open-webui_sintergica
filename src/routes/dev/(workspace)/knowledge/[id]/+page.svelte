@@ -1,5 +1,5 @@
 <script>
-	import KnowledgeBasePage from '$lib/components/workspace/Knowledge/KnowledgeBaseRedesign.svelte';
+	import KnowledgeBaseRedesign from '$lib/components/workspace/Knowledge/KnowledgeBaseRedesign.svelte';
 </script>
 
-<KnowledgeBasePage />
+<KnowledgeBaseRedesign />

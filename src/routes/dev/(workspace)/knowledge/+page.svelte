@@ -1,4 +1,20 @@
-<script lang="ts">
-	import KnowledgeBase from '$lib/components/workspace/KnowledgeRedesign.svelte';
+<script>
+	import { onMount } from 'svelte';
+	import { knowledge } from '$lib/stores';
+
+	import { getKnowledgeBases } from '$lib/apis/knowledge';
+	import KnowledgeBaseOverview from '$lib/components/workspace/KnowledgeRedesign.svelte';
+
+
+	onMount(async () => {
+		await Promise.all([
+			(async () => {
+				knowledge.set(await getKnowledgeBases(localStorage.token));
+			})()
+		]);
+	});
 </script>
-<KnowledgeBase />
+
+{#if $knowledge !== null}
+	<KnowledgeBaseOverview />
+{/if}
