@@ -5,7 +5,7 @@
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import { toast } from 'svelte-sonner';
 	import { getContext, onMount } from 'svelte';
-	import { knowledge, WEBUI_NAME } from '$lib/stores';
+	import { knowledge, settings, WEBUI_NAME } from '$lib/stores';
 	import { deleteKnowledgeById, getKnowledgeBaseList, getKnowledgeBases } from '$lib/apis/knowledge';
 
 	import { goto } from '$app/navigation';
@@ -89,7 +89,7 @@
 	<div class="knowledge">
 		<div class="knowledge__header">
 			<div class="flex items-center">
-				<div class="flex md:self-center text-title dark:text-white font-medium px-0.5 items-center">
+				<div class="flex md:self-center text-title dark:text-white items-center">
 					Bases de conocimientos
 				</div>
 				<Button size="base" variant="icon" icon={CircleHelp} buttonClasses="text-slate-500" />
@@ -122,7 +122,7 @@
 					<a class="card" href={`/dev/knowledge/${item.id}`}>
 						<header class="card__header">
 							<div class="line-clamp-1">
-								<Pill text={item.name} pillColor="green" />
+								<Pill text={item.name} pillColor={$settings.knowledgeColor} />
 							</div>
 							<p class="text-label text-slate-400">
 								<span>{item?.files.length} of files</span>
