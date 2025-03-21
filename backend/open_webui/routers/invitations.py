@@ -62,6 +62,24 @@ def send_email(to_email: str, subject: str, message: str, user: str, password: s
         print(f"Error al enviar email: {e}")  # Imprime el error completo, no solo la traceback
         # traceback.print_tb(e.__traceback__) # Esto ya lo hace la linea de arriba, no lo necesitas
 
+def is_valid_invitation(token: UUID):
+    invitation_search = Invitations.get_invitation_by_id(token)
+
+    if invitation_search is None:
+        return False
+
+    if invitation_search.expire_date < datetime.datetime.now():
+        invitation_search.is_active = False
+        invitation = InvitationModel(
+            **{
+                **invitation_search.model_dump()
+            }
+        )
+        Invitations.update_invitation_status_by_id(invitation)
+        return False
+
+    return True
+
 
 @router.post("/send-email")
 async def send_email_endpoint(email_request: EmailRequest):
@@ -120,23 +138,22 @@ async def resend_invitation(email_request: EmailRequest):
 
 @router.post("/validate")
 async def validate_invitation(invitation_string: InvitationRequest):
-    invitation_search = Invitations.get_invitation_by_id(invitation_string.token)
-
-    if invitation_search is None:
-        return {"message": "Invitación inexistente"}
-
-    if invitation_search.expire_date < datetime.datetime.now():
-        invitation_search.is_active = False
-        invitation = InvitationModel(
-            **{
-                **invitation_search.model_dump()
-            }
-        )
-        Invitations.update_invitation_status_by_id(invitation)
+    if is_valid_invitation(invitation_string.token):
+        return {"message": "Invitación valida"}
+    else:
         return {"message": "Invitación invalida"}
-
-    return {"message": "Invitación valida"}
 
 @router.post("/consume")
 async def consume_invitation(invitation_string: InvitationRequest):
-    return {"message": "Invitación valida"}
+    invitation_search = Invitations.get_invitation_by_id(invitation_string.token)
+    invitation = InvitationModel(
+        **{
+            **invitation_search.model_dump()
+        }
+    )
+
+    if is_valid_invitation(invitation_string.token) is False:
+        return {"message": "Invitación invalida"}
+
+    Invitations.update_invitation_status_by_id(invitation)
+    return {"message": "Invitación utilizada"}

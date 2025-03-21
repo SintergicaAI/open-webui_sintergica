@@ -110,10 +110,10 @@ class InvitationTable:
             except Exception:
                 return None
 
-    def update_invitation_status_by_id(self, invitation: InvitationForm) -> Optional[InvitationModel]:
+    def update_invitation_status_by_id(self, token: str) -> Optional[InvitationModel]:
         with get_db() as db:
             try:
-                invitation = db.query(Invitation).filter_by(token=InvitationForm.token).first()
+                invitation = db.query(Invitation).filter_by(token=token).first()
                 invitation.is_active = False
                 db.commit()
 
