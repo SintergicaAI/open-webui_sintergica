@@ -24,6 +24,12 @@
 	import AddGroupModal from './Groups/AddGroupModal.svelte';
 	import { createNewGroup, getGroups } from '$lib/apis/groups';
 	import { getUserDefaultPermissions, updateUserDefaultPermissions } from '$lib/apis/users';
+	import GroupItemRedesign from '$lib/components/admin/Users/Groups/GroupItemRedesign.svelte';
+	import { getUserById } from '$lib/apis/users';
+	import Button from '$lib/components/common/Button/Button.svelte';
+	import { Search, SquarePlus } from 'lucide-svelte';
+	import TuringFaceOpenMouth from '$lib/components/icons/TuringFaceOpenMouth.svelte';
+	import TuringFaceWinkyX from '$lib/components/icons/TuringFaceWinkyX.svelte';
 
 	const i18n = getContext('i18n');
 
@@ -65,6 +71,13 @@
 
 	const setGroups = async () => {
 		groups = await getGroups(localStorage.token);
+		groups = await Promise.all(
+			groups.map(async (group) => {
+				const author = await getUserById(localStorage.token, group.user_id);
+				return { ...group, author };
+			})
+		);
+		console.log('Groups', groups);
 	};
 
 	const addGroupHandler = async (group) => {
@@ -108,98 +121,65 @@
 
 {#if loaded}
 	<AddGroupModal bind:show={showCreateGroupModal} onSubmit={addGroupHandler} />
-	<div class="mt-0.5 mb-2 gap-1 flex flex-col md:flex-row justify-between">
-		<div class="flex md:self-center text-lg font-medium px-0.5">
-			{$i18n.t('Groups')}
-			<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850" />
-
-			<span class="text-lg font-medium text-gray-500 dark:text-gray-300">{groups.length}</span>
+	<header class="mt-0.5 mb-2 gap-1 flex flex-col md:flex-row justify-between ">
+		<div>
+			<Tooltip content={$i18n.t('New group')}>
+				<Button variant="primary" icon={SquarePlus} onClick={()=>{showCreateGroupModal = !showCreateGroupModal;}}>{$i18n.t('New group')}</Button>
+			</Tooltip>
 		</div>
+
 
 		<div class="flex gap-1">
 			<div class=" flex w-full space-x-2">
-				<div class="flex flex-1">
-					<div class=" self-center ml-1 mr-3">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 20 20"
-							fill="currentColor"
-							class="w-4 h-4"
-						>
-							<path
-								fill-rule="evenodd"
-								d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
-								clip-rule="evenodd"
-							/>
-						</svg>
+				<div class="flex md:self-center text-lg font-medium px-0.5">
+					<span class="text-label text-gray-500 dark:text-gray-300">{groups.length} {$i18n.t('groups')}</span>
+				</div>
+
+				<div class="hidden md:flex w-full rounded-xl -mb-1 px-0.5 gap-2" id="settings-search">
+					<div class="self-center rounded-l-xl bg-transparent">
+						<Search className="size-3.5" />
 					</div>
 					<input
-						class=" w-full text-sm pr-4 py-1 rounded-r-xl outline-none bg-transparent"
+						class="w-full py-1.5 text-sm bg-transparent dark:text-gray-300 outline-none"
 						bind:value={search}
 						placeholder={$i18n.t('Search')}
 					/>
 				</div>
 
-				<div>
-					<Tooltip content={$i18n.t('Create Group')}>
-						<button
-							class=" p-2 rounded-xl hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-850 transition font-medium text-sm flex items-center space-x-1"
-							on:click={() => {
-								showCreateGroupModal = !showCreateGroupModal;
-							}}
-						>
-							<Plus className="size-3.5" />
-						</button>
-					</Tooltip>
-				</div>
 			</div>
 		</div>
-	</div>
+	</header>
 
-	<div>
+	<section>
 		{#if filteredGroups.length === 0}
-			<div class="flex flex-col items-center justify-center h-40">
-				<div class=" text-xl font-medium">
-					{$i18n.t('Organize your users')}
+			<div class="flex-1 flex flex-col items-center justify-center gap-2xl py-4xl">
+
+				<div
+					class=" flex flex-col items-center self-stretch flex-1  h-full ">
+					<TuringFaceWinkyX />
 				</div>
 
-				<div class="mt-1 text-sm dark:text-gray-300">
-					{$i18n.t('Use groups to group your users and assign permissions.')}
-				</div>
+				<p class=" text-title text-brand-500 ">
+					{$i18n.t('You do not have any groups yet')}
+				</p>
 
-				<div class="mt-3">
-					<button
-						class=" px-4 py-1.5 text-sm rounded-full bg-primary-500 hover:bg-primary-700 text-black dark:bg-white dark:text-white dark:hover:bg-gray-100 transition font-medium flex items-center space-x-1"
-						aria-label={$i18n.t('Create Group')}
-						on:click={() => {
-							showCreateGroupModal = true;
-						}}
-					>
-						{$i18n.t('Create Group')}
-					</button>
-				</div>
+				<p class="text-base text-slate-900 dark:text-slate-600">
+					{$i18n.t('Create a')} <b class="text-brand-500">{$i18n.t('New group')}</b> {$i18n.t('to start adding users to it')}
+				</p>
 			</div>
 		{:else}
 			<div>
-				<div class=" flex items-center gap-3 justify-between text-xs uppercase px-1 font-bold">
-					<div class="w-full">Group</div>
+				<section class="grid grid-cols-2 gap-sm">
+					{#each filteredGroups as group}
+						<a class="" href={`/dev/admin/groups/edit?id=${encodeURIComponent(group.id)}`}>
+							<GroupItemRedesign {group} {users} {setGroups} />
+						</a>
+					{/each}
 
-					<div class="w-full">Users</div>
-
-					<div class="w-full"></div>
-				</div>
-
-				<hr class="mt-1.5 border-gray-50 dark:border-gray-850" />
-
-				{#each filteredGroups as group}
-					<div class="my-2">
-						<GroupItem {group} {users} {setGroups} />
-					</div>
-				{/each}
+				</section>
 			</div>
 		{/if}
 
-		<hr class="mb-2 border-gray-50 dark:border-gray-850" />
 
 		<GroupModal
 			bind:show={showDefaultPermissionsModal}
@@ -233,5 +213,5 @@
 				<ChevronRight strokeWidth="2.5" />
 			</div>
 		</button>
-	</div>
+	</section>
 {/if}
