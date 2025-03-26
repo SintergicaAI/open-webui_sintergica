@@ -10,6 +10,8 @@
 	import User from '$lib/components/icons/User.svelte';
 	import UserCircleSolid from '$lib/components/icons/UserCircleSolid.svelte';
 	import GroupModal from './EditGroupModal.svelte';
+	import Pill from '$lib/components/common/Pill/Pill.svelte';
+	import Card from '$lib/components/workspace/common/Card.svelte';
 
 	export let users = [];
 	export let group = {
@@ -56,29 +58,11 @@
 />
 
 <button
-	class="flex items-center gap-3 justify-between px-1 text-xs w-full transition"
+	class="rounded-md flex flex-col items-center gap-base justify-between  w-full bg-slate-50 dark:bg-slate-800 transition"
 	on:click={() => {
 		showEdit = true;
 	}}
 >
-	<div class="flex items-center gap-1.5 w-full font-medium">
-		<div>
-			<UserCircleSolid className="size-4" />
-		</div>
-		{group.name}
-	</div>
-
-	<div class="flex items-center gap-1.5 w-full font-medium">
-		{group.user_ids.length}
-
-		<div>
-			<User className="size-3.5" />
-		</div>
-	</div>
-
-	<div class="w-full flex justify-end">
-		<div class=" rounded-lg p-1 hover:bg-gray-100 dark:hover:bg-gray-850 transition">
-			<Pencil className="size-3.5" />
-		</div>
-	</div>
+	<Card pillText={group.name} pillColor="brand" headerContent={`${group.user_ids.length} ${$i18n.t('members')}`} footerInfo={{updatedText: 'Created by', userName:group?.author.name, deletedUserText: "Deleted"}}/>
 </button>
+
