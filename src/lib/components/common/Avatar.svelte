@@ -1,6 +1,7 @@
 <script lang="ts">
 	export let type: 'button' | 'user' | 'assistant' = 'user';
-	export let initials = 'ED';        // Avatar initials
+	export let initials = '';        // Avatar initials
+	export let name: string = ''
 	export let size: 'sm' | 'base' | 'lg' = 'base';
 
 	let active = false;
@@ -12,6 +13,19 @@
 		base: 'w-8 h-8',
 		lg: 'w-12 h-12'
 	};
+
+	function getInitials(name: string): string {
+		return name
+			.split(' ') // Divide el nombre por espacios
+			.map(word => word[0]?.toUpperCase() || '') // Toma la primera letra de cada palabra en mayúsculas
+			.join('') // Une las iniciales
+			.slice(0, 2); // Limita a 2 iniciales
+	}
+
+	// Si no hay iniciales definidas, calcula las iniciales del nombre
+	$: initials = initials || name.split(' ').length > 1 ? getInitials(name) : name[0];
+
+
 
 	function getSizeClass(): string {
 		return SIZE_CLASSES[size];

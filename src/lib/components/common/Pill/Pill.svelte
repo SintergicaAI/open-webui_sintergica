@@ -1,7 +1,8 @@
 <script lang="ts">
 	export let text: string;
 	export let pillColor: string = 'red';
-	const COLORS = ['red', 'blue', 'green', 'yellow', 'purple'];
+	const COLORS = ['red', 'orange', 'yellow', 'lime', 'green', 'sky', 'blue', 'purple', 'pink', 'brand'];
+
 
 	$: safeColor = COLORS.includes(pillColor) ? pillColor : 'red';
 </script>
@@ -28,6 +29,14 @@
 
     .green {
       @apply text-green-600 bg-green-200 border-green-600;
+    }
+
+    .lime {
+      @apply text-lime-600 bg-lime-200 border-lime-600;
+    }
+
+    .sky {
+      @apply text-sky-600 bg-sky-200 border-sky-600;
     }
 
     .yellow {
@@ -60,5 +69,9 @@
 
     .slate {
       @apply text-slate-600 bg-slate-200 border-slate-600;
+    }
+
+    .brand {
+      @apply text-brand-200 bg-brand-900 border-brand-200;
     }
 </style>

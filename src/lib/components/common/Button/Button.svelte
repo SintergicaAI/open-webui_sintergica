@@ -6,7 +6,6 @@
 		'primary'
 		| 'default'
 		| 'icon'
-		| 'secondary'
 		| 'danger'
 		| 'warning'
 		| 'success'
@@ -18,6 +17,7 @@
 	type IconSize = 'sm' | 'base' | 'lg';
 
 	// Component Props
+	export let type: 'button' | 'submit' | 'reset' = 'button';
 	export let variant: ButtonVariant = 'primary';
 	export let size: ButtonSize = 'base';
 	export let isDisabled: boolean = false;
@@ -27,9 +27,10 @@
 	export let iconSize: IconSize = 'base';
 	export let onClick: (event: MouseEvent) => void = () => {
 	};
+	export let color;
 
 	// Constants
-	const BASE_CLASSES = 'btn flex items-center justify-center font-inherit gap-sm';
+	const BASE_CLASSES = 'inline-flex items-center justify-center font-inherit gap-sm';
 	const ICON_SIZES = {
 		sm: '16',
 		base: '20',
@@ -45,8 +46,8 @@
 		const isIconOnly = variant === 'icon';
 		return `${BASE_CLASSES} ${buttonClasses} ${
 			isIconOnly
-				? `btn-icon btn-icon-${variant} btn-icon-${size}`
-				: `btn-${variant} btn-${size}`
+				? `btn-icon ${color} ${size}`
+				: `btn btn-${variant} btn-${size}`
 		}`;
 	};
 
@@ -57,6 +58,7 @@
 
 <!-- Main Button -->
 <button
+	type={type}
 	class={computedClasses}
 	disabled={isDisabled}
 	on:click|stopPropagation={onClick}
@@ -73,7 +75,7 @@
 
 <style lang="scss">
   .btn {
-		@apply rounded-sm py-sm px-base;
+		@apply inline-flex rounded-sm py-sm px-base text-button;
 		white-space: nowrap;
 		flex-wrap: nowrap;
 
@@ -165,25 +167,33 @@
     justify-content: center;
     align-items: center;
 
-    &.btn-icon-primary {
-      @apply text-brand-500;
-    }
+		&.danger {
+			@apply text-red-400;
+		}
 
-    &.btn-icon-base {
+    &.base {
       @apply p-xs rounded-sm;
     }
 
-    &.btn-icon-lg {
+    &.lg {
       @apply p-sm rounded-sm;
     }
 
-    &.btn-icon-sm {
+    &.sm {
       @apply p-xs rounded-sm;
     }
 
-    &:hover {
+    &.primary:hover {
       @apply text-brand-500;
     }
+
+		&.danger:hover {
+			@apply text-red-600;
+		}
+
+		&:active {
+			@apply text-red-600 bg-red-100;
+		}
 
     &:disabled {
       opacity: 0.4;

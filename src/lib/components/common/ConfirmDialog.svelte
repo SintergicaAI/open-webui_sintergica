@@ -5,6 +5,8 @@
 
 	import { fade } from 'svelte/transition';
 	import { flyAndScale } from '$lib/utils/transitions';
+	import Button from '$lib/components/common/Button/Button.svelte';
+	import { Trash2, X } from 'lucide-svelte';
 
 	export let title = '';
 	export let message = '';
@@ -65,37 +67,40 @@
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div
 		bind:this={modalElement}
-		class=" fixed top-0 right-0 left-0 bottom-0 bg-black/60 w-full h-screen max-h-[100dvh] flex justify-center z-[99999999] overflow-hidden overscroll-contain"
+		class=" fixed top-0 right-0 left-0 bottom-0 bg-[rgba(100,116,139,0.50)] dark:bg-[rgba(17,30,45,0.90)]	 backdrop-blur-[2px] w-full h-screen max-h-[100dvh] flex justify-center z-[99999999] overflow-hidden overscroll-contain"
 		in:fade={{ duration: 10 }}
 		on:mousedown={() => {
 			show = false;
 		}}
 	>
 		<div
-			class=" m-auto rounded-2xl max-w-full w-[32rem] mx-2 bg-gray-50 dark:bg-gray-950 max-h-[100dvh] shadow-3xl"
+			class=" m-auto rounded-xl max-w-full w-[32rem] mx-2 bg-slate-100 dark:bg-slate-950 max-h-[100dvh] shadow-3xl"
 			in:flyAndScale
 			on:mousedown={(e) => {
 				e.stopPropagation();
 			}}
 		>
-			<div class="px-[1.75rem] py-6 flex flex-col">
-				<div class=" text-lg font-semibold dark:text-gray-200 mb-2.5">
+			<header class="p-lg flex justify-between items-center border-b border-slate-300 dark:border-slate-700">
+				<h2 class="text-subtitle text-black dark:text-white">
 					{#if title !== ''}
 						{title}
 					{:else}
 						{$i18n.t('Confirm your action')}
 					{/if}
-				</div>
-
+				</h2>
+				<Button variant="icon" icon={X} buttonClasses="text-slate-500" />
+			</header>
+			<div class="self-stretch px-2xl py-lg flex flex-col justify-center content-center items-center gap-y-2xl ">
 				<slot>
-					<div class=" text-sm text-gray-500 flex-1">
-						{#if message !== ''}
-							{message}
-						{:else}
-							{$i18n.t('This action cannot be undone. Do you wish to continue?')}
-						{/if}
+				</slot>
+				<div class=" text-base text-center text-slate-400 flex-1">
+					{#if message !== ''}
+						{message}
+					{:else}
+						{$i18n.t('This action cannot be undone. Do you wish to continue?')}
+					{/if}
 
-						{#if input}
+					{#if input}
 							<textarea
 								bind:value={inputValue}
 								placeholder={inputPlaceholder ? inputPlaceholder : $i18n.t('Enter your message')}
@@ -103,30 +108,16 @@
 								rows="3"
 								required
 							/>
-						{/if}
-					</div>
-				</slot>
+					{/if}
+				</div>
 
-				<div class="mt-6 flex justify-between gap-1.5">
-					<button
-						class="bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-white font-medium w-full py-2.5 rounded-lg transition"
-						on:click={() => {
-							show = false;
-							dispatch('cancel');
-						}}
-						type="button"
-					>
+				<div class="mt-6 flex justify-between gap-sm">
+					<Button variant="outline-primary" buttonClasses="w-full" icon={X} onClick={()=>{show = false; dispatch('cancel');}}>
 						{cancelLabel}
-					</button>
-					<button
-						class="bg-primary-500 hover:bg-primary-700 text-gray-100 dark:bg-gray-100 dark:hover:bg-white dark:text-gray-800 font-medium w-full py-2.5 rounded-lg transition"
-						on:click={() => {
-							confirmHandler();
-						}}
-						type="button"
-					>
+					</Button>
+					<Button variant="danger" buttonClasses="w-full" icon={Trash2} onClick={()=>{confirmHandler()}}>
 						{confirmLabel}
-					</button>
+					</Button>
 				</div>
 			</div>
 		</div>

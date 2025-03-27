@@ -8,7 +8,7 @@
 	export let size = 'md';
 
 	export let containerClassName = 'p-3';
-	export let className = 'bg-gray-50 dark:bg-gray-900 rounded-2xl';
+	export let className = 'bg-slate-50 dark:bg-gray-900 rounded-xl';
 
 	let modalElement = null;
 	let mounted = false;
@@ -30,7 +30,6 @@
 
 	const handleKeyDown = (event: KeyboardEvent) => {
 		if (event.key === 'Escape' && isTopModal()) {
-			console.log('Escape');
 			show = false;
 		}
 	};
@@ -67,7 +66,7 @@
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div
 		bind:this={modalElement}
-		class="modal fixed top-0 right-0 left-0 bottom-0 bg-black/60 w-full h-screen max-h-[100dvh] {containerClassName} flex justify-center z-[9999] overflow-y-auto overscroll-contain"
+			class="modal fixed top-0 right-0 left-0 bottom-0 bg-slate-400/50 dark:bg-[#212f40]/90 backdrop-blur-sm w-full h-screen max-h-[100dvh] {containerClassName} flex justify-center z-50 overflow-y-auto overscroll-contain"
 		in:fade={{ duration: 10 }}
 		on:mousedown={() => {
 			show = false;

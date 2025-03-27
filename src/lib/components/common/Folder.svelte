@@ -4,11 +4,10 @@
 	const i18n = getContext('i18n');
 	const dispatch = createEventDispatcher();
 
-	import ChevronDown from '../icons/ChevronDown.svelte';
-	import ChevronRight from '../icons/ChevronRight.svelte';
 	import Collapsible from './Collapsible.svelte';
 	import Tooltip from './Tooltip.svelte';
 	import Plus from '../icons/Plus.svelte';
+	import { ChevronUp, ChevronDown, Pin } from 'lucide-svelte';
 
 	export let open = true;
 
@@ -127,19 +126,19 @@
 		>
 			<!-- svelte-ignore a11y-no-static-element-interactions -->
 			<div
-				class="w-full group rounded-md relative flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-500 dark:text-gray-500 transition"
+				class="w-full group rounded-md relative flex items-center justify-between transition"
 			>
-				<button class="w-full py-1.5 pl-2 flex items-center gap-1.5 text-xs font-medium">
-					<div class="text-gray-300 dark:text-gray-600">
-						{#if open}
-							<ChevronDown className=" size-3" strokeWidth="2.5" />
-						{:else}
-							<ChevronRight className=" size-3" strokeWidth="2.5" />
-						{/if}
-					</div>
-
-					<div class="translate-y-[0.5px]">
+				<button class="w-full py-sm pl-2 flex justify-between items-center text-label group ">
+					<div class="flex gap-xs text-slate-400  translate-y-[1px] {open ? 'text-label' : 'text-button'} group-hover:text-brand-500">
+						<Pin size="16"/>
 						{name}
+					</div>
+					<div class="text-slate-500 group-hover:text-brand-500 {open ? 'text-label' : 'text-button'}">
+						{#if open}
+							<ChevronUp size="20"/>
+						{:else}
+							<ChevronDown size="20"/>
+						{/if}
 					</div>
 				</button>
 

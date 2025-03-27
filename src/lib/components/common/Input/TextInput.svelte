@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
+	import { Eye, EyeClosed } from 'lucide-svelte';
 
 	export let id;
 	export let type = 'text';
@@ -10,16 +11,17 @@
 	export let label = ''; // Optional label
 	export let icon = undefined; // Optional icon
 	let isPasswordVisible = false;
-	export let showPasswordIcon = undefined; // Dynamic icon for show password
-	export let hidePasswordIcon = undefined;
-
-	function togglePasswordVisibility() {
-		console.log('togglePasswordVisibility');
-		isPasswordVisible = !isPasswordVisible;
-	}
-
+	export let showPasswordIcon = Eye; // Dynamic icon for show password
+	export let hidePasswordIcon = EyeClosed;
 
 	const dispatch = createEventDispatcher();
+
+	function togglePasswordVisibility() {
+
+		isPasswordVisible = !isPasswordVisible;
+		dispatch('toggled', { value });
+	}
+
 
 	function handleInput(event) {
 		value = event.target.value;
@@ -33,6 +35,7 @@
 	function handleFocus() {
 		dispatch('focus', { value });
 	}
+
 </script>
 
 <div>
@@ -69,22 +72,22 @@
 						 class="bg-transparent placeholder:text-placeholder placeholder:text-slate-500 flex-grow outline-none border-slate-300 dark:border-slate-700" />
 		{/if}
 
-		{#if isPasswordVisible && hidePasswordIcon}
-			<button on:click={togglePasswordVisibility}>
-				<svelte:component this={hidePasswordIcon} on:click={togglePasswordVisibility}
-			class="cursor-pointer text-slate-500"/>
-				</button>
-		{:else if showPasswordIcon}
-			<button on:click={togglePasswordVisibility}>
-				<svelte:component this={showPasswordIcon}
-													class="text-slate-500 cursor-pointer"
-													on:click={()=>togglePasswordVisibility()} />
-			</button>
-		{/if}
+		<div class="text-slate-500">
+			{#if type === 'password'}
+				{#if isPasswordVisible}
+					<button type="button" on:click={togglePasswordVisibility}>
+						<svelte:component this={hidePasswordIcon} class="text-slate-500 cursor-pointer" />
+					</button>
+				{:else}
+					<button type="button" on:click={togglePasswordVisibility}>
+						<svelte:component this={showPasswordIcon} class="text-slate-500 cursor-pointer" />
 
-		{#if icon && type !== 'password'}
-			<svelte:component this={icon} class="text-slate-500" />
-		{/if}
+					</button>
+				{/if}
+			{:else}
+				<slot name="icon" class="text-slate-500"></slot>
+			{/if}
+		</div>
 	</div>
 
 </div>
@@ -94,4 +97,8 @@
   .label {
     @apply block mb-2 text-gray-700 font-medium;
   }
+
+	.icon-container {
+		@apply flex items-center justify-center
+	}
 </style>
