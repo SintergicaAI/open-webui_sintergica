@@ -94,6 +94,9 @@ export default {
 				'safe-bottom': 'env(safe-area-inset-bottom)',
 				'base': '0.75rem'
 
+			},
+			boxShadow: {
+				'base': '0 0 4px 0 rgba(0, 0, 0, 0.25)'
 			}
 		}
 	},
