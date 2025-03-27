@@ -1,29 +1,61 @@
 <!-- BasesManagement.svelte -->
 <script lang="ts">
 	// Lógica para gestionar bases de conocimiento
-	import { onMount } from 'svelte';
-	import { getKnowledgeBases } from '$lib/apis/knowledge';
+	import { createEventDispatcher, getContext } from 'svelte';
 
-	let knowledgeBases: any;
+	const i18n = getContext('i18n');
+	const dispatch = createEventDispatcher();
 
-	onMount(async () => {
-		knowledgeBases = await getKnowledgeBases(localStorage.token).catch(
-			(error) => console.log(error)
-		);
+	export let groupBases = [];
+	export let allBases = [];
+	export let group;
 
-	})
+	let selectedBaseIds: Set<string> = new Set(groupBases.map(base => base.id));
+
+	function toggleBase(baseId: string): void {
+		if (selectedBaseIds.has(baseId)) {
+			selectedBaseIds.delete(baseId);
+		} else {
+			selectedBaseIds.add(baseId);
+		}
+
+		dispatch('update', {
+			type: 'bases',
+			ids: Array.from(selectedBaseIds)
+		})
+	}
+
+	// $: {
+	// 	if (groupBases) {
+	// 		selectedBaseIds = new Set(groupBases.map(base => base.id));
+	// 	}
+	// }
+
+
+
 </script>
 
 <div class="w-full">
-	<!-- UI para gestionar bases de conocimiento -->
-	<p>Interfaz para gestionar bases de conocimiento</p>
+	<h2 class="text-lg font-medium mb-3">{$i18n.t('Available Knowledge Bases')}</h2>
 
+	{#if allBases.length === 0}
+		<p class="text-slate-500">{$i18n.t('Loading knowledge bases...')}</p>
+	{:else}
+		<div class="space-y-2">
+			{#each allBases as base}
+				<div class="flex items-center p-2 border rounded">
+					<input
+						type="checkbox"
+						id="base-{base.id}"
+						checked={selectedBaseIds.has(base.id)}
+						on:change={() => toggleBase(base.id)}
+						class="mr-2"
+						aria-label={$i18n.t('Select knowledge base') + ': ' + base.name}
 
-	{#if knowledgeBases}
-		<ul>
-			{#each knowledgeBases as base}
-				<li>{base.name}</li>
+					/>
+					<label for="base-{base.id}" class="flex-grow">{base.name}</label>
+				</div>
 			{/each}
-		</ul>
+		</div>
 	{/if}
 </div>

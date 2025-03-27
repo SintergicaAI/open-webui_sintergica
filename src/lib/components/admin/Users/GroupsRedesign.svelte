@@ -121,97 +121,103 @@
 
 {#if loaded}
 	<AddGroupModal bind:show={showCreateGroupModal} onSubmit={addGroupHandler} />
-	<header class="mt-0.5 mb-2 gap-1 flex flex-col md:flex-row justify-between ">
-		<div>
-			<Tooltip content={$i18n.t('New group')}>
-				<Button variant="primary" icon={SquarePlus} onClick={()=>{showCreateGroupModal = !showCreateGroupModal;}}>{$i18n.t('New group')}</Button>
-			</Tooltip>
-		</div>
-
-
-		<div class="flex gap-1">
-			<div class=" flex w-full space-x-2">
-				<div class="flex md:self-center text-lg font-medium px-0.5">
-					<span class="text-label text-gray-500 dark:text-gray-300">{groups.length} {$i18n.t('groups')}</span>
+	<div class="flex ">
+		<div class=" flex-grow py-2xl px-lg flex flex-col items-center gap-sm">
+			<header class="w-full max-w-screen-xl flex flex-col md:flex-row justify-between ">
+				<div>
+					<Tooltip content={$i18n.t('New group')}>
+						<Button variant="primary" icon={SquarePlus} onClick={()=>{showCreateGroupModal = !showCreateGroupModal;}}>{$i18n.t('New group')}</Button>
+					</Tooltip>
 				</div>
 
-				<div class="hidden md:flex w-full rounded-xl -mb-1 px-0.5 gap-2" id="settings-search">
-					<div class="self-center rounded-l-xl bg-transparent">
-						<Search className="size-3.5" />
+
+				<div class="flex ">
+					<div class=" flex w-full space-x-2">
+						<div class="flex md:self-center text-lg font-medium px-0.5">
+							<span class="text-label text-gray-500 dark:text-gray-300">{groups.length} {$i18n.t('groups')}</span>
+						</div>
+
+						<div class="hidden md:flex w-full rounded-xl -mb-1 px-0.5 gap-2" id="settings-search">
+							<div class="self-center rounded-l-xl bg-transparent">
+								<Search className="size-3.5" />
+							</div>
+							<input
+								class="w-full py-1.5 text-sm bg-transparent dark:text-gray-300 outline-none"
+								bind:value={search}
+								placeholder={$i18n.t('Search')}
+							/>
+						</div>
+
 					</div>
-					<input
-						class="w-full py-1.5 text-sm bg-transparent dark:text-gray-300 outline-none"
-						bind:value={search}
-						placeholder={$i18n.t('Search')}
-					/>
 				</div>
+			</header>
 
-			</div>
-		</div>
-	</header>
+			<section class="w-full max-w-screen-xl">
+				{#if filteredGroups.length === 0}
+					<div class="flex-1 flex flex-col items-center justify-center gap-2xl ">
 
-	<section>
-		{#if filteredGroups.length === 0}
-			<div class="flex-1 flex flex-col items-center justify-center gap-2xl py-4xl">
+						<div
+							class=" flex flex-col items-center self-stretch flex-1  h-full ">
+							<TuringFaceWinkyX />
+						</div>
 
-				<div
-					class=" flex flex-col items-center self-stretch flex-1  h-full ">
-					<TuringFaceWinkyX />
-				</div>
+						<p class=" text-title text-brand-500 ">
+							{$i18n.t('You do not have any groups yet')}
+						</p>
 
-				<p class=" text-title text-brand-500 ">
-					{$i18n.t('You do not have any groups yet')}
-				</p>
+						<p class="text-base text-slate-900 dark:text-slate-600">
+							{$i18n.t('Create a')} <b class="text-brand-500">{$i18n.t('New group')}</b> {$i18n.t('to start adding users to it')}
+						</p>
+					</div>
+				{:else}
+					<div class="">
+						<section class="grid grid-cols-2 gap-sm ">
+							{#each filteredGroups as group}
+								<a class="" href={`/dev/admin/groups/edit?id=${encodeURIComponent(group.id)}`}>
+									<GroupItemRedesign {group} {users} {setGroups} />
+								</a>
+							{/each}
 
-				<p class="text-base text-slate-900 dark:text-slate-600">
-					{$i18n.t('Create a')} <b class="text-brand-500">{$i18n.t('New group')}</b> {$i18n.t('to start adding users to it')}
-				</p>
-			</div>
-		{:else}
-			<div>
-				<section class="grid grid-cols-2 gap-sm">
-					{#each filteredGroups as group}
-						<a class="" href={`/dev/admin/groups/edit?id=${encodeURIComponent(group.id)}`}>
-							<GroupItemRedesign {group} {users} {setGroups} />
-						</a>
-					{/each}
-
-				</section>
-			</div>
-		{/if}
+						</section>
+					</div>
+				{/if}
 
 
-		<GroupModal
-			bind:show={showDefaultPermissionsModal}
-			tabs={['permissions']}
-			bind:permissions={defaultPermissions}
-			custom={false}
-			onSubmit={updateDefaultPermissionsHandler}
-		/>
+				<GroupModal
+					bind:show={showDefaultPermissionsModal}
+					tabs={['permissions']}
+					bind:permissions={defaultPermissions}
+					custom={false}
+					onSubmit={updateDefaultPermissionsHandler}
+				/>
 
-		<button
-			class="flex items-center justify-between rounded-lg w-full transition pt-1"
-			on:click={() => {
+				<button
+					class="flex items-center justify-between rounded-lg w-full transition pt-1"
+					on:click={() => {
 				showDefaultPermissionsModal = true;
 			}}
-		>
-			<div class="flex items-center gap-2.5">
-				<div class="p-1.5 bg-black/5 dark:bg-white/10 rounded-full">
-					<UsersSolid className="size-4" />
-				</div>
+				>
+					<div class="flex items-center gap-2.5">
+						<div class="p-1.5 bg-black/5 dark:bg-white/10 rounded-full">
+							<UsersSolid className="size-4" />
+						</div>
 
-				<div class="text-left">
-					<div class=" text-sm font-medium">{$i18n.t('Default permissions')}</div>
+						<div class="text-left">
+							<div class=" text-sm font-medium">{$i18n.t('Default permissions')}</div>
 
-					<div class="flex text-xs mt-0.5">
-						{$i18n.t('applies to all users with the "user" role')}
+							<div class="flex text-xs mt-0.5">
+								{$i18n.t('applies to all users with the "user" role')}
+							</div>
+						</div>
 					</div>
-				</div>
-			</div>
 
-			<div>
-				<ChevronRight strokeWidth="2.5" />
-			</div>
-		</button>
-	</section>
+					<div>
+						<ChevronRight strokeWidth="2.5" />
+					</div>
+				</button>
+			</section>
+		</div>
+	</div>
+
+
 {/if}

@@ -1,10 +1,11 @@
 <!-- SectionManager.svelte -->
 <script lang="ts">
-	import { createEventDispatcher, getContext } from 'svelte';
-	import { LibraryBig, Users } from 'lucide-svelte';
+	import { createEventDispatcher, getContext, onMount } from 'svelte';
+	import { LibraryBig, Square, SquareCheckBig, Users } from 'lucide-svelte';
 	import Button from '$lib/components/common/Button/Button.svelte';
 	import TuringFace from '$lib/components/icons/TuringFace.svelte';
 	import Avatar from '$lib/components/common/Avatar.svelte';
+	import Pill from '$lib/components/common/Pill/Pill.svelte';
 
 	const i18n = getContext('i18n');
 	const dispatch = createEventDispatcher();
@@ -13,6 +14,7 @@
 	export let title: string;
 	export let items: any[] = [];
 	export let buttonText: string;
+
 
 	const getIcon = () => {
 		switch (type) {
@@ -28,6 +30,7 @@
 	function handleAction() {
 		dispatch('action');
 	}
+
 </script>
 
 <section class="w-full max-w-screen-xl flex flex-col gap-sm">
@@ -46,10 +49,29 @@
 	{#if type === 'members' && items.length > 0}
 		<div class="self-stretch p-base rounded-md flex-col gap-sm bg-slate-200 dark:bg-slate-950 flex justify-center">
 			{#each items as member}
-				<div class="bg-slate-50 p-base rounded-sm flex items-center gap-sm">
+				<article class="bg-slate-50 dark:bg-slate-800 border boder-slate-200 dark:border-slate-800 p-base rounded-sm flex items-center gap-sm">
 					<Avatar name={member.name}/>
 					{member.name}
-				</div>
+				</article>
+			{/each}
+		</div>
+
+	{:else if type === 'assistants' && items.length > 0}
+		<div class="self-stretch p-base rounded-md flex-col gap-sm bg-slate-200 dark:bg-slate-950 flex justify-center">
+			{#each items as assistant}
+				<article class="bg-slate-50 dark:bg-slate-800 p-lg gap-lg border boder-slate-200 dark:border-slate-700 rounded-md flex flex-col">
+					<header class="self-stretch flex items-start gap-sm">
+						<TuringFace/>
+						<p class="text-title text-black dark:text-white">{assistant.name}</p>
+					</header>
+					<p class="line-clamp-1 overflow-hidden text-ellipsis text-base text-slate-950 dark:text-slate-50">{assistant.description}</p>
+				</article>
+			{/each}
+		</div>
+	{:else if (type === 'bases' && items.length > 0)}
+		<div class="self-stretch p-base rounded-md bg-slate-200 dark:bg-slate-950 flex ">
+			{#each items as assistant}
+				<Pill pillColor="purple" text={assistant.name}/>
 			{/each}
 		</div>
 	{:else}
