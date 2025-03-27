@@ -18,7 +18,6 @@
 	import { getTools } from '$lib/apis/tools/index.js';
 	import SettingsModal from '$lib/components/chat/SettingsModal.svelte';
 
-
 	let DB = null;
 	let localDBChats = [];
 
@@ -160,17 +159,23 @@
 
 <SettingsModal bind:show={$showSettings} />
 
-<div class="app">
+<div class="app-container flex-shrink-0 bg-lvl-0">
 	<div class="flex">
 		<SidebarRedesign />
 	</div>
-	<div class="content">
+	<div class="content bg-lvl-1 rounded-lg p-1">
 		<slot/>
 	</div>
 
 </div>
 
 <style lang="scss">
+
+  .app-container {
+    @apply flex p-sm space-x-sm
+    gap-sm h-svh max-h-[100dvh]
+  }
+
   .sidebar {
     width: 56px;
     overflow-y: hidden;
@@ -208,38 +213,8 @@
   }
 
 	.content {
-		@apply flex-grow flex
-    bg-lvl-1
-    w-full
-    rounded-lg
-		;
+		@apply flex flex-1 self-stretch rounded-lg;
 	}
-
-  .chat {
-    display: grid;
-    grid-template-columns: 250px 1fr;
-
-    @apply
-    bg-lvl-2
-    w-full
-    rounded-lg;
-
-    .chat__sidebar {
-      @apply flex flex-col gap-base border-r border-slate-300 w-full py-lg px-base;
-    }
-
-		.chat__container {
-			@apply flex flex-col gap-base w-full pb-lg h-full;
-    }
-  }
-
-  .app {
-    @apply flex
-			bg-lvl-0
-    p-sm
-			gap-sm
-		dark:bg-gray-900 h-svh max-h-[100dvh]
-  }
 
   .icon {
     @apply p-xs

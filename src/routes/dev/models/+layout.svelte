@@ -56,14 +56,17 @@
 		class=" relative knowledge bg-lvl-1 scrollbar-none flex flex-col w-full h-full max-h-[100dvh]"
 	>
 		{#if $user?.role === 'admin' || $user?.permissions?.workspace?.models}
-			<div class="knowledge__header">
+			<header class="knowledge__header">
 				<div class="flex items-center gap-sm">
 					<h2 class="flex text-title dark:text-white items-center">
-						{$i18n.t('Models')}
+						{$i18n.t('Assistants')}
 					</h2>
 					<Button size="base" variant="icon" icon={CircleHelp} buttonClasses="text-slate-500 dark:text-slate-400" />
 				</div>
-			</div>
+				<div class="flex items-center gap-sm">
+
+				</div>
+			</header>
 		{/if}
 		<div class="  knowledge__content" id="workspace-container">
 			<slot />
@@ -78,11 +81,11 @@
     grid-template-columns: 1fr;
     grid-template-rows: 100px 1fr;
     &__header {
-      @apply flex justify-between px-base py-lg border-b;
+      @apply flex justify-between px-base py-lg border-b border-slate-300 dark:border-slate-700;
     }
 
     &__content {
-      @apply overflow-y-auto gap-2;
+      @apply flex justify-center px-base py-2xl overflow-y-auto;
 
     }
 

@@ -11,7 +11,7 @@
 	import { getModelById, updateModelById } from '$lib/apis/models';
 
 	import { getModels } from '$lib/apis';
-	import ModelEditor from '$lib/components/workspace/Models/ModelEditor.svelte';
+	import ModelEditorRedesign from '$lib/components/workspace/Models/ModelEditorRedesign.svelte';
 
 	let model = null;
 
@@ -42,5 +42,5 @@
 </script>
 
 {#if model}
-	<ModelEditor edit={true} {model} {onSubmit} />
+	<ModelEditorRedesign edit={true} {model} {onSubmit} />
 {/if}
