@@ -23,6 +23,7 @@
 	export let groups = [];
 	export let handleRoleUpdate = (id:string, role:string) => {};
 	export let handleUserDelete = (id:string) => {};
+	export let handleGroupUpdate = (id:string, group:string, user_id:string, isDeletion:boolean) => {};
 
 	let filteredGroups;
 	let search = '';
@@ -44,16 +45,24 @@
 
 {#if user}
 	<ConfirmDialog
+		title={$i18n.t('Delete user?')}
+		confirmLabel={$i18n.t('Yes, delete user')}
+		cancelLabel={$i18n.t('No, keep user')}
 		bind:show={showDeleteConfirmDialog}
 		on:confirm={() => {
 		handleUserDelete(user.id);
 	}}
-	/>
+	>
+		<div class="self-stretch flex justify-center items-center gap-base text-label text-slate-500">
+			<Avatar name={user.name} />
+			<p class="text-subtitle text-black dark:text-white">{user.name}</p>
+		</div>
+	</ConfirmDialog>
 	<div class="w-full h-full flex flex-col gap-base">
 		<header class=" flex items-center gap-base self-stretch">
 			<Avatar name={user.name} />
 			<h2 class="text-subtitle text-black dark:text-white flex-1">{user.name}</h2>
-			<Button icon={Trash2} iconSize="base" variant="icon" onClick={()=>{showDeleteConfirmDialog = !showDeleteConfirmDialog;}}/>
+			<Button icon={Trash2} iconSize="base" variant="icon" buttonClasses="text-red-500" onClick={()=>{showDeleteConfirmDialog = !showDeleteConfirmDialog;}}/>
 			<Button icon={X} size="base" variant="icon" iconSize="base" buttonClasses="text-slate-500"/>
 		</header>
 
@@ -104,7 +113,7 @@
 			<h4 class="text-label text-slate-500">Grupos a los que pertenece</h4>
 			<div class="self-stretch p-base inline-flex justify-center rounded-sm items-center border bg-white dark:bg-brand-950 dark:border-slate-700">
 				<input
-					class=" flex-1 text-base text-slate-500 placeholder:text-slate-500 placeholder:text-placeholder text-sm w-full outline-none bg-transparent"
+					class=" flex-1 text-base text-slate-500 placeholder:text-slate-500 placeholder:text-placeholder w-full outline-none bg-transparent"
 					bind:value={search}
 					placeholder={$i18n.t('Search')}
 				/>
@@ -119,7 +128,7 @@
 
 						<div class="flex justify-end items-center gap-sm">
 							<i class="text-label text-slate-500">{group.user_ids.length} miembros</i>
-							<Checkbox.Root id={group.id} class="cursor-pointer" checked={group.user_ids.includes(user.id)}>
+							<Checkbox.Root id={group.id} value={group.id} name="groups" class="cursor-pointer" checked={group.user_ids.includes(user.id)} onCheckedChange={()=>handleGroupUpdate(group.id, group, user.id, group.user_ids.includes(user.id))}>
 								<Checkbox.Input id={group.id} checked={group.user_ids.includes(user.id)} />
 								<Checkbox.Indicator let:isChecked>
 									{#if isChecked }
