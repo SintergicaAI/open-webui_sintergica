@@ -33,7 +33,7 @@
 			<CircleHelp size="20"/>
 		</header>
 
-		<section class=" flex-1 max-h-full overflow-y-auto py-2xl px-lg ">
+		<section class=" flex-1 max-h-full overflow-y-auto  ">
 			<slot />
 		</section>
 	</div>
