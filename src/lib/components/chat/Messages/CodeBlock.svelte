@@ -13,7 +13,9 @@
 	import PyodideWorker from '$lib/workers/pyodide.worker?worker';
 	import CodeEditor from '$lib/components/common/CodeEditor.svelte';
 	import SvgPanZoom from '$lib/components/common/SVGPanZoom.svelte';
-
+	import Button from '$lib/components/common/Button/Button.svelte';
+	import { Clipboard, Save } from 'lucide-svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	const i18n = getContext('i18n');
 	const dispatch = createEventDispatcher();
 
@@ -314,14 +316,14 @@ __builtins__.input = input`);
 				<pre class="mermaid">{code}</pre>
 			{/if}
 		{:else}
-			<div class="text-text-300 absolute pl-4 py-1.5 text-xs font-medium dark:text-white">
+			<div class="text-label absolute top-sm left-sm text-slate-400 dark:text-white">
 				{lang}
 			</div>
 
 			<div
-				class="sticky {stickyButtonsClassName} mb-1 py-1 pr-2.5 flex items-center justify-end z-10 text-xs text-black dark:text-white"
+				class=" {stickyButtonsClassName} p-xs pr-2.5 flex items-center justify-end z-10 text-xs text-black dark:text-white"
 			>
-				<div class="flex items-center gap-0.5 translate-y-[1px]">
+				<div class="flex items-center gap-[10px] translate-y-[1px]">
 					{#if lang.toLowerCase() === 'python' || lang.toLowerCase() === 'py' || (lang === '' && checkPythonCode(code))}
 						{#if executing}
 							<div class="run-code-button bg-none border-none p-1 cursor-not-allowed">Running</div>
@@ -338,29 +340,25 @@ __builtins__.input = input`);
 					{/if}
 
 					{#if save}
-						<button
-							class="save-code-button bg-none border-none bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
-							on:click={saveCode}
-						>
-							{saved ? $i18n.t('Saved') : $i18n.t('Save')}
-						</button>
+						<Tooltip content={saved ? $i18n.t('Saved') : $i18n.t('Save')} >
+							<Button buttonClasses="save-code-button text-slate-500 transition" variant="icon" size="base" icon={Save} onClick={() => saveCode()}>{saved ? $i18n.t('Saved') : ''}</Button>
+						</Tooltip>
 					{/if}
 
-					<button
-						class="copy-code-button bg-none border-none bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
-						on:click={copyCode}>{copied ? $i18n.t('Copied') : $i18n.t('Copy')}</button
-					>
+					<Tooltip content={copied ? $i18n.t('Copied') : $i18n.t('Copy')} >
+						<Button buttonClasses="copy-code-button text-slate-500 transition" variant="icon" size="base" icon={Clipboard} onClick={() => copyCode()}>{copied ? $i18n.t('Copied') : ''}</Button>
+					</Tooltip>
 				</div>
 			</div>
 
 			<div
-				class="language-{lang} rounded-t-lg -mt-8 {editorClassName
+				class="language-{lang} rounded-t-sm -mt-8 {editorClassName
 					? editorClassName
 					: executing || stdout || stderr || result
 						? ''
 						: 'rounded-b-lg'} overflow-hidden"
 			>
-				<div class=" pt-7 bg-gray-50 dark:bg-gray-850"></div>
+				<div class=" pt-7 bg-white dark:bg-gray-850"></div>
 				<CodeEditor
 					value={code}
 					{id}

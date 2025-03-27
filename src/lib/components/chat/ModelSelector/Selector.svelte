@@ -274,18 +274,24 @@
 		side={$mobile ? 'bottom' : 'bottom-start'}
 		sideOffset={3}
 	>
-		<slot>
-			{#if searchEnabled}
-				<div class="flex items-center gap-2.5 px-5 mt-3.5 mb-3">
-					<Search className="size-4" strokeWidth="2.5" />
+		<Modal size="lg" className="bg-slate-100 dark:bg-slate-900 dark:text-white rounded-xl">
+			<header class="flex items-center justify-between p-lg border-b border-slate-700 dark:border-slate-700">
+				<h1 class="text-title">Cambiar asistentes</h1>
+				<Button onClick={() => (show = false)} icon={X} class="text-slate-500"/>
+			</header>
+			<section class="p-2xl">
+				<div class="flex items-center justify-between gap-2 mb-sm">
+					<p class="text-slate-500">{filteredItems.length} asistentes</p>
 
-					<input
-						id="model-search-input"
-						bind:value={searchValue}
-						class="w-full text-sm bg-transparent outline-none"
-						placeholder={searchPlaceholder}
-						autocomplete="off"
-						on:keydown={(e) => {
+					{#if searchEnabled}
+						<div class="flex items-center gap-2.5 p-base rounded-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950">
+							<input
+								id="model-search-input"
+								bind:value={searchValue}
+								class="w-full placeholder:text-placeholder placeholder:text-slate-500 bg-transparent outline-none"
+								placeholder={searchPlaceholder}
+								autocomplete="off"
+								on:keydown={(e) => {
 							if (e.code === 'Enter' && filteredItems.length > 0) {
 								value = filteredItems[selectedModelIdx].value;
 								show = false;
@@ -309,21 +315,23 @@
 					{/if}
 				</div>
 
-				<div class="gap-sm max-h-64 overflow-y-auto scrollbar-hidden grid grid-cols-2 group">
+				<div class="gap-sm p-lg max-h-[460px] overflow-y-auto scrollbar-hidden grid grid-cols-2 auto-rows-[minmax(130px,_auto)] group">
 					{#each filteredItems as item, index}
 						<button
 							aria-label="model-item"
-							class="flex w-full text-left font-medium line-clamp-1 select-none items-center rounded-md text-sm text-gray-700 dark:text-gray-100 outline-none transition-all duration-75 p-lg border dark:border-slate-700 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer data-[highlighted]:bg-muted {index ===
+							class="flex flex-col gap-lg w-full text-left line-clamp-1 select-none rounded-md text-gray-700 dark:text-gray-100 outline-none transition-all duration-75 p-lg border dark:border-slate-700
+						hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer data-[highlighted]:bg-muted {index ===
 						selectedModelIdx
 							? 'bg-gray-100 dark:bg-gray-800 group-hover:bg-transparent'
-							: ''}"
+							: ''}
+							{value === item.value? 'bg-brand-50 dark:bg-brand-800' : 'bg-brand-50 dark:bg-slate-800'}"
 							data-arrow-selected={index === selectedModelIdx}
 							on:click={() => {
 							value = item.value;
 							selectedModelIdx = index;
 							show = false;
 						}}>
-							<div class="flex flex-col">
+							<div class="flex-1 flex flex-col">
 								{#if $mobile && (item?.model?.info?.meta?.tags ?? []).length > 0}
 									<div class="flex gap-0.5 self-start h-full mb-1.5 -translate-x-1">
 										{#each item.model?.info?.meta.tags as tag}
@@ -335,21 +343,36 @@
 										{/each}
 									</div>
 								{/if}
-								<div class="flex items-center gap-2">
+								<div class="flex items-center gap-lg">
 									<div class="flex items-center min-w-fit">
-										<div class="line-clamp-1">
-											<div class="flex items-center min-w-fit">
-												<Tooltip
-													content={$user?.role === 'admin' ? (item?.value ?? '') : ''}
-													placement="top-start"
-												>
+										<Tooltip
+											content={$user?.role === 'admin' ? (item?.value ?? '') : ''}
+											placement="top-start"
+										>
+											{#if item.model.owned_by === 'openai'}
+												<img
+													src={item.model?.info?.meta?.profile_image_url ?? '/static/gpt.png'}
+													alt="Model"
+													class="rounded-full size-6 flex items-center mr-2"
+												/>
+												{:else if item.model.owned_by === 'gemini'}
+												<img
+													src={item.model?.info?.meta?.profile_image_url ?? '/static/static/gemini.png'}
+													alt="Model"
+													class="rounded-full size-6 flex items-center mr-2"
+												/>
+												{:else}
 													<img
 														src={item.model?.info?.meta?.profile_image_url ?? '/static/favicon.png'}
 														alt="Model"
 														class="rounded-full size-5 flex items-center mr-2"
 													/>
-													{item.label}
-												</Tooltip>
+												{/if}
+
+										</Tooltip>
+										<div class="line-clamp-1">
+											<div class="flex-1 flex items-center min-w-fit">
+												<h1 class="text-title text-black dark:text-white">{item.label}</h1>
 											</div>
 										</div>
 										{#if item.model.owned_by === 'ollama' && (item.model.ollama?.details?.parameter_size ?? '') !== ''}
@@ -444,6 +467,9 @@
 									{/if}
 								</div>
 							</div>
+							<footer class="flex-1 ">
+								{item.model?.info?.meta?.description ?? 'Sin descripcion'}
+							</footer>
 
 							{#if value === item.value}
 								<div class="ml-auto pl-2 pr-2 md:pr-0">

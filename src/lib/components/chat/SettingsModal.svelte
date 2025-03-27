@@ -14,7 +14,7 @@
 	import Audio from './Settings/AudioRedesign.svelte';
 	import Chats from './Settings/ChatsRedesign.svelte';
 	import User from '../icons/User.svelte';
-	import Personalization from './Settings/Personalization.svelte';
+	import Personalization from './Settings/PersonalizationRedesign.svelte';
 	import SearchInput from '../layout/Sidebar/SearchInput.svelte';
 	import Search from '../icons/Search.svelte';
 	import { flyAndScale } from '$lib/utils/transitions';

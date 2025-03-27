@@ -26,33 +26,6 @@
 		return shareUrl;
 	};
 
-	const shareChat = async () => {
-		const _chat = chat.chat;
-		console.log('share', _chat);
-
-		toast.success($i18n.t('Redirecting you to OpenWebUI Community'));
-		const url = 'https://openwebui.com';
-		// const url = 'http://localhost:5173';
-
-		const tab = await window.open(`${url}/chats/upload`, '_blank');
-		window.addEventListener(
-			'message',
-			(event) => {
-				if (event.origin !== url) return;
-				if (event.data === 'loaded') {
-					tab.postMessage(
-						JSON.stringify({
-							chat: _chat,
-							models: $models.filter((m) => _chat.models.includes(m.id))
-						}),
-						'*'
-					);
-				}
-			},
-			false
-		);
-	};
-
 	export let show = false;
 
 	const isDifferentChat = (_chat) => {
@@ -74,7 +47,6 @@
 				}
 			} else {
 				chat = null;
-				console.log(chat);
 			}
 		})();
 	}
@@ -134,19 +106,6 @@
 				<div class="flex justify-end">
 					<div class="flex flex-col items-end space-x-1 mt-1.5">
 						<div class="flex gap-1">
-							{#if $config?.features.enable_community_sharing}
-								<button
-									class=" self-center px-3.5 py-2 rounded-xl text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-white"
-									type="button"
-									on:click={() => {
-										shareChat();
-										show = false;
-									}}
-								>
-									{$i18n.t('Share to OpenWebUI Community')}
-								</button>
-							{/if}
-
 							<button
 								class=" self-center flex items-center gap-1 px-3.5 py-2 rounded-xl text-sm font-medium bg-primary-500 hover:bg-primary-700 text-white"
 								type="button"

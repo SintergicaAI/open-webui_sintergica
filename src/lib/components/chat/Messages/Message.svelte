@@ -11,6 +11,8 @@
 	import MultiResponseMessages from './MultiResponseMessages.svelte';
 	import ResponseMessage from './ResponseMessage.svelte';
 	import UserMessage from './UserMessage.svelte';
+	import UserMessageRedesign from '$lib/components/chat/Messages/UserMessageRedesign.svelte';
+	import ResponseMessageRedesign from '$lib/components/chat/Messages/ResponseMessageRedesign.svelte';
 
 	export let chatId;
 	export let idx = 0;
@@ -47,7 +49,7 @@
 >
 	{#if history.messages[messageId]}
 		{#if history.messages[messageId].role === 'user'}
-			<UserMessage
+			<UserMessageRedesign
 				{user}
 				{history}
 				{messageId}
@@ -64,7 +66,7 @@
 				{readOnly}
 			/>
 		{:else if (history.messages[history.messages[messageId].parentId]?.models?.length ?? 1) === 1}
-			<ResponseMessage
+			<ResponseMessageRedesign
 				{chatId}
 				{history}
 				{messageId}

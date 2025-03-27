@@ -388,7 +388,7 @@
 					activeLabel="on"
 					inactiveLabel="off"
 					initialActive={true}
-					onToggle={toggleSwitchActive}
+					on:change={toggleSwitchActive}
 					isDisabled={false}
 
 				/>

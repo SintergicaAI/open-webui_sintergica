@@ -100,6 +100,12 @@
 	import MessageInputRedesign from '$lib/components/chat/MessageInputRedesign.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import PencilSquare from '$lib/components/icons/PencilSquare.svelte';
+	import SidebarRedesign from '$lib/components/layout/SidebarRedesign.svelte';
+	import Sidebar from '$lib/components/layout/Sidebar.svelte';
+	import ChatSidebar from '$lib/components/layout/ChatSidebar.svelte';
+	import PlaceholderRedeseign from '$lib/components/chat/PlaceholderRedeseign.svelte';
+	import MessagesRedesign from '$lib/components/chat/MessagesRedesign.svelte';
+	import ModelSelector from '$lib/components/chat/ModelSelector.svelte';
 
 	export let chatIdProp = '';
 
@@ -1815,299 +1821,363 @@
 	</title>
 </svelte:head>
 
-<main class="chat dark:bg-zinc-900">
-	<aside class="chat__sidebar dark:bg-zinc-950">
-		<header class=" flex justify-between items-center self-stretch">
-			<h1 class="text-title">Turing</h1>
-			<menu class="button-group-row text-slate-500">
-				<Button variant="icon" size="sm" icon={Search} buttonClasses="text-slate-500" />
-				<Button variant="icon" size="sm" icon={FolderPlus} buttonClasses="text-slate-500" />
-				<Button variant="icon" size="sm" icon={MessageCirclePlus} buttonClasses="text-slate-500" />
-			</menu>
-		</header>
-		<div class="flex justify-center">
-			<Tooltip content={$i18n.t('New Chat')}>
-				<Button variant="primary" icon={MessageCirclePlus} size="sm" buttonClasses="text-button w-full gap-sm"
-								on:click={() => { initNewChat(); }}>
-					Nuevo chat
-				</Button>
-			</Tooltip>
-		</div>
-		<section class="flex-col justify-center items-center">
-			<Accordeon title="Anclados" icon={Pin}>
-				<List items={['Chat pinned 1','Chat pinned 2']} />
-			</Accordeon>
-			<Accordeon title="Finanzas" icon={Folder}>
-				<List items={chatsElements} />
-			</Accordeon>
 
+<EventConfirmDialog
+	bind:show={showEventConfirmation}
+	title={eventConfirmationTitle}
+	message={eventConfirmationMessage}
+	input={eventConfirmationInput}
+	inputPlaceholder={eventConfirmationInputPlaceholder}
+	inputValue={eventConfirmationInputValue}
+	on:confirm={(e) => {
+		if (e.detail) {
+			eventCallback(e.detail);
+		} else {
+			eventCallback(true);
+		}
+	}}
+	on:cancel={() => {
+		eventCallback(false);
+	}}
+/>
 
-		</section>
-	</aside>
-	<article id="chat-container" class="chat__container">
-		<!-- Toolbar -->
-		<NavbarRedesign
-			bind:this={navbarElement}
-			chat={{
-				id: $chatId,
-				chat: {
-					title: $chatTitle,
-					models: selectedModels,
-					system: $settings.system ?? undefined,
-					params: params,
-					history: history,
-					timestamp: Date.now()
-				}
-			}}
-			bind:selectedModels
-			shareEnabled={!!history.currentId}
-			{initNewChat} />
-		<section class="flex justify-center items-end w-full h-full dark:bg-black">
-			{#if false}
-				<div class="flex flex-col flex-auto z-10 w-full">
-					{#if $settings?.landingPageMode === 'chat' || createMessagesList(history.currentId).length > 0}
-						<div
-							class=" pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0 max-w-full z-10 scrollbar-hidden"
-							id="messages-container"
-							bind:this={messagesContainerElement}
-							on:scroll={(e) => {
-								autoScroll =
-									messagesContainerElement.scrollHeight - messagesContainerElement.scrollTop <=
-									messagesContainerElement.clientHeight + 5;
-							}}
-						>
-							<div class=" h-full w-full flex flex-col">
-								<Messages
-									chatId={$chatId}
-									bind:history
-									bind:autoScroll
-									bind:prompt
-									{selectedModels}
-									{sendPrompt}
-									{showMessage}
-									{submitMessage}
-									{continueResponse}
-									{regenerateResponse}
-									{mergeResponses}
-									{chatActionHandler}
-									{addMessages}
-									bottomPadding={files.length > 0}
-								/>
-							</div>
-						</div>
+{#if !chatIdProp || (loaded && chatIdProp)}
+	<main class="chat {$showSidebar?'':'chat--collapsed'}">
+		<aside class="chat__sidebar {$showSidebar?'':'chat__sidebar--collapsed'} border-r bg-lvl-2">
+			<ChatSidebar className="chat__sidebar {$showSidebar ? '' : 'chat__sidebar--collapsed'}" />
+		</aside>
+		<article id="chat-container" class="chat__container">
+			<!-- Toolbar -->
+			<NavbarRedesign
+				bind:this={navbarElement}
+				chat={{
+					id: $chatId,
+					chat: {
+						title: $chatTitle,
+						models: selectedModels,
+						system: $settings.system ?? undefined,
+						params: params,
+						history: history,
+						timestamp: Date.now()
+					}
+				}}
+				title={$chatTitle}
+				bind:selectedModels
+				shareEnabled={!!history.currentId}
+				showModelSelector={!!history.currentId}
+				{initNewChat} />
 
-						<div class=" pb-[1rem]">
-							<InputChat
-								{history}
-								{selectedModels}
-								bind:files
-								bind:prompt
-								bind:autoScroll
-								bind:selectedToolIds
-								bind:webSearchEnabled
-								bind:atSelectedModel
-								transparentBackground={$settings?.backgroundImageUrl ?? false}
-								{stopResponse}
-								{createMessagePair}
-								onChange={(input) => {
-									if (input.prompt) {
-										localStorage.setItem(`chat-input-${$chatId}`, JSON.stringify(input));
-									} else {
-										localStorage.removeItem(`chat-input-${$chatId}`);
-									}
-								}}
-								on:upload={async (e) => {
-									const { type, data } = e.detail;
+			<PaneGroup direction="horizontal" class="w-full h-full">
+				<Pane defaultSize={50} class="h-full flex w-full relative">
 
-									if (type === 'web') {
-										await uploadWeb(data);
-									} else if (type === 'youtube') {
-										await uploadYoutubeTranscription(data);
-									} else if (type === 'google-drive') {
-										await uploadGoogleDriveFile(data);
-									}
-								}}
-								on:submit={async (e) => {
-									if (e.detail) {
-										await tick();
-										submitPrompt(
-											($settings?.richTextInput ?? true)
-												? e.detail.replaceAll('\n\n', '\n')
-												: e.detail
+					{#if $banners.length > 0 && !history.currentId && !$chatId && selectedModels.length <= 1}
+						<div class="absolute top-12 left-0 right-0 w-full z-30">
+							<div class=" flex flex-col gap-1 w-full">
+								{#each $banners.filter((b) => (b.dismissible ? !JSON.parse(localStorage.getItem('dismissedBannerIds') ?? '[]').includes(b.id) : true)) as banner}
+									<Banner
+										{banner}
+										on:dismiss={(e) => {
+										const bannerId = e.detail;
+
+										localStorage.setItem(
+											'dismissedBannerIds',
+											JSON.stringify(
+												[
+													bannerId,
+													...JSON.parse(localStorage.getItem('dismissedBannerIds') ?? '[]')
+												].filter((id) => $banners.find((b) => b.id === id))
+											)
 										);
-									}
-								}} />
-
-							<div
-								class="absolute bottom-1 text-xs text-gray-500 text-center line-clamp-1 right-0 left-0"
-							>
-								<!-- {$i18n.t('LLMs can make mistakes. Verify important information.')} -->
+									}}
+									/>
+								{/each}
 							</div>
-						</div>
-					{:else}
-						<div class="overflow-auto w-full h-full flex items-center">
-							<Placeholder
-								{history}
-								{selectedModels}
-								bind:files
-								bind:prompt
-								bind:autoScroll
-								bind:selectedToolIds
-								bind:webSearchEnabled
-								bind:atSelectedModel
-								transparentBackground={$settings?.backgroundImageUrl ?? false}
-								{stopResponse}
-								{createMessagePair}
-								on:upload={async (e) => {
-									const { type, data } = e.detail;
-
-									if (type === 'web') {
-										await uploadWeb(data);
-									} else if (type === 'youtube') {
-										await uploadYoutubeTranscription(data);
-									}
-								}}
-								on:submit={async (e) => {
-									if (e.detail) {
-										await tick();
-										submitPrompt(
-											($settings?.richTextInput ?? true)
-												? e.detail.replaceAll('\n\n', '\n')
-												: e.detail
-										);
-									}
-								}}
-							/>
 						</div>
 					{/if}
-				</div>
 
-			{:else}
-				<div class="flex flex-col justify-center items-center h-full gap-3xl">
-					<div class="flex flex-col flex-auto z-10 w-full">
-						{#if $settings?.landingPageMode === 'chat' || createMessagesList(history.currentId).length > 0}
-							<div
-								class=" pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0 max-w-full z-10 scrollbar-hidden"
-								id="messages-container"
-								bind:this={messagesContainerElement}
-								on:scroll={(e) => {
-								autoScroll =
-									messagesContainerElement.scrollHeight - messagesContainerElement.scrollTop <=
-									messagesContainerElement.clientHeight + 5;
-							}}
-							>
-								<div class=" h-full w-full flex flex-col">
-									<Messages
-										chatId={$chatId}
-										bind:history
-										bind:autoScroll
-										bind:prompt
-										{selectedModels}
-										{sendPrompt}
-										{showMessage}
-										{submitMessage}
-										{continueResponse}
-										{regenerateResponse}
-										{mergeResponses}
-										{chatActionHandler}
-										{addMessages}
-										bottomPadding={files.length > 0}
-									/>
-								</div>
-							</div>
-
-							<div class=" pb-[1rem]">
-								<MessageInputRedesign {history}
-																			{selectedModels}
-																			bind:files
-																			bind:prompt
-																			bind:autoScroll
-																			bind:selectedToolIds
-																			bind:webSearchEnabled
-																			bind:atSelectedModel
-																			transparentBackground={$settings?.backgroundImageUrl ?? false}
-																			{stopResponse}
-																			{createMessagePair}
-																			onChange={(input) => {
-									if (input.prompt) {
-										localStorage.setItem(`chat-input-${$chatId}`, JSON.stringify(input));
-									} else {
-										localStorage.removeItem(`chat-input-${$chatId}`);
-									}
+					<section class="flex justify-center items-end w-full h-full">
+						{#if false}
+							<div class="flex flex-col flex-auto z-10 w-full">
+								{#if $settings?.landingPageMode === 'chat' || createMessagesList(history.currentId).length > 0}
+									<div
+										class=" pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0 max-w-full z-10 scrollbar-hidden"
+										id="messages-container"
+										bind:this={messagesContainerElement}
+										on:scroll={(e) => {
+									autoScroll =
+										messagesContainerElement.scrollHeight - messagesContainerElement.scrollTop <=
+										messagesContainerElement.clientHeight + 5;
 								}}
-																			on:upload={async (e) => {
-									const { type, data } = e.detail;
+									>
+										<div class=" h-full w-full flex flex-col">
+											<Messages
+												chatId={$chatId}
+												bind:history
+												bind:autoScroll
+												bind:prompt
+												{selectedModels}
+												{sendPrompt}
+												{showMessage}
+												{submitMessage}
+												{continueResponse}
+												{regenerateResponse}
+												{mergeResponses}
+												{chatActionHandler}
+												{addMessages}
+												bottomPadding={files.length > 0}
+											/>
+										</div>
+									</div>
 
-									if (type === 'web') {
-										await uploadWeb(data);
-									} else if (type === 'youtube') {
-										await uploadYoutubeTranscription(data);
-									} else if (type === 'google-drive') {
-										await uploadGoogleDriveFile(data);
-									}
-								}}
-																			on:submit={async (e) => {
-									if (e.detail) {
-										await tick();
-										submitPrompt(
-											($settings?.richTextInput ?? true)
-												? e.detail.replaceAll('\n\n', '\n')
-												: e.detail
-										);
-									}
-								}} />
+									<div class=" pb-[1rem]">
 
-								<div
-									class="absolute bottom-1 text-xs text-gray-500 text-center line-clamp-1 right-0 left-0"
-								>
-									<!-- {$i18n.t('LLMs can make mistakes. Verify important information.')} -->
-								</div>
+										<InputChat
+											{history}
+											{selectedModels}
+											bind:files
+											bind:prompt
+											bind:autoScroll
+											bind:selectedToolIds
+											bind:webSearchEnabled
+											bind:atSelectedModel
+											transparentBackground={$settings?.backgroundImageUrl ?? false}
+											{stopResponse}
+											{createMessagePair}
+											onChange={(input) => {
+												if (input.prompt) {
+													localStorage.setItem(`chat-input-${$chatId}`, JSON.stringify(input));
+												} else {
+													localStorage.removeItem(`chat-input-${$chatId}`);
+												}
+											}}
+											on:upload={async (e) => {
+										const { type, data } = e.detail;
+
+										if (type === 'web') {
+											await uploadWeb(data);
+										} else if (type === 'youtube') {
+											await uploadYoutubeTranscription(data);
+										} else if (type === 'google-drive') {
+											await uploadGoogleDriveFile(data);
+										}
+									}}
+											on:submit={async (e) => {
+										if (e.detail) {
+											await tick();
+											submitPrompt(
+												($settings?.richTextInput ?? true)
+													? e.detail.replaceAll('\n\n', '\n')
+													: e.detail
+											);
+										}
+									}} />
+
+										<div
+											class="absolute bottom-1 text-xs text-gray-500 text-center line-clamp-1 right-0 left-0"
+										>
+											<!-- {$i18n.t('LLMs can make mistakes. Verify important information.')} -->
+										</div>
+									</div>
+								{:else}
+									<!-- If chat is new or there is not selected model TODO:REFACTOR-->
+									<div class="overflow-auto w-full h-full flex items-center">
+										<PlaceholderRedeseign
+											{history}
+											{selectedModels}
+											bind:files
+											bind:prompt
+											bind:autoScroll
+											bind:selectedToolIds
+											bind:webSearchEnabled
+											bind:atSelectedModel
+											transparentBackground={$settings?.backgroundImageUrl ?? false}
+											{stopResponse}
+											{createMessagePair}
+											on:upload={async (e) => {
+										const { type, data } = e.detail;
+
+										if (type === 'web') {
+											await uploadWeb(data);
+										} else if (type === 'youtube') {
+											await uploadYoutubeTranscription(data);
+										}
+									}}
+											on:submit={async (e) => {
+										if (e.detail) {
+											await tick();
+											submitPrompt(
+												($settings?.richTextInput ?? true)
+													? e.detail.replaceAll('\n\n', '\n')
+													: e.detail
+											);
+										}
+									}}
+										/>
+									</div>
+								{/if}
 							</div>
 						{:else}
-							<div class="overflow-auto w-full h-full flex items-center">
-								<Placeholder
-									{history}
-									{selectedModels}
-									bind:files
-									bind:prompt
-									bind:autoScroll
-									bind:selectedToolIds
-									bind:webSearchEnabled
-									bind:atSelectedModel
-									transparentBackground={$settings?.backgroundImageUrl ?? false}
-									{stopResponse}
-									{createMessagePair}
-									on:upload={async (e) => {
-									const { type, data } = e.detail;
+							<div class="flex flex-col justify-center items-center h-full gap-3xl basis-[692px] ">
+								<div class="flex flex-col flex-auto z-10 w-full">
+									{#if $settings?.landingPageMode === 'chat' || createMessagesList(history.currentId).length > 0}
+										<div
+											class=" pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0 max-w-full z-10 scrollbar-hidden"
+											id="messages-container"
+											bind:this={messagesContainerElement}
+											on:scroll={(e) => {
+									autoScroll =
+										messagesContainerElement.scrollHeight - messagesContainerElement.scrollTop <=
+										messagesContainerElement.clientHeight + 5;
+								}}
+										>
+											<div class=" h-full w-full flex flex-col">
+												<MessagesRedesign
+													chatId={$chatId}
+													bind:history
+													bind:autoScroll
+													bind:prompt
+													{selectedModels}
+													{sendPrompt}
+													{showMessage}
+													{submitMessage}
+													{continueResponse}
+													{regenerateResponse}
+													{mergeResponses}
+													{chatActionHandler}
+													{addMessages}
+													bottomPadding={files.length > 0}
+												/>
+											</div>
+										</div>
+										<div class=" pb-[1rem]">
+											<MessageInputRedesign {history}
+																						{selectedModels}
+																						bind:files
+																						bind:prompt
+																						bind:autoScroll
+																						bind:selectedToolIds
+																						bind:webSearchEnabled
+																						bind:atSelectedModel
+																						transparentBackground={$settings?.backgroundImageUrl ?? false}
+																						{stopResponse}
+																						{createMessagePair}
+																						onChange={(input) => {
+										if (input.prompt) {
+											localStorage.setItem(`chat-input-${$chatId}`, JSON.stringify(input));
+										} else {
+											localStorage.removeItem(`chat-input-${$chatId}`);
+										}
+									}}
+																						on:upload={async (e) => {
+										const { type, data } = e.detail;
 
-									if (type === 'web') {
-										await uploadWeb(data);
-									} else if (type === 'youtube') {
-										await uploadYoutubeTranscription(data);
-									}
-								}}
-									on:submit={async (e) => {
-									if (e.detail) {
-										await tick();
-										submitPrompt(
-											($settings?.richTextInput ?? true)
-												? e.detail.replaceAll('\n\n', '\n')
-												: e.detail
-										);
-									}
-								}}
-								/>
+										if (type === 'web') {
+											await uploadWeb(data);
+										} else if (type === 'youtube') {
+											await uploadYoutubeTranscription(data);
+										} else if (type === 'google-drive') {
+											await uploadGoogleDriveFile(data);
+										}
+									}}
+																						on:submit={async (e) => {
+										if (e.detail) {
+											await tick();
+											submitPrompt(
+												($settings?.richTextInput ?? true)
+													? e.detail.replaceAll('\n\n', '\n')
+													: e.detail
+											);
+										}
+									}} />
+
+											<div
+												class="absolute bottom-1 text-xs text-gray-500 text-center line-clamp-1 right-0 left-0"
+											>
+												<!-- {$i18n.t('LLMs can make mistakes. Verify important information.')} -->
+											</div>
+										</div>
+									{:else}
+										<div class=" flex flex-col justify-center items-center gap-[32px] overflow-auto w-full h-full">
+											<div class="flex justify-center">
+												<ModelSelector bind:selectedModels showSetDefault={false} showAddModel={false} />
+											</div>
+											<PlaceholderRedeseign
+												{history}
+												{selectedModels}
+												bind:files
+												bind:prompt
+												bind:autoScroll
+												bind:selectedToolIds
+												bind:webSearchEnabled
+												bind:atSelectedModel
+												transparentBackground={$settings?.backgroundImageUrl ?? false}
+												{stopResponse}
+												{createMessagePair}
+												on:upload={async (e) => {
+										const { type, data } = e.detail;
+
+										if (type === 'web') {
+											await uploadWeb(data);
+										} else if (type === 'youtube') {
+											await uploadYoutubeTranscription(data);
+										}
+									}}
+												on:submit={async (e) => {
+										if (e.detail) {
+											await tick();
+											submitPrompt(
+												($settings?.richTextInput ?? true)
+													? e.detail.replaceAll('\n\n', '\n')
+													: e.detail
+											);
+										}
+									}}
+											/>
+										</div>
+									{/if}
+								</div>
 							</div>
 						{/if}
-					</div>
+					</section>
 
-				</div>
-			{/if}
-		</section>
-	</article>
-</main>
+				</Pane>
 
+				<ChatControls
+					bind:this={controlPaneComponent}
+					bind:history
+					bind:chatFiles
+					bind:params
+					bind:files
+					bind:pane={controlPane}
+					chatId={$chatId}
+					modelId={selectedModelIds?.at(0) ?? null}
+					models={selectedModelIds.reduce((a, e, i, arr) => {
+					const model = $models.find((m) => m.id === e);
+					if (model) {
+						return [...a, model];
+					}
+					return a;
+				}, [])}
+					{submitPrompt}
+					{stopResponse}
+					{showMessage}
+					{eventTarget}
+				/>
+			</PaneGroup>
+
+		</article>
+	</main>
+{/if}
 <style lang="scss">
+
+	.horizontal-rule {
+    height: 1px;
+    max-width: 1024px;
+    flex-shrink: 0;
+    align-self: stretch;
+    stroke-width: 1px;
+    stroke: var(--slate-300, #CBD5E1);
+	}
   .button-group {
     display: flex;
     flex-direction: column;
@@ -2132,21 +2202,24 @@
   }
 
   .chat {
-    display: grid;
-    grid-template-columns: 250px 1fr;
-
+    display: flex;
     @apply
-    bg-lvl-1
     w-full
     rounded-lg;
 
-    .chat__sidebar {
-      @apply flex flex-col flex-grow gap-base border-r border-slate-300 dark:border-zinc-900 w-full py-lg px-base h-full;
-    }
 
     .chat__container {
-      @apply flex flex-col gap-base w-full pb-lg h-full;
+      @apply flex flex-col w-full pb-lg h-full;
     }
+  }
+
+  .chat__sidebar {
+    //@apply basis-56 flex flex-col flex-grow gap-base py-lg px-base h-full;
+		@apply w-[245px] flex-col gap-base py-lg px-base h-full;
+  }
+
+  .chat__sidebar.chat__sidebar--collapsed {
+		@apply w-[55px] flex flex-col justify-center items-center;
   }
 
 

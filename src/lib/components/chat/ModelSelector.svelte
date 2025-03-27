@@ -52,6 +52,8 @@
 							? ($user?.permissions?.chat?.temporary ?? true)
 							: true}
 						bind:value={selectedModel}
+						triggerClassName="text-black dark:text-white"
+						className="w-[756px]"
 					/>
 				</div>
 			</div>

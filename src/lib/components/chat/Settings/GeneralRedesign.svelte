@@ -21,7 +21,7 @@
 	export let getModels: Function;
 
 	// General
-	let themes = ['dark', 'light', 'rose-pine dark', 'rose-pine-dawn light', 'oled-dark'];
+	let themes = ['dark', 'light'];
 	let themesRefactored = [
 		{value: 'dark', label: 'Dark'},
 		{value: 'light', label: 'Light'},
@@ -50,6 +50,8 @@
 			);
 		}
 	};
+
+	let knowledgeColor = '';
 
 	// Advanced
 	let requestFormat = '';
@@ -86,6 +88,10 @@
 
 		saveSettings({ requestFormat: requestFormat !== '' ? requestFormat : undefined });
 	};
+
+	const colorChangeHandler = (color) => {
+		 saveSettings({ knowledgeColor: color });
+	}
 
 	onMount(async () => {
 		selectedTheme = localStorage.theme ?? 'system';
@@ -286,9 +292,24 @@
 			<div>
 				<div class=" py-0.5 flex w-full justify-between">
 					<div class=" self-center text-xs font-medium">{$i18n.t('Notifications')}</div>
-
 					<Switch on:change={toggleNotification} />
+				</div>
+			</div>
 
+			<div>
+				<div class=" py-0.5 flex w-full justify-between">
+					<div class=" self-center text-xs">{$i18n.t('Change knowledge color')}</div>
+
+					<select
+						class=" dark:bg-gray-900 w-fit pr-8 rounded py-2 px-2 text-xs bg-transparent outline-none text-right"
+						bind:value={knowledgeColor}
+						placeholder="Select a theme"
+						on:change={() => colorChangeHandler(knowledgeColor)}
+					>
+						<option value="blue">⚙️ {$i18n.t('System')}</option>
+						<option value="cyan">🌑 {$i18n.t('Dark')}</option>
+						<option value="green">☀️ {$i18n.t('Light')}</option>
+					</select>
 
 				</div>
 			</div>

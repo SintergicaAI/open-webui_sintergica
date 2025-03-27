@@ -143,9 +143,10 @@
 				on:close={() => {
 					showControls.set(false);
 				}}
+
 			>
 				<div
-					class=" {$showCallOverlay || $showOverview || $showArtifacts
+					class=" shadow-lg {$showCallOverlay || $showOverview || $showArtifacts
 						? ' h-screen  w-screen'
 						: 'px-6 py-4'} h-full"
 				>

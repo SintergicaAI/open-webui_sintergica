@@ -7,6 +7,8 @@
 	import { toast } from 'svelte-sonner';
 	import ManageModal from './Personalization/ManageModal.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import { getUserPosition } from '$lib/utils';
+	import { updateUserInfo } from '$lib/apis/users';
 	const dispatch = createEventDispatcher();
 
 	const i18n = getContext('i18n');
@@ -14,13 +16,49 @@
 	export let saveSettings: Function;
 
 	let showManageModal = false;
+	let showUsername = false;
 
 	// Addons
 	let enableMemory = false;
+	let userLocation = false;
+
+	let chatBubble = true;
 
 	onMount(async () => {
 		enableMemory = $settings?.memory ?? false;
+		userLocation = $settings.userLocation ?? false;
+
 	});
+
+	const toggleUserLocation = async () => {
+		userLocation = !userLocation;
+
+		if (userLocation) {
+			const position = await getUserPosition().catch((error) => {
+				toast.error(error.message);
+				return null;
+			});
+
+			if (position) {
+				await updateUserInfo(localStorage.token, { location: position });
+				toast.success($i18n.t('User location successfully retrieved.'));
+			} else {
+				userLocation = false;
+			}
+		}
+
+		saveSettings({ userLocation });
+	};
+
+	const toggleChatBubble = async () => {
+		chatBubble = !chatBubble;
+		saveSettings({ chatBubble: chatBubble });
+	};
+
+	const toggleShowUsername = async () => {
+		showUsername = !showUsername;
+		saveSettings({ showUsername: showUsername });
+	};
 </script>
 
 <ManageModal bind:show={showManageModal} />
@@ -86,6 +124,70 @@
 			</button>
 		</div>
 	</div>
+
+	<div>
+		<div class=" py-0.5 flex w-full justify-between">
+			<div class=" self-center text-xs">{$i18n.t('Allow User Location')}</div>
+
+			<button
+				class="p-1 px-3 text-xs flex rounded transition"
+				on:click={() => {
+							toggleUserLocation();
+						}}
+				type="button"
+			>
+				{#if userLocation === true}
+					<span class="ml-2 self-center">{$i18n.t('On')}</span>
+				{:else}
+					<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+				{/if}
+			</button>
+		</div>
+	</div>
+
+	<div>
+		<div class=" py-0.5 flex w-full justify-between">
+			<div class=" self-center text-xs">{$i18n.t('Chat Bubble UI')}</div>
+
+			<button
+				class="p-1 px-3 text-xs flex rounded transition"
+				on:click={() => {
+							toggleChatBubble();
+						}}
+				type="button"
+			>
+				{#if chatBubble === true}
+					<span class="ml-2 self-center">{$i18n.t('On')}</span>
+				{:else}
+					<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+				{/if}
+			</button>
+		</div>
+	</div>
+
+	{#if !$settings.chatBubble}
+		<div>
+			<div class=" py-0.5 flex w-full justify-between">
+				<div class=" self-center text-xs">
+					{$i18n.t('Display the username instead of You in the Chat')}
+				</div>
+
+				<button
+					class="p-1 px-3 text-xs flex rounded transition"
+					on:click={() => {
+								toggleShowUsername();
+							}}
+					type="button"
+				>
+					{#if showUsername === true}
+						<span class="ml-2 self-center">{$i18n.t('On')}</span>
+					{:else}
+						<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+					{/if}
+				</button>
+			</div>
+		</div>
+	{/if}
 
 	<div class="flex justify-end text-sm font-medium">
 		<button

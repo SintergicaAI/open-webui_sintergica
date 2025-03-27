@@ -15,6 +15,8 @@
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import EyeSlash from '$lib/components/icons/EyeSlash.svelte';
 	import MessageInput from './MessageInput.svelte';
+	import MessageInputRedesign from '$lib/components/chat/MessageInputRedesign.svelte';
+	import ModelSelector from '$lib/components/chat/ModelSelector.svelte';
 
 	const i18n = getContext('i18n');
 
@@ -54,7 +56,6 @@
 
 		prompt = text;
 
-		console.log(prompt);
 		await tick();
 
 		const chatInputContainerElement = document.getElementById('chat-input-container');
@@ -86,7 +87,7 @@
 	onMount(() => {});
 </script>
 
-<div class="m-auto w-full max-w-6xl px-2 xl:px-20 translate-y-6 py-24 text-center">
+<div class="self-stretch">
 	{#if $temporaryChatEnabled}
 		<Tooltip
 			content="This chat won't appear in history and your messages will not be saved."
@@ -98,96 +99,23 @@
 			</div>
 		</Tooltip>
 	{/if}
-
-	<div
-		class="w-full text-3xl text-gray-800 dark:text-gray-100 font-medium text-center flex items-center gap-4 font-primary"
-	>
-		<div class="w-full flex flex-col justify-center items-center">
-			<div class="flex flex-row justify-center gap-3 sm:gap-3.5 w-fit px-5">
-				<div class="flex flex-shrink-0 justify-center">
-					<div class="flex -space-x-4 mb-0.5" in:fade={{ duration: 100 }}>
-						{#each models as model, modelIdx}
-							<Tooltip
-								content={(models[modelIdx]?.info?.meta?.tags ?? [])
-									.map((tag) => tag.name.toUpperCase())
-									.join(', ')}
-								placement="top"
-							>
-								<button
-									on:click={() => {
-										selectedModelIdx = modelIdx;
-									}}
-								>
-									<img
-										crossorigin="anonymous"
-										src={model?.info?.meta?.profile_image_url ??
-											($i18n.language === 'dg-DG'
-												? `/doge.png`
-												: `${WEBUI_BASE_URL}/static/favicon.png`)}
-										class=" size-9 sm:size-10 rounded-full border-[1px] border-gray-200 dark:border-none"
-										alt="logo"
-										draggable="false"
-									/>
-								</button>
-							</Tooltip>
-						{/each}
-					</div>
-				</div>
-
-				<div class=" text-3xl sm:text-4xl line-clamp-1" in:fade={{ duration: 100 }}>
-					{#if models[selectedModelIdx]?.name}
-						{models[selectedModelIdx]?.name}
-					{:else}
-						{$i18n.t('Hello, {{name}}', { name: $user.name })}
-					{/if}
-				</div>
-			</div>
-
-			<div class="flex mt-1 mb-2">
-				<div in:fade={{ duration: 100, delay: 50 }}>
-					{#if models[selectedModelIdx]?.info?.meta?.description ?? null}
-						<Tooltip
-							className=" w-fit"
-							content={marked.parse(
-								sanitizeResponseContent(models[selectedModelIdx]?.info?.meta?.description ?? '')
-							)}
-							placement="top"
-						>
-							<div
-								class="mt-0.5 px-2 text-sm font-normal text-gray-500 dark:text-gray-400 line-clamp-2 max-w-xl markdown"
-							>
-								{@html marked.parse(
-									sanitizeResponseContent(models[selectedModelIdx]?.info?.meta?.description)
-								)}
-							</div>
-						</Tooltip>
-
-						{#if models[selectedModelIdx]?.info?.meta?.user}
-							<div class="mt-0.5 text-sm font-normal text-gray-400 dark:text-gray-500">
-								By
-								{#if models[selectedModelIdx]?.info?.meta?.user.community}
-									<a
-										href="https://openwebui.com/m/{models[selectedModelIdx]?.info?.meta?.user
-											.username}"
-										>{models[selectedModelIdx]?.info?.meta?.user.name
-											? models[selectedModelIdx]?.info?.meta?.user.name
-											: `@${models[selectedModelIdx]?.info?.meta?.user.username}`}</a
-									>
-								{:else}
-									{models[selectedModelIdx]?.info?.meta?.user.name}
-								{/if}
-							</div>
-						{/if}
-					{/if}
+		<div class="w-full flex flex-col justify-center items-center gap-[32px]">
+			<!-- Heading -->
+			<div class="flex flex-row justify-center w-fit">
+				<div class=" line-clamp-1" in:fade={{ duration: 100 }}>
+						<header class="flex flex-col items-center gap-sm">
+							<h3 class="font-[Archivo] font-bold text-[32px] text-brand-500">{$i18n.t('Hello, {{name}}', { name: $user.name })}</h3>
+							<h4 class="text-base font-normal text-center text-black dark:text-white">{$i18n.t('How can I help you today?')}</h4>
+						</header>
 				</div>
 			</div>
 
 			<div
-				class="text-base font-normal xl:translate-x-6 md:max-w-3xl w-full py-3 {atSelectedModel
+				class="text-base w-full {atSelectedModel
 					? 'mt-2'
 					: ''}"
 			>
-				<MessageInput
+				<MessageInputRedesign
 					{history}
 					{selectedModels}
 					bind:files
@@ -209,7 +137,8 @@
 				/>
 			</div>
 		</div>
-	</div>
+
+
 	<div class="mx-auto max-w-2xl font-primary" in:fade={{ duration: 200, delay: 200 }}>
 		<div class="mx-5">
 			<Suggestions

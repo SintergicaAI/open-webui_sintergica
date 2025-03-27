@@ -8,13 +8,12 @@
 	export let activeLabel = 'Activo';
 	export let inactiveLabel = 'Inactivo';
 	export let label: string = '';
-	export let onToggle: (event: Event) => void;
 	export let isDisabled = false;
 	export let size: 'sm' | 'base' | 'lg' = 'base';
 	export let value: string | number | boolean;
 	export let variant: 'toggle' | 'static' = 'toggle';
 
-	export let state = true;
+	export let state = false;
 	const iconSizeMap = { sm: '16', base: '20', lg: '24' };
 
 	const dispatch = createEventDispatcher();
@@ -24,7 +23,6 @@
 	function toggleSwitch(event: Event) {
 		if (!isDisabled) {
 			active = !active;
-			onToggle(event);
 		}
 	}
 </script>
@@ -35,7 +33,6 @@
 	<div
 		class="switch {state ? 'active' : ''}"
 		tabindex="0"
-		on:click={toggleSwitch}
 		on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleSwitch(e)}
 		role="switch"
 		aria-label={variant === 'toggle' ? (state ? activeLabel : inactiveLabel) : label}
@@ -55,13 +52,14 @@
 <style lang="scss">
 	.switch {
 		@apply
-			py-xs
-			px-sm
+			py-sm
+			px-base
 			rounded-sm
 			inline-flex
 			align-baseline
 			gap-xs
 		bg-slate-200
+		dark:bg-slate-800
 		text-slate-500;
 
 		&:hover {
@@ -72,7 +70,8 @@
 		&.active {
 			@apply
 				text-brand-500
-				bg-brand-100;
+				bg-brand-100
+				dark:bg-brand-800;
 
 			&:disabled {
 				opacity: 0.4;

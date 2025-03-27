@@ -11,6 +11,8 @@
 	import Tooltip from '../common/Tooltip.svelte';
 	import SvgPanZoom from '../common/SVGPanZoom.svelte';
 	import ArrowLeft from '../icons/ArrowLeft.svelte';
+	import Button from '$lib/components/common/Button/Button.svelte';
+	import { ArrowBigLeft, ArrowBigRight, Clipboard, Expand, X } from 'lucide-svelte';
 
 	export let overlay = false;
 	export let history;
@@ -129,14 +131,10 @@
 	};
 
 	function navigateContent(direction: 'prev' | 'next') {
-		console.log(selectedContentIdx);
-
 		selectedContentIdx =
 			direction === 'prev'
 				? Math.max(selectedContentIdx - 1, 0)
 				: Math.min(selectedContentIdx + 1, contents.length - 1);
-
-		console.log(selectedContentIdx);
 	}
 
 	const iframeLoadHandler = () => {
@@ -185,38 +183,29 @@
 
 <div class=" w-full h-full relative flex flex-col bg-gray-50 dark:bg-gray-850">
 	<div class="w-full h-full flex-1 relative">
-		{#if overlay}
-			<div class=" absolute top-0 left-0 right-0 bottom-0 z-10"></div>
-		{/if}
+<!--		{#if overlay}-->
+<!--			<div class=" absolute top-0 left-0 right-0 bottom-0 z-10"></div>-->
+<!--		{/if}-->
 
-		<div class="absolute pointer-events-none z-50 w-full flex items-center justify-start p-4">
-			<button
-				class="self-center pointer-events-auto p-1 rounded-full bg-white dark:bg-gray-850"
-				on:click={() => {
-					showArtifacts.set(false);
-				}}
-			>
-				<ArrowLeft className="size-3.5  text-gray-900 dark:text-white" />
-			</button>
-		</div>
 
-		<div class=" absolute pointer-events-none z-50 w-full flex items-center justify-end p-4">
-			<button
-				class="self-center pointer-events-auto p-1 rounded-full bg-white dark:bg-gray-850"
-				on:click={() => {
-					dispatch('close');
-					showControls.set(false);
-					showArtifacts.set(false);
-				}}
-			>
-				<XMark className="size-3.5 text-gray-900 dark:text-white" />
-			</button>
-		</div>
 
 		<div class="flex-1 w-full h-full">
 			<div class=" h-full flex flex-col">
 				{#if contents.length > 0}
-					<div class="max-w-full w-full h-full">
+					<div class=" max-w-full w-full min-h-full flex flex-col bg-slate-50 dark:bg-slate-800 borders">
+						<div class="w-full flex justify-between bg-white dark:bg-slate-950 border-b border-slate-300 dark:border-slate-700 p-base">
+							<div class="self-start text-subtitle text-black dark:text-white">Pagina web</div>
+							<div class=" pointer-events-none ">
+								<Tooltip content="{$i18n.t('Close')}">
+									<Button buttonClasses="text-slate-500 pointer-events-auto" variant="icon" icon={X} onClick={()=>{
+										dispatch('close');
+										showControls.set(false);
+										showArtifacts.set(false);
+									}}/>
+								</Tooltip>
+							</div>
+						</div>
+
 						{#if contents[selectedContentIdx].type === 'iframe'}
 							<iframe
 								bind:this={iframeElement}
@@ -243,59 +232,29 @@
 	</div>
 
 	{#if contents.length > 0}
-		<div class="flex justify-between items-center p-2.5 font-primar text-gray-900 dark:text-white">
+		<div class="flex justify-between items-center py-sm px-base border-t border-slate-300 dark:border-slate-700 font-primary bg-white dark:bg-slate-950 text-gray-900 dark:text-white">
 			<div class="flex items-center space-x-2">
 				<div class="flex items-center gap-0.5 self-center min-w-fit" dir="ltr">
-					<button
-						class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition disabled:cursor-not-allowed"
-						on:click={() => navigateContent('prev')}
-						disabled={contents.length <= 1}
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-							stroke-width="2.5"
-							class="size-3.5"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								d="M15.75 19.5 8.25 12l7.5-7.5"
-							/>
-						</svg>
-					</button>
+					<Tooltip content={$i18n.t('Anterior')}>
+						<Button buttonClasses="text-slate-500 disabled:cursor-not-allowed" variant="icon" icon={ArrowBigLeft} onClick={()=>navigateContent('prev')} disabled={contents.length <= 1} isDisabled={contents.length <= 1}/>
+					</Tooltip>
 
-					<div class="text-xs self-center dark:text-gray-100 min-w-fit">
-						{$i18n.t('Version {{selectedVersion}} of {{totalVersions}}', {
+					<div class=" self-center text-label text-slate-400 min-w-fit">
+						{$i18n.t('Version {{selectedVersion}}/{{totalVersions}}', {
 							selectedVersion: selectedContentIdx + 1,
 							totalVersions: contents.length
 						})}
 					</div>
 
-					<button
-						class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition disabled:cursor-not-allowed"
-						on:click={() => navigateContent('next')}
-						disabled={contents.length <= 1}
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-							stroke-width="2.5"
-							class="size-3.5"
-						>
-							<path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-						</svg>
-					</button>
+					<Tooltip content={$i18n.t('Next')}>
+						<Button variant="icon" buttonClasses="text-slate-500 disabled:cursor-not-allowed" icon={ArrowBigRight} onClick={()=>navigateContent('next')} disabled={contents.length <= 1}/>
+					</Tooltip>
 				</div>
 			</div>
 
 			<div class="flex items-center gap-1">
 				<button
-					class="copy-code-button bg-none border-none text-xs bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
+					class="copy-code-button bg-none border-none text-xs bg-red-500 hover:bg-gray-100 dark:bg-red-500 dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
 					on:click={() => {
 						copyToClipboard(contents[selectedContentIdx].content);
 						copied = true;
@@ -306,14 +265,19 @@
 					}}>{copied ? $i18n.t('Copied') : $i18n.t('Copy')}</button
 				>
 
+				<Button variant="icon" icon={Clipboard} buttonClasses="text-slate-500" onClick={()=>{
+					copyToClipboard(contents[selectedContentIdx].content);
+					copied = true;
+					setTimeout(() => {
+						copied = false;
+					}, 2000);
+				}}/>
+
 				{#if contents[selectedContentIdx].type === 'iframe'}
 					<Tooltip content={$i18n.t('Open in full screen')}>
-						<button
-							class=" bg-none border-none text-xs bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md p-0.5"
-							on:click={showFullScreen}
-						>
-							<ArrowsPointingOut className="size-3.5" />
-						</button>
+						<Button variant="icon" icon={Expand} buttonClasses="text-slate-500" onClick={()=>{
+							showFullScreen();
+						}} />
 					</Tooltip>
 				{/if}
 			</div>
