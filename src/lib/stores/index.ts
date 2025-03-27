@@ -30,6 +30,7 @@ export const tags = writable([]);
 
 export const models: Writable<Model[]> = writable([]);
 
+export const members: Writable<null | Members[]> = writable(null)
 export const prompts: Writable<null | Prompt[]> = writable(null);
 export const knowledge: Writable<null | Document[]> = writable(null);
 export const tools = writable(null);
@@ -202,3 +203,12 @@ type SessionUser = {
 	role: string;
 	profile_image_url: string;
 };
+
+
+type Members = {
+	id: string;
+	email: string;
+	name: string;
+	role: string;
+	profile_image_url: string;
+}
