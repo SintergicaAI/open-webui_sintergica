@@ -1,11 +1,27 @@
 <script lang="ts">
 	import List from '$lib/components/common/List/List.svelte';
 	import Button from '$lib/components/common/Button/Button.svelte';
-	import { Search } from 'lucide-svelte';
+	import { ChevronDown, CircleCheck, CircleCheckBig, Search } from 'lucide-svelte';
 	import Accordeon from '$lib/components/common/List/Accordeon.svelte';
 	import Avatar from '$lib/components/common/Avatar.svelte';
+	import { Select } from "bits-ui";
 	import { flyAndScale } from '$lib/utils/transitions';
 	import { toast, Toaster } from 'svelte-sonner';
+	import TextInput from '$lib/components/common/Input/TextInput.svelte';
+
+	const themes = [
+		{ value: "light-monochrome", label: "Light Monochrome" },
+		{ value: "dark-green", label: "Dark Green" },
+		{ value: "svelte-orange", label: "Svelte Orange" },
+		{ value: "punk-pink", label: "Punk Pink" }
+	];
+
+	let description = '';
+	let search = '';
+
+	function handleOnToggled(event: CustomEvent) {
+		console.log(event.detail);
+	}
 </script>
 
 
@@ -13,13 +29,72 @@
 	<h1>Catálogo de Componentes</h1>
 	<div class="preview-section">
 		<div class="preview-area">
-			<div>
-			<Button variant="primary">Button</Button>
-			<Button variant="primary" icon={Search}>Button</Button>
-			<Button variant="primary" icon={Search} isDisabled={true}>Button</Button>
-			<Button variant="icon" icon={Search} />
-			<Button variant="outline-primary" >Outline</Button>
-			<Button variant="outline-primary" isDisabled={true}>Outline</Button>
+			<div class="p-md shadow-base">
+				Box
+			</div>
+			<TextInput id="password" type="password" placeholder="Texto" bind:value={description} on:toggled={handleOnToggled}/>
+			<TextInput id="search" type="text" placeholder="Search" bind:value={search} on:toggled={handleOnToggled}>
+				<Search size="20" slot="icon"/>
+			</TextInput>
+
+			<TextInput id="search" type="password" placeholder="Search" bind:value={search} on:toggled={handleOnToggled}></TextInput>
+		</div>
+	</div>
+	<div class="preview-section">
+		<div class="preview-area">
+			<Select.Root items={themes}>
+				<Select.Trigger
+					class=" dark:text-white inline-flex h-input w-[296px] items-center rounded-sm border border-border-input bg-background px-base py-sm text-sm transition-colors placeholder:text-foreground-alt/50  focus:outline-none focus:ring-2 focus:ring-foreground focus:ring-offset-2 focus:ring-offset-background"
+					aria-label="Select a theme"
+				>
+					<Select.Value class="text-sm dark:text-slate-500" placeholder="Select a theme" />
+					<ChevronDown class="w-5 h-5 ml-auto dark:text-slate-500" />
+				</Select.Trigger>
+				<Select.Content
+					class="bg-white dark:bg-slate-800 dark:text-white w-full rounded-xl border border-muted p-base shadow-popover outline-none"
+					sideOffset={8}
+					transition={flyAndScale}
+				>
+					{#each themes as theme}
+						<Select.Item
+							class="dark:hover:text-brand-500 flex h-10 w-full select-none items-center rounded-button p-base text-sm outline-none transition-all duration-75 data-[highlighted]:bg-muted"
+							value={theme.value}
+							label={theme.label}
+						>
+							<span class=" flex-1 text-base dark:text-white hover:text-brand-500 text-slate-950 line-clamp-1 overflow-hidden">{theme.label}</span>
+							<Select.ItemIndicator class="ml-auto text-brand-500" asChild={false}>
+								<CircleCheckBig size="20"/>
+							</Select.ItemIndicator>
+						</Select.Item>
+					{/each}
+				</Select.Content>
+				<Select.Input name="favoriteFruit" />
+			</Select.Root>
+		</div>
+	</div>
+	<div class="preview-section">
+		<div class="preview-area">
+			<div class=" flex flex-col gap-sm ">
+				<div class="flex flex-col justify-center items-center gap-sm">
+					<Button variant="primary">Button</Button>
+					<Button variant="primary" size="base" icon={Search}>Button</Button>
+					<Button variant="primary" icon={Search} isDisabled={true}>Button</Button>
+				</div>
+				<div class="flex flex-col justify-center items-center gap-sm">
+					<Button variant="outline-primary" >Outline</Button>
+					<Button variant="outline-primary" isDisabled={true}>Outline</Button>
+
+				</div>
+
+				<div class="flex flex-col justify-center items-center gap-sm ">
+					<Button variant="icon" icon={Search} color="danger"/>
+					<Button variant="icon" color="danger" icon={Search} isDisabled="true"/>
+				</div>
+
+				<div class="flex flex-col justify-center items-center gap-sm ">
+					<Button variant="danger" icon={Search}/>
+				</div>
+
 			</div>
 			<div>
 				<Button variant="danger" icon={Search}>Button</Button>
@@ -46,7 +121,6 @@
 				User
 				<Avatar type="user" initials="AB" size="base"/>
 			</p>
-
 		</div>
 
 		<div class="preview-area">

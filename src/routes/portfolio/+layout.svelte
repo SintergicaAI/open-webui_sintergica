@@ -8,7 +8,7 @@
 <div class="layout">
 	<header>{title}</header>
 
-	<main class="content">
+	<main class="content overflow-y-auto">
 		<slot />
 	</main>
 </div>
