@@ -8,7 +8,7 @@
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 
-	import ChevronDown from '../../icons/ChevronDown.svelte';
+	import { ChevronsDown, ChevronDown, ChevronUp, ChevronsUp, EllipsisVertical, Folder } from 'lucide-svelte';
 	import ChevronRight from '../../icons/ChevronRight.svelte';
 	import Collapsible from '../../common/Collapsible.svelte';
 	import DragGhost from '$lib/components/common/DragGhost.svelte';
@@ -372,21 +372,15 @@
 		}}
 	>
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
-		<div class="w-full group">
+		<div class="w-full group flex items-center gap-2 py-sm rounded-md">
 			<button
 				id="folder-{folderId}-button"
-				class="relative w-full py-1.5 px-2 rounded-md flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-500 font-medium hover:bg-gray-100 dark:hover:bg-gray-900 transition"
+				class="relative w-full py-1.5 px-2 rounded-md flex items-center gap-1.5 {open ? 'text-label' : 'text-button'} text-slate-900 dark:text-slate-400 hover:text-brand-500 dark:hover:text-brand-500 transition"
 				on:dblclick={() => {
 					editHandler();
 				}}
 			>
-				<div class="text-gray-300 dark:text-gray-600">
-					{#if open}
-						<ChevronDown className=" size-3" strokeWidth="2.5" />
-					{:else}
-						<ChevronRight className=" size-3" strokeWidth="2.5" />
-					{/if}
-				</div>
+				<Folder size="16"/>
 
 				<div class="translate-y-[0.5px] flex-1 justify-start text-start line-clamp-1">
 					{#if edit}
@@ -436,18 +430,26 @@
 							exportHandler();
 						}}
 					>
-						<button class="p-0.5 dark:hover:bg-gray-850 rounded-lg touch-auto" on:click={(e) => {}}>
-							<EllipsisHorizontal className="size-4" strokeWidth="2.5" />
+						<button class="p-xs dark:hover:bg-gray-850 rounded-lg touch-auto" on:click={(e) => {}}>
+							<EllipsisVertical size="16"/>
 						</button>
 					</FolderMenu>
 				</button>
 			</button>
+
+			<div class="{open ? 'text-label' : 'text-button'}text-slate-500 dark:text-slate-500">
+				{#if open}
+					<ChevronDown size="20" />
+				{:else}
+					<ChevronUp size="20" />
+				{/if}
+			</div>
 		</div>
 
 		<div slot="content" class="w-full">
 			{#if (folders[folderId]?.childrenIds ?? []).length > 0 || (folders[folderId].items?.chats ?? []).length > 0}
 				<div
-					class="ml-3 pl-1 mt-[1px] flex flex-col overflow-y-auto scrollbar-hidden border-s border-gray-100 dark:border-gray-900"
+					class=" p-sm flex flex-col overflow-y-auto scrollbar-hidden border-s border-gray-100 dark:border-gray-900"
 				>
 					{#if folders[folderId]?.childrenIds}
 						{@const children = folders[folderId]?.childrenIds

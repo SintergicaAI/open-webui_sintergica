@@ -1,18 +1,26 @@
 <script lang="ts">
-	import { page} from '$app/stores';
 	import{
 	user
 	} from '$lib/stores';
-	import { derived } from 'svelte/store';
 	import { showArchivedChats } from '$lib/stores';
 	import UserMenu from '$lib/components/layout/Sidebar/UserMenu.svelte';
 	import Avatar from '$lib/components/common/Avatar.svelte';
+	import { onMount } from 'svelte';
 	export let routes: { name: string; path: string; icon: any }[] = [];
+	import {page} from '$app/stores';
+	import TuringFace from '$lib/components/icons/TuringFace.svelte';
+	import MessageCircleDashedPlus from '$lib/components/icons/MessageCircleDashedPlus.svelte';
 
-	const currentPath = derived(page, ($page) => $page.url.pathname);
+	let currentPath = '';
 
-	function isActive(path: string) {
-		return $currentPath === path ? 'active' : '';
+	onMount(() => {
+		currentPath = window.location.pathname;
+
+	})
+
+	function navigateTo(path: string) {
+		currentPath = path;
+		window.history.pushState({}, '', path);
 	}
 </script>
 
@@ -30,24 +38,24 @@
 			<button
 				class="select-none flex rounded-xl p-1.5 w-full hover:bg-gray-50 dark:hover:bg-gray-850 transition"
 				aria-label="User Menu">
-				<Avatar initials='AO'/>
+				<Avatar name={$user.name}/>
 			</button>
 		</UserMenu>
 	{/if}
-	{#each routes as route}
+	{#each routes as {name, path, icon}}
 		<a
-			href={route.path}
-			class="nav__link {isActive(route.path)}"
-			aria-label={route.name}
+			href={path}
+			class="nav__link {$page.url.pathname === path ? 'active' : ''}"
+			aria-label={name}
 		>
-			<svelte:component this={route.icon} aria-hidden="true" class="nav__icon" />
-		<span class="sr-only">{route.name}</span>
+			<svelte:component this={icon} aria-hidden="true" class="nav__icon" />
+			<span class="sr-only">{name}</span>
 		</a>
 	{/each}
+
 </nav>
 
 <style lang="scss">
-
   .button-group {
     display: flex;
     flex-direction: column;

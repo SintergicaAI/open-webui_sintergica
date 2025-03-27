@@ -227,9 +227,9 @@
 	<!-- Styles applied after click Rename option-->
 	{#if confirmEdit}
 		<div
-			class=" w-full flex justify-between rounded-sm p-sm {id === $chatId ||
+			class=" w-full flex justify-between rounded-sm p-sm text-white {id === $chatId ||
 			confirmEdit
-				? 'border border-brand-200 dark:bg-gray-900'
+				? 'border border-brand-200 bg-white dark:border-slate-700 dark:bg-slate-950'
 				: selected
 						? 'bg-gray-100 dark:bg-gray-950'
 					: 'group-hover:bg-gray-100 dark:group-hover:bg-gray-950'}  whitespace-nowrap text-ellipsis"
@@ -237,7 +237,7 @@
 			<input
 				use:focusEdit
 				bind:value={chatTitle}
-				class=" bg-transparent w-full outline-none mr-10"
+				class="  bg-transparent 	w-full outline-none mr-10 "
 			/>
 		</div>
 	{:else}
@@ -286,13 +286,13 @@
         {id === $chatId || confirmEdit
 			? ''
 			: selected
-				? 'from-brand-50 dark:from-gray-950'
+				? 'from-brand-50 dark:from-brand-800'
 				: 'invisible group-hover:visible'}
             absolute {className === 'pr-2'
 			? 'right-[8px]'
 			: 'right-0'}  top-[4px] py-1 pr-0.5 mr-1.5 pl-5 bg-gradient-to-l from-80%
 
-              to-transparent"
+              to-brand-950"
 		on:mouseenter={(e) => {
 			mouseOver = true;
 		}}
@@ -306,7 +306,7 @@
 			>
 				<Tooltip content={$i18n.t('Confirm')}>
 					<button
-						class=" self-center dark:hover:text-white transition"
+						class=" self-center dark:text-white dark:hover:text-brand-500 transition"
 						on:click={() => {
 							editChatTitle(id, chatTitle);
 							confirmEdit = false;
@@ -319,7 +319,7 @@
 
 				<Tooltip content={$i18n.t('Cancel')}>
 					<button
-						class=" self-center dark:hover:text-white transition"
+						class=" self-center dark:text-white dark:hover:text-brand-500 transition"
 						on:click={() => {
 							confirmEdit = false;
 							chatTitle = '';
@@ -333,7 +333,7 @@
 			<div class=" flex items-center self-center space-x-1.5">
 				<Tooltip content={$i18n.t('Archive')} className="flex items-center">
 					<button
-						class=" self-center dark:hover:text-white transition"
+						class=" self-center dark:text-slate-500 dark:hover:text-brand-500 transition"
 						on:click={() => {
 							archiveChatHandler(id);
 						}}
@@ -345,7 +345,7 @@
 
 				<Tooltip content={$i18n.t('Delete')}>
 					<button
-						class=" self-center dark:hover:text-white transition"
+						class=" self-center dark:text-slate-500 dark:hover:text-red-500 transition"
 						on:click={() => {
 							deleteChatHandler(id);
 						}}
@@ -421,3 +421,5 @@
 		{/if}
 	</nav>
 </div>
+
+<style></style>
