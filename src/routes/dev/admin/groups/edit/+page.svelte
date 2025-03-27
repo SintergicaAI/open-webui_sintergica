@@ -61,14 +61,9 @@
 	let group: any = null;
 
 	const onSubmit = async (groupInfo) => {
-		const res = await updateGroupById(localStorage.token, group.id, groupInfo).catch(e => {
-			console.log(e);
-		});
+		console.log('groupInfo', groupInfo);
 
-		if (res.ok){
-			toast.success('Group updated successfully');
-			await goto(`/dev/admin/groups`);
-		}
+		//WIP: group changes submition
 		return null;
 	};
 
@@ -111,6 +106,18 @@
 		return enhancedGroup;
 	}
 
+	function mapMembersToGroup(_members, group: Group) {
+		const enhancedGroup = JSON.parse(JSON.stringify(group));
+		enhancedGroup.members = [];
+		group.user_ids.forEach(user_id => {
+			const member = _members.find(member => member.id === user_id);
+			if (member){
+				enhancedGroup.members.push(member);
+			}
+		})
+		return enhancedGroup;
+	}
+
 	onMount(async () => {
 		members.set(await getUsers(localStorage.token))
 		models.set(await getModels(localStorage.token))
@@ -122,22 +129,13 @@
 				return null;
 			});
 
-			group.members = await Promise.all(group.user_ids.map(user_id => {
-				return getUserById(localStorage.token, user_id);
-			})).catch(e => {
-				toast.error('Error fetching users');
-			})
-
-			models.set(await getModels(localStorage.token).catch(e => {
-				toast.error('Error fetching models');
-			}))
-
-			console.log('Models', $models);
-			group = mapModelsToGroup($models, group);
-
-
 			console.log('Knowledge', $knowledge);
+
+			group = mapMembersToGroup($members, group);
+			group = mapModelsToGroup($models, group);
 			group = mapKnowledgeBasesToGroup($knowledge, group);
+
+			console.log('Group after mapping', group);
 
 			if (!group) {
 				goto(`/dev/admin/groups`);

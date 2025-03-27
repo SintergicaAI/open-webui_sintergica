@@ -12,9 +12,13 @@
 
 	export let type: 'bases' | 'assistants' | 'members';
 	export let title: string;
-	export let items: any[] = [];
+	export let items = [];
 	export let buttonText: string;
 
+
+	let selectedItems = new Set(items)
+
+	$: selectedItems = new Set(items);
 
 	const getIcon = () => {
 		switch (type) {
@@ -48,7 +52,7 @@
 
 	{#if type === 'members' && items.length > 0}
 		<div class="self-stretch p-base rounded-md flex-col gap-sm bg-slate-200 dark:bg-slate-950 flex justify-center">
-			{#each items as member}
+			{#each selectedItems as member}
 				<article class="bg-slate-50 dark:bg-slate-800 border boder-slate-200 dark:border-slate-800 p-base rounded-sm flex items-center gap-sm">
 					<Avatar name={member.name}/>
 					{member.name}
@@ -58,7 +62,7 @@
 
 	{:else if type === 'assistants' && items.length > 0}
 		<div class="self-stretch p-base rounded-md flex-col gap-sm bg-slate-200 dark:bg-slate-950 flex justify-center">
-			{#each items as assistant}
+			{#each selectedItems as assistant}
 				<article class="bg-slate-50 dark:bg-slate-800 p-lg gap-lg border boder-slate-200 dark:border-slate-700 rounded-md flex flex-col">
 					<header class="self-stretch flex items-start gap-sm">
 						<TuringFace/>
@@ -70,7 +74,7 @@
 		</div>
 	{:else if (type === 'bases' && items.length > 0)}
 		<div class="self-stretch p-base rounded-md bg-slate-200 dark:bg-slate-950 flex ">
-			{#each items as assistant}
+			{#each selectedItems as assistant}
 				<Pill pillColor="purple" text={assistant.name}/>
 			{/each}
 		</div>
