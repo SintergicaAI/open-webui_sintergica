@@ -17,6 +17,8 @@
 		updateFileFromKnowledgeById,
 		updateKnowledgeById
 	} from '$lib/apis/knowledge';
+	import { settings } from '$lib/stores';
+
 
 	import { transcribeAudio } from '$lib/apis/audio';
 	import { blobToFile, formatFileSize } from '$lib/utils';
@@ -37,9 +39,9 @@
 	import Button from '$lib/components/common/Button/Button.svelte';
 	import {
 		ArrowLeftFromLine,
-		ArrowRightFromLine,
+		ArrowRightFromLine, Bold,
 		Edit,
-		Globe,
+		Globe, Heading1, Heading2, Italic, List,
 		Menu,
 		Save,
 		Trash2,
@@ -52,6 +54,7 @@
 	import SwatchList from '$lib/components/common/Swatch/SwatchList.svelte';
 	import Avatar from '$lib/components/common/Avatar.svelte';
 	import { getUserById } from '$lib/apis/users';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
 
 	const dispatch = createEventDispatcher();
 
@@ -681,7 +684,7 @@
 						<div class="flex items-center gap-lg">
 							<Button variant="icon" size="sm" icon={Undo2} buttonClasses="text-slate-500" />
 							<span class="text-left w-full text-title text-slate-400 font-primary bg-transparent outline-none">Bases de conocimiento ></span>
-							<Pill text={knowledge.name} />
+							<Pill text={knowledge.name} pillColor={$settings?.knowledgeColor}/>
 						</div>
 
 						<div class="flex items-center gap-lg">
@@ -708,6 +711,7 @@
 			</div>
 		</header>
 
+		<!-- Action panel toggle button-->
 		{#if fullSize}
 			<div class="side-toggle flex items-center">
 				<Button variant="icon" size="base" icon={ArrowRightFromLine} buttonClasses="text-slate-500" onClick={()=>{fullSize = false;}} />
@@ -748,7 +752,7 @@
 				</div>
 
 				<div class="flex-1">
-					<SwatchList />
+					<SwatchList key={knowledge.id}/>
 				</div>
 
 			</div>
@@ -872,7 +876,7 @@
 			</div>
 		</div>
 
-		<!-- Contenido -->
+		<!-- Action panel -->
 		<aside class="sidebar flex flex-shrink-0 flex-col flex-1 py-xl px-2xl
 		bg-slate-50 border-slate-300 dark:bg-slate-950 border-l dark:border-slate-700">
 			{#if largeScreen}
@@ -893,9 +897,10 @@
 											</button>
 										</div>
 									{/if}
-									<Button variant="icon" icon={ArrowLeftFromLine} onClick={() => {fullSize = !fullSize; console.log(fullSize)}}/>
-									<h2 class="text-subtitle">{$i18n.t('Upload files')}</h2>
-
+									{#if !fullSize}
+										<Button variant="icon" icon={ArrowLeftFromLine} onClick={() => {fullSize = !fullSize;}} buttonClasses="text-slate-500" aria-label="{$i18n.t('Back')}"/>
+									{/if}
+									<h2 class="text-subtitle text-black dark:text-white">{$i18n.t('Upload files')}</h2>
 								</div>
 								<div class="flex items-center gap-sm">
 									<Button variant="primary" icon={Save} onClick={() => {
@@ -903,14 +908,12 @@
 										}} aria-label="{$i18n.t('Save')}"/>
 									<Button variant="icon" icon={X} onClick={() => {}} class="text-slate-500" aria-label="{$i18n.t('Close')}"/>
 								</div>
-
-
 							</header>
 							<section class="flex flex-col gap-sm justify-center items-start self-stretch">
 								<h2 class="text-label text-slate-400">Titulo</h2>
 								<div class=" flex-1 text-title">
 									<a
-										class="hover:text-gray-500 hover:dark:text-gray-100 hover:underline flex-grow line-clamp-1"
+										class="text-title text-black dark:text-white hover:text-gray-500 hover:dark:text-gray-100 hover:underline flex-grow line-clamp-1"
 										href={selectedFile.id ? `/api/v1/files/${selectedFile.id}/content` : '#'}
 										target="_blank"
 									>
@@ -918,6 +921,7 @@
 									</a>
 								</div>
 							</section>
+
 							<div class=" flex-1 ">
 								<div class="flex justify-between items-center w-full mb-2">
 									<h2 class=" text-label text-slate-400">{$i18n.t('Content')}</h2>
@@ -926,9 +930,26 @@
 									{/if}
 								</div>
 
+								<div class="flex items-center w-full p-xs gap-sm rounded-md bg-white dark:bg-slate-800">
+									<Tooltip content={$i18n.t('Bold')}>
+										<Button variant="icon" icon={Bold} buttonClasses="text-slate-500" aria-label="{$i18n.t('Bold')}"/>
+									</Tooltip>
+									<Tooltip content={$i18n.t('Italic')}>
+										<Button variant="icon" icon={Italic} buttonClasses="text-slate-500" aria-label="{$i18n.t('Italic')}"/>
+									</Tooltip>
+									<Tooltip content={$i18n.t('List')}>
+										<Button variant="icon" icon={List} buttonClasses="text-slate-500" aria-label="{$i18n.t('List')}"/>
+									</Tooltip>
+									<Tooltip content={$i18n.t('Heading 1')}>
+										<Button variant="icon" icon={Heading1} buttonClasses="text-slate-500" aria-label="{$i18n.t('Heading 1')}"/>
+									</Tooltip>
+									<Tooltip content={$i18n.t('Heading 2')}>
+										<Button variant="icon" icon={Heading2} buttonClasses="text-slate-500" aria-label="{$i18n.t('Heading 2')}"/>
+									</Tooltip>
+								</div>
 
 								<div
-									class=" self-stretch h-[521px] text-black text-base font-normal font-['Archivo'] leading-normaltext-sm p-sm border border-slate-300 rounded-sm bg-white outline-none overflow-y-auto scrollbar-hidden"
+									class=" self-stretch h-[521px] text-black text-base font-normal font-['Archivo'] leading-normal p-sm border border-slate-300 dark:border-slate-700 rounded-sm bg-transparent outline-none overflow-y-auto scrollbar-hidden"
 								>
 									{#key selectedFile.id}
 										<RichTextInput
@@ -945,17 +966,19 @@
 					{:else}
 						<div class="h-full flex w-full py-lg px-2xl flex-col items-start gap-lg flex-shrink-0">
 							<header class="flex justify-between items-center self-stretch">
-								<h2 class="text-subtitle">{$i18n.t('Upload files')}</h2>
+								<h2 class="text-subtitle text-black dark:text-white">{$i18n.t('Upload files')}</h2>
 								<button class="p-xs" on:click={() => {selectedFileId = null;}}>
 									<X class="text-slate-500" size="20"/>
 								</button>
 							</header>
 							<section class="dropzone">
-								<div class="flex justify-between items-center gap-sm">
+								<p class="text-brand-500 flex justify-between items-center gap-sm">
 									{$i18n.t('Drag and drop a file to upload or select a file to view')}
 									<Upload size="20"/>
-
-								</div>
+								</p>
+								<p class="text-slate-400 text-label">
+									pdf, png, jpg or txt | max size
+								</p>
 							</section>
 						</div>
 					{/if}
@@ -981,9 +1004,10 @@
 										<ChevronLeft strokeWidth="2.5" />
 									</button>
 								</div>
-								<div class=" flex-1 text-xl line-clamp-1">
+
+								<p class=" flex-1 text-xl text-slate-400 line-clamp-1">
 									{selectedFile?.meta?.name}
-								</div>
+								</p>
 
 								<div>
 									<Button variant="primary" icon={Save} onClick={() => {
@@ -1056,6 +1080,6 @@
 
 		.dropzone {
 				@apply flex flex-col gap-sm justify-center items-center flex-shrink-0 self-stretch p-lg border border-dashed h-[641px]
-        rounded-lg border-brand-500 text-button text-center bg-brand-50 text-brand-500 dark:text-gray-700;
+        rounded-lg border-brand-500 text-button text-center bg-brand-50 dark:bg-brand-900 text-brand-500 dark:text-gray-700;
 		}
 </style>
