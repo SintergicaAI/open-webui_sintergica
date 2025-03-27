@@ -15,6 +15,7 @@
 	import ArrowUpCircle from '$lib/components/icons/ArrowUpCircle.svelte';
 
 	import { config } from '$lib/stores';
+	import { Copy, Download, Trash2 } from 'lucide-svelte';
 
 	const i18n = getContext('i18n');
 
@@ -46,55 +47,39 @@
 
 	<div slot="content">
 		<DropdownMenu.Content
-			class="w-full max-w-[160px] rounded-xl px-1 py-1.5 border border-gray-300/30 dark:border-gray-700/50 z-50 bg-white dark:bg-gray-850 dark:text-white shadow"
+			class="w-full max-w-[180px] rounded-xl p-base z-50 bg-white dark:bg-slate-800 dark:text-white shadow-[0px_0px_4px_rgba(0,0,0,0.25)]"
 			sideOffset={-2}
 			side="bottom"
 			align="start"
 			transition={flyAndScale}
 		>
-			{#if $config?.features.enable_community_sharing}
-				<DropdownMenu.Item
-					class="flex gap-2 items-center px-3 py-2 text-sm  font-medium cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800  rounded-md"
-					on:click={() => {
-						shareHandler();
-					}}
-				>
-					<Share />
-					<div class="flex items-center">{$i18n.t('Share')}</div>
-				</DropdownMenu.Item>
-			{/if}
-
 			<DropdownMenu.Item
 				class="flex gap-2 items-center px-3 py-2 text-sm  font-medium cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
 				on:click={() => {
 					cloneHandler();
 				}}
 			>
-				<DocumentDuplicate />
-
+				<Copy size="20"/>
 				<div class="flex items-center">{$i18n.t('Clone')}</div>
 			</DropdownMenu.Item>
 
 			<DropdownMenu.Item
-				class="flex gap-2 items-center px-3 py-2 text-sm  font-medium cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
+				class="flex gap-2 items-center px-3 py-2 text-sm  border-b border-b-slate-700 font-medium cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 "
 				on:click={() => {
 					exportHandler();
 				}}
 			>
-				<ArrowDownTray />
-
+				<Download size="20"/>
 				<div class="flex items-center">{$i18n.t('Export')}</div>
 			</DropdownMenu.Item>
 
-			<hr class="border-gray-100 dark:border-gray-800 my-1" />
-
 			<DropdownMenu.Item
-				class="flex  gap-2  items-center px-3 py-2 text-sm  font-medium cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
+				class="flex  gap-2  items-center px-3 py-2 text-sm  font-medium cursor-pointer text-red-500 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
 				on:click={() => {
 					deleteHandler();
 				}}
 			>
-				<GarbageBin strokeWidth="2" />
+				<Trash2 size="20"/>
 				<div class="flex items-center">{$i18n.t('Delete')}</div>
 			</DropdownMenu.Item>
 		</DropdownMenu.Content>

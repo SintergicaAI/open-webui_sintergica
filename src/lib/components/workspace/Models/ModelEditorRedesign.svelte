@@ -2,7 +2,7 @@
 	import { onMount, getContext, tick } from 'svelte';
 	import { models, tools, functions, knowledge as knowledgeCollections, user, settings } from '$lib/stores';
 
-	import { Image, LibraryBig, Save, X } from 'lucide-svelte';
+	import { Image, LibraryBig, Palette, Save, Scale, Target, X } from 'lucide-svelte';
 
 	import AdvancedParams from '$lib/components/chat/Settings/Advanced/AdvancedParams.svelte';
 	import Tags from '$lib/components/common/Tags.svelte';
@@ -20,6 +20,7 @@
 	import SwatchList from '$lib/components/common/Swatch/SwatchList.svelte';
 	import Button from '$lib/components/common/Button/Button.svelte';
 	import Pill from '$lib/components/common/Pill/Pill.svelte';
+	import Option from '$lib/components/workspace/Models/Option.svelte';
 
 	const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
 
@@ -89,6 +90,39 @@
 		usage: undefined,
 		citations: true
 	};
+
+	let behaviour = [
+		{
+			id: 'preciso',
+			name: 'Preciso',
+			description: 'Es ideal para respuestas técnicas o cuando se busca exactitud y consistencia.',
+			icon: Target,
+			iconColor: ' text-blue-600 dark:text-brand-500'
+		},
+		{
+			id: 'equilibrado',
+			name: 'Equilibrado',
+			description: 'Permite respuestas variadas pero aún coherentes y relevantes.',
+			icon: Scale,
+			iconColor: ' text-orange-600',
+		},
+		{
+			id: 'creativo',
+			name: 'Creativo',
+			description: 'Respuestas más originales y menos repetitivas, aunque con mayor riesgo de perder ' +
+				'precisión.',
+			icon: Palette,
+			iconColor: ' text-red-600'
+		}
+	]
+
+	let selectedBehavior = {
+		id: 'preciso',
+		name: 'Preciso',
+		description: 'Es ideal para respuestas técnicas o cuando se busca exactitud y consistencia.',
+		icon: Target,
+		iconColor: ' text-blue-600 dark:text-brand-500'
+	}
 
 	let knowledge = [];
 	let toolIds = [];
@@ -270,7 +304,10 @@
 
 	let isChangingBaseModel = false;
 	let selectedModel: string | null = null;
-	let selectedBehavior: string | null = null;
+
+	function selectedModelInfo(base_model_id: string) {
+		return $models.find((m) => m.id === base_model_id);
+	}
 </script>
 
 {#if loaded}
@@ -300,7 +337,7 @@
 	{/if}
 
 	<div class=" flex flex-wrap overflow-auto gap-sm ">
-		<section class="flex-1 max-h-full flex justify-center px-lg py-2xl">
+		<section class="flex-1 overflow-auto max-h-full flex justify-center px-lg py-2xl">
 			<input
 				bind:this={filesInputElement}
 				bind:files={inputFiles}
@@ -478,7 +515,7 @@
 									<div>
 										<label for="model-name" class="text-label text-slate-400">{$i18n.t('Name')}</label>
 										<input
-											class="text-slate-950 text-title w-full bg-transparent outline-none"
+											class="text-slate-950 dark:text-slate-50 text-title w-full bg-transparent outline-none"
 											placeholder={$i18n.t('Assistant name')}
 											id="model-name"
 											bind:value={name}
@@ -530,7 +567,7 @@
 									{#if info.meta.description !== null}
 										<div class=" border dark:border-slate-700 bg-white dark:bg-slate-950 rounded-sm focus-within:dark:border-brand-300">
 											<Textarea
-												className=" p-base text-markdown-base dark:text-slate-50 placeholder:text-placeholder placeholder:text-slate-500 w-full h-[105px] outline-none resize-none overflow-y-hidden "
+												className=" p-base text-markdown-base dark:text-slate-50 placeholder:text-placeholder placeholder:text-slate-500 w-full outline-none resize-none overflow-y-hidden "
 												placeholder={$i18n.t('Add a short description about what this model does')}
 												bind:value={info.meta.description}
 											/>
@@ -548,19 +585,12 @@
 										<h3 class="text-label text-slate-400">Modelo base</h3>
 										<button class="flex w-full flex-start gap-sm rounded-lg border transition-all {selectedModel ? 'border-brand-300 bg-brand-50' : 'border-slate-50 bg-white'} py-base px-lg" type="button"
 														on:click={()=>(selectedAction = 'models')}>
-											{#if selectedModel}
-												<div>
-													<img class="w-6 h-6" src="/static/splash.png" alt="splash"/>
-												</div>
-												<div>
-													<div class=" self-center text-subtitle text-slate-950 font-semibold">
-														{selectedModel.name}
+											{#if info.base_model_id}
+												<Option id={info.id} heading={selectedModelInfo(info.base_model_id)?.name} description={selectedModelInfo(info.base_model_id)?.id}>
+													<div slot="image">
+														<Target />
 													</div>
-													<div class=" self-center text-xs text-gray-500">
-														{selectedModel.owned_by}
-													</div>
-
-												</div>
+												</Option>
 											{:else}
 												Selecciona un modelo
 											{/if}
@@ -569,24 +599,16 @@
 								</article>
 								<article class="basis-96 flex flex-col gap-sm">
 									<h3 class="text-label text-slate-400">{$i18n.t('Comportamiento')}</h3>
-									<button class="flex w-full flex-start gap-sm rounded-lg border transition-all {selectedModel ? 'border-brand-300 bg-brand-50' : 'border-slate-50 bg-white'} py-base px-lg" type="button"
-													on:click={()=>(selectedAction = 'models')}>
-										{#if selectedModel}
-											<div>
-												<img class="w-6 h-6" src="/static/splash.png" alt="splash"/>
-											</div>
-											<div>
-												<div class=" self-center text-subtitle text-slate-950 font-semibold">
-													{selectedModel.name}
-													{selectedBehavior.name}
+									<button class="flex w-full flex-start gap-sm rounded-lg border transition-all {selectedModel ? 'border-brand-300 bg-brand-50' : 'border-slate-50 bg-white'} " type="button"
+													on:click={()=>(selectedAction = 'behaviors')}>
+										{#if selectedBehavior}
+											<Option id={selectedBehavior.id} heading={selectedBehavior.name} description={selectedBehavior.description}>
+												<div slot="image">
+													<svelte:component this={selectedBehavior.icon}/>
 												</div>
-												<div class=" self-center text-xs text-gray-500">
-													{selectedBehavior.description}
-												</div>
-
-											</div>
+											</Option>
 										{:else}
-											Selecciona un modelo
+											Selecciona un comportamiento
 										{/if}
 
 									</button>
@@ -646,7 +668,7 @@
 								<h2	 class="text-label text-slate-500"> Bases de conocimientos</h2>
 								<Button variant="outline-primary" size="base" icon={LibraryBig} onClick={()=>(selectedAction = 'knowledge')} buttonClasses="text-slate-500">Añadir bases de conocimiento</Button>
 							</header>
-							<div id="content" class="flex flex-wrap justify-start items-start gap-sm bg-slate-200 py-2xl rounded-md self-stretch">
+							<div id="content" class="flex flex-wrap justify-start items-start gap-sm bg-slate-200 dark:bg-transparent	 py-2xl rounded-md self-stretch">
 								{#if knowledge && knowledge.length > 0}
 									{#each knowledge as k}
 										<Pill text={k.name} pillColor="{randomColor}" />
@@ -935,91 +957,35 @@
 			{/if}
 		</section>
 		<aside class:open={!!selectedAction}
-					 class="action-panel bg-slate-50 flex-1 border-l border-slate-300 p-lg max-w-md transition">
+					 class="max-h-full bg-slate-50 dark:bg-slate-950 overflow-auto flex-shrink-0 flex flex-col gap-lg items-start bg-cyan-100 border-l border-slate-300 dark:border-slate-700 p-lg w-[437px] transition">
 			{#if selectedAction}
-				<article>
-					<header class="flex justify-between">
-						<h1 class="text-label text-slate-400">
-							{#if (selectedAction === 'models')}
-								Models
-							{:else if selectedAction === 'knowledge'}
-								Knowledge
-							{:else}
-								<p>Por favor selecciona una acción válida.</p>
-							{/if}
-						</h1>
-						<Button variant="icon" icon={X} buttonClasses="text-slate-500"
-										onClick={() => { isChangingBaseModel = false; isOpen = !isOpen; }} />
-
-					</header>
-					<div class="content">
-						{#if selectedAction === 'models'}
-							<div class="flex flex-col gap-sm">
-								<h2 class="text-md font-semibold">Elige un modelo</h2>
-								<ol class="flex flex-col gap-sm">
-									{#each $models.filter((m) => (model ? m.id !== model.id : true) && !m?.preset && m?.owned_by !== 'arena') as model}
-
-										<li
-											on:click={() => {selectedModel = model}}
-											class="flex w-full flex-start gap-sm rounded-lg border transition-all hover:-translate-y-2 {selectedModel === model ? 'border-brand-300 bg-brand-50' : 'border-slate-50 bg-white'} py-base px-lg"
-										>
-											<input type="radio" name="model" value={model.id} class="hidden" />
-											<div>
-												<img class="w-6 h-6" src="/static/splash.png" alt="splash"/>
-											</div>
-											<div>
-												<div class=" self-center text-subtitle text-slate-950 font-semibold">
-													{model.name}
-												</div>
-												<div class=" self-center text-xs text-gray-500">
-													{model.owned_by}
-												</div>
-											</div>
-										</li>
-									{/each}
-								</ol>
-							</div>
-						{:else if selectedAction === 'tools'}
-							<!-- Contenido relacionado con herramientas -->
-							<div>
-								<p>Configuración de herramientas irá aquí.</p>
-							</div>
+				<header class="self-stretch flex justify-between">
+					<h1 class="text-subtitle text-black dark:text-white">
+						{#if (selectedAction === 'models')}
+							Models
 						{:else if selectedAction === 'knowledge'}
-							<div class="flex flex-col flex-start self-stretch gap-sm">
-								<!-- Does not show models owned by arena-->
-								{#each $models.filter((m) => (model ? m.id !== model.id : true) && !m?.preset && m?.owned_by !== 'arena') as model}
-									<article>
-										<div
-											class=" card gap-sm rounded-lg border {selectedModel === model ? 'active':'default'}
-											 py-base px-lg">
-											{#if model.preset}
-												<h1>Hola</h1>
-
-											{/if}
-											<div>
-												<img class="w-6 h-6" />
-											</div>
-											<div>
-												<div class=" self-center text-subtitle text-slate-950 font-semibold">
-													{model.name}
-												</div>
-												<div class=" self-center text-xs text-gray-500">
-													{model.owned_by}
-												</div>
-
-											</div>
-
-										</div>
-									</article>
-								{/each}
-
-							</div>
-							<!-- Si se habilitan otras acciones en el futuro -->
+							Knowledge
+						{:else if selectedAction === 'behaviors'}
+							Behaviors
 						{:else}
 							<p>Por favor selecciona una acción válida.</p>
 						{/if}
+					</h1>
+					<Button variant="icon" icon={X} buttonClasses="text-slate-500"
+									onClick={() => { isChangingBaseModel = false; isOpen = !isOpen; }} />
 
-					</div>
+				</header>
+				<!-- Side panel Description-->
+				<section class="flex self-stretch">
+					{#if selectedAction === 'models'}
+						<p class="text-label text-slate-500">Elige el model base de IA que utilizará este asistente para realizar consultas o tareas</p>
+						{:else if selectedAction === 'knowledge'}
+						{:else if selectedAction === 'behaviors'}
+							<p class="text-label text-slate-500">Determina el tipo de respuesta esperada por el asistente en las consultas o tareas que realice</p>
+					{/if}
+				</section>
+				<!-- Side panel Options-->
+				<section class="flex flex-col items-start gap-sm self-stretch ">
 					<div class=" text-sm font-semibold mb-1">{$i18n.t('Base Model (From)')}</div>
 					<div class=" border p-base rounded-sm">
 						<select
@@ -1027,9 +993,9 @@
 							placeholder="Select a base model (e.g. llama3, gpt-4o)"
 							bind:value={info.base_model_id}
 							on:change={(e) => {
-												isOpen = !isOpen;
-										addUsage(e.target.value);
-									}}
+											isOpen = !isOpen;
+									addUsage(e.target.value);
+								}}
 							required
 						>
 							<option value={null} class=" text-gray-900"
@@ -1040,8 +1006,102 @@
 							{/each}
 						</select>
 					</div>
+					{#if selectedAction === 'models'}
+						{#each $models.filter((m) => (model ? m.id !== model.id : true) && !m?.preset && m?.owned_by !== 'arena') as model}
+							<!-- Option selector-->
+							<article id={model.id} on:click={(e)=>{console.log('Hola', e.target.id); info.base_model_id = model.id}} class="self-stretch {info.base_model_id === model.id ? 'bg-brand-50' : 'bg-slate-50 dark:bg-slate-800'} gap-sm p-base flex
+					  border border-slate-300 dark:border-slate-700
+					rounded-sm">
+								<div class="flex items-center">
+									<img sizes="100vw" src={model?.meta?.profile_image_url ?? '/static/gpt.png'} alt="splash" class="size-6 object-cover" />
+								</div>
+								<div class=" flex flex-col items-start flex-1 gap-sm">
+									<h2 class="self-stretch text-subtitle text-slate-950 dark:text-slate-50">{model.name}</h2>
+									<p class="self-stretch text-label text-slate-500 dark:text-slate-500">
+										{model?.meta?.description ?? 'No description'}
+									</p>
+								</div>
+							</article>
 
-				</article>
+							<Option id={model.id} selected={info.base_model_id === model.id} heading={model.name} description={model?.meta?.description ?? 'No description'} src={model?.meta?.profile_image_url ?? '/static/gpt.png'}
+							on:click>
+								<img sizes="100vw" src={model?.meta?.profile_image_url ?? '/static/gemini.png'} alt="splash" class="size-6 object-cover" slot="image"/>
+							</Option>
+
+						{/each}
+
+
+<!--							<div class="flex flex-col gap-sm">-->
+<!--								<h2 class="text-md font-semibold">Elige un modelo</h2>-->
+<!--								<div class="flex flex-col gap-sm">-->
+<!--									{#each $models.filter((m) => (model ? m.id !== model.id : true) && !m?.preset && m?.owned_by !== 'arena') as model}-->
+
+<!--										<button-->
+<!--											on:click={() => {selectedModel = model}}-->
+<!--											class="flex w-full flex-start gap-sm rounded-lg border transition-all hover:-translate-y-2 {selectedModel === model ? 'border-brand-300 bg-brand-50' : 'border-slate-50 bg-white'} py-base px-lg"-->
+<!--										>-->
+<!--											<input type="radio" name="model" value={model.id} class="hidden" />-->
+<!--											<div>-->
+<!--												<img class="w-6 h-6" src="/static/splash.png" alt="splash"/>-->
+<!--											</div>-->
+<!--											<div>-->
+<!--												<div class=" self-center text-subtitle text-slate-950 font-semibold">-->
+<!--													{model.name}-->
+<!--												</div>-->
+<!--												<div class=" self-center text-xs text-gray-500">-->
+<!--													{model.owned_by}-->
+<!--												</div>-->
+<!--											</div>-->
+<!--										</button>-->
+<!--									{/each}-->
+<!--								</div>-->
+<!--							</div>-->
+					{:else if selectedAction === 'knowledge'}
+						<div class="flex flex-col flex-start self-stretch gap-sm">
+							<!-- Does not show models owned by arena-->
+							{#each $models.filter((m) => (model ? m.id !== model.id : true) && !m?.preset && m?.owned_by !== 'arena') as model}
+								<article>
+									<div
+										class=" card gap-sm rounded-lg border {selectedModel === model ? 'active':'default'}
+										 py-base px-lg">
+										{#if model.preset}
+											<h1>Hola</h1>
+
+										{/if}
+										<div>
+											<img class="w-6 h-6" />
+										</div>
+										<div>
+											<div class=" self-center text-subtitle text-slate-950 font-semibold">
+												{model.name}
+											</div>
+											<div class=" self-center text-xs text-gray-500">
+												{model.owned_by}
+											</div>
+
+										</div>
+
+									</div>
+								</article>
+							{/each}
+
+						</div>
+					{:else if selectedAction === 'behaviors'}
+						<div class="flex flex-col flex-start self-stretch gap-sm">
+							{#each behaviour as behaviour}
+								<Option id={behaviour.id} heading={behaviour.name} description={behaviour.description}>
+									<div class="{behaviour.iconColor}" slot="image">
+										<svelte:component this={behaviour.icon} size="24"/>
+									</div>
+								</Option>
+							{/each}
+						</div>
+
+					{:else}
+						<p>Por favor selecciona una acción válida.</p>
+					{/if}
+
+				</section>
 			{/if}
 		</aside>
 	</div>
@@ -1049,7 +1109,6 @@
 {/if}
 
 <style lang="scss">
-
 	.horizontal-divider {
     height: 1px;
     max-width: 1024px;
