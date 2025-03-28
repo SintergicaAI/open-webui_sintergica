@@ -3,11 +3,10 @@
 	import { goto } from '$app/navigation';
 
 	import { WEBUI_NAME, showSidebar, user, activeHeader } from '$lib/stores';
-	import MenuLines from '$lib/components/icons/MenuLines.svelte';
-	import { page } from '$app/stores';
 	import { CircleHelp } from 'lucide-svelte';
 	import Button from '$lib/components/common/Button/Button.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import { capitalizeFirstLetter } from '$lib/utils';
 
 
 	const i18n = getContext('i18n');
@@ -33,7 +32,7 @@
 		class=" flex flex-col w-full {$showSidebar}">
 		<header class="border-b bg-lvl-2 px-base py-lg flex items-center gap-sm">
 			<slot name="header">
-				<h1 class="text-title text-black dark:text-white">{activeHeader ? ($i18n.t($activeHeader)) : ''}</h1>
+				<h1 class="text-title text-black dark:text-white">{activeHeader ? capitalizeFirstLetter($i18n.t($activeHeader)) : ''}</h1>
 				<Tooltip content={ $i18n.t('Help')}>
 					<Button variant="icon" iconSize="base" buttonClasses="text-slate-500" icon={CircleHelp}/>
 				</Tooltip>
