@@ -2,10 +2,13 @@
 	import { onMount, getContext } from 'svelte';
 	import { goto } from '$app/navigation';
 
-	import { WEBUI_NAME, showSidebar, user } from '$lib/stores';
+	import { WEBUI_NAME, showSidebar, user, activeHeader } from '$lib/stores';
 	import MenuLines from '$lib/components/icons/MenuLines.svelte';
 	import { page } from '$app/stores';
 	import { CircleHelp } from 'lucide-svelte';
+	import Button from '$lib/components/common/Button/Button.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+
 
 	const i18n = getContext('i18n');
 
@@ -29,8 +32,12 @@
 	<div
 		class=" flex flex-col w-full {$showSidebar}">
 		<header class="border-b bg-lvl-2 px-base py-lg flex items-center gap-sm">
-			<h1 class="text-title dark:text-white">{$i18n.t('Users')}</h1>
-			<CircleHelp size="20"/>
+			<slot name="header">
+				<h1 class="text-title text-black dark:text-white">{activeHeader ? ($i18n.t($activeHeader)) : ''}</h1>
+				<Tooltip content={ $i18n.t('Help')}>
+					<Button variant="icon" iconSize="base" buttonClasses="text-slate-500" icon={CircleHelp}/>
+				</Tooltip>
+			</slot>
 		</header>
 
 		<section class=" flex-1 max-h-full overflow-y-auto  ">
