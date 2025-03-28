@@ -75,7 +75,8 @@
 			profile_image_url: '/static/favicon.png',
 			description: '',
 			suggestion_prompts: null,
-			tags: []
+			tags: [],
+			color: ''
 		},
 		params: {
 			system: ''
@@ -193,6 +194,10 @@
 			}
 		}
 
+		if(selectedColor) {
+			info.meta.color = selectedColor;
+		}
+
 		info.params.stop = params.stop ? params.stop.split(',').filter((s) => s.trim()) : null;
 		Object.keys(info.params).forEach((key) => {
 			if (info.params[key] === '' || info.params[key] === null) {
@@ -269,6 +274,7 @@
 				}
 			});
 			capabilities = { ...capabilities, ...(model?.meta?.capabilities ?? {}) };
+			selectedColor = model?.meta?.color ?? 'brand';
 
 			if ('access_control' in model) {
 				accessControl = model.access_control;
@@ -307,6 +313,17 @@
 
 	function selectedModelInfo(base_model_id: string) {
 		return $models.find((m) => m.id === base_model_id);
+	}
+
+	let selectedColor = '';
+
+	async function handleColorChange(event) {
+		const color = event.detail.color;
+		console.log('Changing color from:', info.meta.color);
+		console.log('To:', color);
+		selectedColor = color;
+
+		console.log('selectedColor', selectedColor);
 	}
 </script>
 
@@ -491,7 +508,8 @@
 									Icono
 								</label>
 
-									<article class={`relative w-[120px] h-[120px] p-2xl rounded-[33px] flex justify-center items-center aspect-square`} style={info.meta.profile_image_url.url ? `background-image: url(${info.meta.profile_image_url}); background-size: cover; background-position: center;)` : 'background-color: red;'} >
+									<article class={`relative w-[120px] h-[120px] p-2xl rounded-[33px] flex justify-center items-center aspect-square bg-${selectedColor}-400`}
+									>
 										<svg xmlns="http://www.w3.org/2000/svg" width="64" height="49" viewBox="0 0 64 49" fill="currentColor" class=" aspect-[4/3]" >
 											<path fill-rule="evenodd" clip-rule="evenodd" d="M13.5057 9.26133C14.2768 8.33604 15.652 8.21102 16.5774 8.9821L25.3011 16.2517C25.8297 16.6922 26.1194 17.3563 26.0827 18.0434C26.046 18.7305 25.6872 19.36 25.1146 19.7416L16.3909 25.5573C15.3887 26.2254 14.0347 25.9546 13.3665 24.9524C12.6984 23.9503 12.9692 22.5962 13.9714 21.9281L20.2648 17.7326L13.785 12.3329C12.8596 11.5618 12.7346 10.1866 13.5057 9.26133ZM41.7492 22.2883C44.1582 22.2883 46.1111 20.3355 46.1111 17.9266C46.1111 15.5177 44.1582 13.5649 41.7492 13.5649C39.3402 13.5649 37.3873 15.5177 37.3873 17.9266C37.3873 20.3355 39.3402 22.2883 41.7492 22.2883ZM41.7492 26.6501C46.5672 26.6501 50.4729 22.7444 50.4729 17.9266C50.4729 13.1088 46.5672 9.20312 41.7492 9.20312C36.9312 9.20312 33.0255 13.1088 33.0255 17.9266C33.0255 22.7444 36.9312 26.6501 41.7492 26.6501ZM23.0818 32.3802C22.2979 31.4657 20.9211 31.3598 20.0065 32.1436C19.092 32.9275 18.9861 34.3043 19.77 35.2188C21.4533 37.1826 24.5206 39.5626 28.3747 40.2699C32.4041 41.0094 36.9546 39.8536 41.1985 35.2835C42.0181 34.4008 41.967 33.0209 41.0843 32.2014C40.2017 31.3818 38.8217 31.4329 38.0021 32.3155C34.6854 35.8872 31.6027 36.4277 29.162 35.9798C26.5459 35.4997 24.3063 33.8088 23.0818 32.3802Z" fill="white"/>
 										</svg>
@@ -537,7 +555,7 @@
 
 									<div class="flex flex-col gap-sm">
 										<label class="text-label text-slate-400">Color del icono</label>
-										<SwatchList />
+										<SwatchList bind:value={selectedColor} on:change={handleColorChange} />
 									</div>
 								</div>
 
