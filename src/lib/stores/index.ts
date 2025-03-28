@@ -54,6 +54,9 @@ export const temporaryChatEnabled = writable(false);
 export const scrollPaginationEnabled = writable(false);
 export const currentChatPage = writable(1);
 
+export const activePanel = writable<'bases' | 'assistants' | 'members' | null>(null);
+
+export const activeHeader = writable<'chat' | 'knowledge' | 'assistants' |  'groups' | 'members' | null>(null);
 export type Model = OpenAIModel | OllamaModel;
 
 type BaseModel = {

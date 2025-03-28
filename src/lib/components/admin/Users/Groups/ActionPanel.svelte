@@ -13,17 +13,9 @@
 	const i18n = getContext('i18n');
 	const dispatch = createEventDispatcher();
 
-	type Group = {
-		id: string;
-		name: string;
-		knowledgeBases: string[];
-		assistants: string[];
-		members: string[];
-	}
-
 	export let panelType: 'bases' | 'assistants' | 'members';
 	export let group: Group;
-	export let onSubmit: (group: Group) => void;
+	export let onSubmit: (group) => void;
 	// Obtener el título basado en el tipo de panel
 	const getPanelTitle = () => {
 		switch (panelType) {
@@ -51,16 +43,16 @@
 
 		if (type === 'bases') {
 			updatedGroup.knowledgeBases = ids.map(id => {
-				return $knowledge.find(base => base.id === id);
+				return $knowledge?.find(base => base.id === id);
 			});
 		} else if (type === 'assistants') {
 			updatedGroup.assistants = ids.map(id => {
-				return $models.find(model => model.id === id);
+				return $models?.find(model => model.id === id);
 			});
 		} else if (type === 'members') {
 			updatedGroup.user_ids = ids;
 			updatedGroup.members = ids.map(id => {
-				return $members.find(member => member.id === id);
+				return $members?.find(member => member.id === id);
 			});
 		}
 
@@ -72,7 +64,7 @@
 	}
 </script>
 
-<aside class="border-l border-slate-700 dark:bg-slate-950 flex flex-shrink-0 flex-col flex-1 p-lg gap-lg">
+<aside class="border-l border-slate-300 dark:border-slate-700 dark:bg-slate-950 flex flex-shrink-0 basis-1/3 flex-col flex-1 p-lg gap-lg">
 	<header class="self-stretch flex justify-between items-center">
 		<h1 class="text-subtitle text-black dark:text-white">{getPanelTitle()}</h1>
 		<Button buttonClasses="text-slate-500" variant="icon" icon={X} onClick={closePanel}/>

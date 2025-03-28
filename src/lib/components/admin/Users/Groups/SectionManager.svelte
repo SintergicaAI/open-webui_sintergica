@@ -53,7 +53,7 @@
 	{#if type === 'members' && items.length > 0}
 		<div class="self-stretch p-base rounded-md flex-col gap-sm bg-slate-200 dark:bg-slate-950 flex justify-center">
 			{#each selectedItems as member}
-				<article class="bg-slate-50 dark:bg-slate-800 border boder-slate-200 dark:border-slate-800 p-base rounded-sm flex items-center gap-sm">
+				<article class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 p-base rounded-sm flex items-center gap-sm">
 					<Avatar name={member.name}/>
 					{member.name}
 				</article>

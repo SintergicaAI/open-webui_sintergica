@@ -2,6 +2,7 @@
 <script lang="ts">
 	// Lógica para gestionar bases de conocimiento
 	import { createEventDispatcher, getContext } from 'svelte';
+	import Check from '$lib/components/common/Check/Check.svelte';
 
 	const i18n = getContext('i18n');
 	const dispatch = createEventDispatcher();
@@ -43,18 +44,7 @@
 	{:else}
 		<div class="space-y-2">
 			{#each allBases as base}
-				<div class="flex items-center p-2 border rounded">
-					<input
-						type="checkbox"
-						id="base-{base.id}"
-						checked={selectedBaseIds.has(base.id)}
-						on:change={() => toggleBase(base.id)}
-						class="mr-2"
-						aria-label={$i18n.t('Select knowledge base') + ': ' + base.name}
-
-					/>
-					<label for="base-{base.id}" class="flex-grow">{base.name}</label>
-				</div>
+				<Check checked={selectedBaseIds.has(base.id)} on:change={() => toggleBase(base.id)} pill={base.name} info={base.files.length + ' ' + $i18n.t('files')}/>
 			{/each}
 		</div>
 	{/if}

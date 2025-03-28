@@ -5,6 +5,7 @@
 	import Avatar from '$lib/components/common/Avatar.svelte';
 	import {Checkbox} from 'bits-ui';
 	import { CircleCheckBig, Square, SquareCheckBig } from 'lucide-svelte';
+	import Check from '$lib/components/common/Check/Check.svelte';
 
 
 	const i18n = getContext('i18n');
@@ -51,26 +52,8 @@
 	{:else}
 		<div class="space-y-2">
 			{#each allMembers as member}
-				<div class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 p-base rounded-sm flex items-center gap-sm">
-					<label for="member-{member.id}" class="flex items-center gap-2">
-						<Avatar name={member.name} />
-						<span>{member.name}</span>
-					</label>
-
-					<Checkbox.Root
-						id="member-{member.id}"
-						checked={selectedMemberIds.has(member.id)}
-						onCheckedChange={() => toggleMember(member.id)}
-						class="mr-2"
-					>
-						<Checkbox.Indicator let:isChecked>
-							{#if isChecked}
-								<SquareCheckBig size={20} class="text-brand-500"/>
-							{:else }
-								<Square size={20} class="text-slate-500" />
-							{/if}
-						</Checkbox.Indicator>
-					</Checkbox.Root>
+				<div class="">
+					<Check id="member-{member.id}" label={member.name} avatar={member.name} on:change={() => toggleMember(member.id)} checked={selectedMemberIds.has(member.id)} />
 				</div>
 
 

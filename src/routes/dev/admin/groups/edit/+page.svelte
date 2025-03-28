@@ -149,6 +149,7 @@
 	$: console.log('group fetched',group);
 </script>
 
+
 {#if group}
 	<GroupEditor edit={true} {group} {onSubmit}/>
 {/if}
