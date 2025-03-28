@@ -55,9 +55,6 @@
 				<div class="">
 					<Check id="member-{member.id}" label={member.name} avatar={member.name} on:change={() => toggleMember(member.id)} checked={selectedMemberIds.has(member.id)} />
 				</div>
-
-
-
 			{/each}
 		</div>
 	{/if}
