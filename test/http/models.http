@@ -1,0 +1,44 @@
+### Login Turing
+POST {{BASE_URL}}/api/v1/auths/signin
+Content-Type: application/json
+
+{
+    "email": "{{email}}",
+    "password": "{{password}}"
+}
+
+> {% client.global.set("auth_token", response.body.token); %}
+
+###
+GET http://localhost:8080/api/v1/auths
+Authorization: Bearer {{auth_token}}
+
+### Model colors can be updated
+GET {{BASE_URL}}/api/v1/models
+Authorization: Bearer {{auth_token}}
+
+> {% client.global.set("model", response.body[0])
+
+    client.test("Request executed successfully", function () {
+			client.assert(client.global.get("model").id === "new-model", "Model id are different");
+		});
+%}
+
+### Model colors can be updated
+GET {{BASE_URL}}/api/v1/models/model?id={{model.id}}
+Authorization: Bearer {{auth_token}}
+
+
+###
+< {%
+let model = client.global.get('model');
+
+ client.global.set('model_json',JSON.stringify(model))
+
+ %}
+POST {{BASE_URL}}/api/v1/models/model/update?id={{model.id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{{model_json}}
+
