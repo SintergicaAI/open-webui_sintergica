@@ -107,6 +107,13 @@
 		line-height: 120%;
 	}
 
+	.text-muted {
+		font-family: var(--font-archivo);
+		font-weight: 300;
+		font-size: 14px;
+		line-height: 114.285%;
+	}
+
 	.text-avatar {
 		font-family: var(--font-archivo);
 		font-size: 12px;
