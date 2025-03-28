@@ -1,39 +1,31 @@
 <script lang="ts">
 	import Swatch from '$lib/components/common/Swatch/Swatch.svelte';
-	import { onMount } from 'svelte';
-	import { getUserSettings, updateUserSettings } from '$lib/apis/users';
-	import { settings } from '$lib/stores';
-	type color = 'red' | 'orange' | 'yellow' | 'lime' | 'green' | 'sky' | 'blue' | 'purple' | 'pink';
-	export let key;
+	import { createEventDispatcher } from 'svelte';
+	import type { OnChangeFn } from 'bits-ui/dist/internal';
+	import {RadioGroup} from 'bits-ui';
+
+	type Color = 'red' | 'orange' | 'yellow' | 'lime' | 'green' | 'sky' | 'blue' | 'purple' | 'pink';
+
+	export let value: Color = ''
+	export let colors: Color[] = ['red', 'orange', 'yellow', 'lime', 'green', 'sky', 'blue', 'purple', 'pink']
 
 
-	let selectedColor = '';
+	const dispatch = createEventDispatcher<{
+		change: {color: Color}
+	}>();
 
-	async function handleSwatchClick(color: color) {
-		const response = await updateUserSettings(localStorage.token, { ui: { knowledgeColor: color } }).catch(err => console.log(err));
-		selectedColor = response.ui.knowledgeColor;
-		const updated = { knowledgeColor: color };
-		await settings.set({ ...$settings, ...updated });
+	function handleColorChange(color: OnChangeFn<Color>) {
+		dispatch('change', { color: color });
 	}
 
-	onMount(async () => {
-		try {
-			const response = await getUserSettings(localStorage.token).catch(err => console.log(err));
-			selectedColor = response.ui.knowledgeColor;
-			const updated = {knowledgeColor: response.ui.knowledgeColor};
-			await settings.set({ ...$settings, ...updated });
-		} catch (e) {
-			console.log(e);
-		}
-	})
 </script>
 
-<div class="flex flex-wrap gap-sm justify-end">
-	{#each ['red', 'orange', 'yellow', 'lime', 'green', 'sky', 'blue', 'purple', 'pink'] as color}
-		<Swatch
-			{color}
-			isSelected={selectedColor === color}
-			on:click={()=>handleSwatchClick(color)}
-		/>
+
+<RadioGroup.Root value={value}
+								 onValueChange={handleColorChange} class="flex flex-wrap gap-sm justify-end">
+	{#each colors as color}
+		<RadioGroup.Item value={color}>
+			<Swatch {color} isSelected={value === color}/>
+		</RadioGroup.Item>
 	{/each}
-</div>
+</RadioGroup.Root>

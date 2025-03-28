@@ -13,10 +13,8 @@
 	$: circleClass = `w-6 h-6 rounded-full border-2 ${safeColor}`;
 
 	$: safeColor = COLORS.includes(color) ? color : 'red';
-
-
 </script>
-<div class={`${containerClass}`} role="button" on:click>
+<div class={`${containerClass}`}>
 	<div class={circleClass}></div>
 </div>
 
